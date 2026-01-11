@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 
 ## Current Position
 
-Phase: 7 of 8 (Branding & Customization) — COMPLETE
-Plan: 07-03 complete
-Status: Phase 5 SKIPPED (billing deferred), Phases 6-7 COMPLETE
-Last activity: 2026-01-11 — Plan 07-03 complete (Share Page Customization)
+Phase: 8 of 8 (Landing Page & Polish) — IN PROGRESS
+Plan: 08-01 complete, starting 08-02
+Status: Phase 5 SKIPPED (billing deferred), Phases 6-7 COMPLETE, Phase 8 started
+Last activity: 2026-01-11 — Plan 08-01 complete (Marketing Landing Page)
 
-Progress: █████████░ 92%
+Progress: █████████░ 94%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03)
+- Total plans completed: 15 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03, 08-01)
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -33,9 +33,10 @@ Progress: █████████░ 92%
 | 4 | 5 | — | — |
 | 6 | 3 | — | — |
 | 7 | 3 | — | — |
+| 8 | 1 | — | — |
 
 **Recent Trend:**
-- Last 5 plans: 06-02, 06-03, 07-01, 07-02, 07-03
+- Last 5 plans: 06-03, 07-01, 07-02, 07-03, 08-01
 - Trend: —
 
 ## Accumulated Context
@@ -165,9 +166,28 @@ Technical notes:
 - Share pages use public.share_token_lookup for tenant identification
 - Share pages are server components with direct database queries
 
+## Phase 8 Deliverables
+
+In Progress:
+1. Marketing Landing Page (08-01) ✓
+
+Key files:
+- `app/page.tsx` - Complete landing page with hero, features, trust sections
+- `app/(marketing)/layout.tsx` - Marketing layout with header/footer
+- `app/(marketing)/page.tsx` - Marketing route group page
+
+Technical notes:
+- Glass UI styling consistent with app theme
+- Primary color #3B82F6 for CTAs
+- Route group for shared marketing header/footer
+- Feature cards: Bookings, Estimates, Invoices, Receipts, Telegram, Multi-Trade
+
+Commits:
+- 1f9c726: feat(landing): create marketing landing page with hero, features, trust
+
 ## Session Continuity
 
 Last session: 2026-01-11
-Completed: Plan 07-03 (Share Page Customization)
-Current: Phase 7 COMPLETE
-Next: Phase 8 (Landing Page & Polish)
+Completed: Plan 08-01 (Marketing Landing Page)
+Current: Phase 8 IN PROGRESS
+Next: Plan 08-02 (Pricing Page)
