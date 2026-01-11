@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 import { verifyToken } from '@/lib/auth';
 import { randomUUID } from 'crypto';
 
@@ -15,15 +15,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
     const { invoice_id } = await request.json();
 
     if (!invoice_id) {
       return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
     }
 
-    const client = await pool.connect();
-
-    try {
+    return await withTenantSchema(tenant, async (client) => {
       // Check if invoice exists
       const invoiceResult = await client.query(
         'SELECT id, share_token FROM invoices WHERE id = $1',
@@ -56,10 +60,7 @@ export async function POST(request: NextRequest) {
         share_token: shareToken,
         share_url: shareUrl
       });
-
-    } finally {
-      client.release();
-    }
+    });
 
   } catch (error) {
     console.error('Error generating share link:', error);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,12 @@ export async function POST(request: NextRequest) {
 
     if (token !== process.env.AUTOW_STAFF_TOKEN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const body = await request.json();
@@ -29,57 +35,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
     }
 
-    // Verify invoice exists
-    const invoiceCheck = await pool.query(
-      'SELECT id FROM invoices WHERE id = $1',
-      [invoice_id]
-    );
+    return await withTenantSchema(tenant, async (client) => {
+      // Verify invoice exists
+      const invoiceCheck = await client.query(
+        'SELECT id FROM invoices WHERE id = $1',
+        [invoice_id]
+      );
 
-    if (invoiceCheck.rows.length === 0) {
-      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
-    }
+      if (invoiceCheck.rows.length === 0) {
+        return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+      }
 
-    // Calculate total if not provided (parts + labour)
-    const calculatedTotal = total_amount || (
-      parseFloat(parts_amount) +
-      parseFloat(labour_amount)
-    );
+      // Calculate total if not provided (parts + labour)
+      const calculatedTotal = total_amount || (
+        parseFloat(parts_amount) +
+        parseFloat(labour_amount)
+      );
 
-    const result = await pool.query(
-      `INSERT INTO invoice_expenses (
-        invoice_id,
-        expense_date,
-        supplier,
-        reference_number,
-        description,
-        parts_amount,
-        labour_amount,
-        total_amount,
-        category,
-        raw_ocr_text,
-        confidence_score,
-        created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING *`,
-      [
-        invoice_id,
-        expense_date || null,
-        supplier || null,
-        reference_number || null,
-        description || null,
-        parseFloat(parts_amount) || 0,
-        parseFloat(labour_amount) || 0,
-        parseFloat(calculatedTotal) || 0,
-        category,
-        raw_ocr_text || null,
-        confidence_score || null,
-        'staff',
-      ]
-    );
+      const result = await client.query(
+        `INSERT INTO invoice_expenses (
+          invoice_id,
+          expense_date,
+          supplier,
+          reference_number,
+          description,
+          parts_amount,
+          labour_amount,
+          total_amount,
+          category,
+          raw_ocr_text,
+          confidence_score,
+          created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        RETURNING *`,
+        [
+          invoice_id,
+          expense_date || null,
+          supplier || null,
+          reference_number || null,
+          description || null,
+          parseFloat(parts_amount) || 0,
+          parseFloat(labour_amount) || 0,
+          parseFloat(calculatedTotal) || 0,
+          category,
+          raw_ocr_text || null,
+          confidence_score || null,
+          'staff',
+        ]
+      );
 
-    return NextResponse.json({
-      success: true,
-      expense: result.rows[0],
+      return NextResponse.json({
+        success: true,
+        expense: result.rows[0],
+      });
     });
 
   } catch (error: any) {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,6 +12,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const invoice_id = searchParams.get('invoice_id');
 
@@ -17,26 +25,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
     }
 
-    const result = await pool.query(
-      `SELECT * FROM invoice_expenses
-       WHERE invoice_id = $1
-       ORDER BY expense_date DESC, created_at DESC`,
-      [invoice_id]
-    );
+    return await withTenantSchema(tenant, async (client) => {
+      const result = await client.query(
+        `SELECT * FROM invoice_expenses
+         WHERE invoice_id = $1
+         ORDER BY expense_date DESC, created_at DESC`,
+        [invoice_id]
+      );
 
-    // Calculate totals (Parts + Labour only)
-    const totals = result.rows.reduce((acc, expense) => {
-      acc.parts += parseFloat(expense.parts_amount) || 0;
-      acc.labour += parseFloat(expense.labour_amount) || 0;
-      acc.total += parseFloat(expense.total_amount) || 0;
-      return acc;
-    }, { parts: 0, labour: 0, total: 0 });
+      // Calculate totals (Parts + Labour only)
+      const totals = result.rows.reduce((acc, expense) => {
+        acc.parts += parseFloat(expense.parts_amount) || 0;
+        acc.labour += parseFloat(expense.labour_amount) || 0;
+        acc.total += parseFloat(expense.total_amount) || 0;
+        return acc;
+      }, { parts: 0, labour: 0, total: 0 });
 
-    return NextResponse.json({
-      success: true,
-      expenses: result.rows,
-      totals,
-      count: result.rows.length,
+      return NextResponse.json({
+        success: true,
+        expenses: result.rows,
+        totals,
+        count: result.rows.length,
+      });
     });
 
   } catch (error: any) {
