@@ -81,6 +81,31 @@ A multi-tenant SaaS platform that productizes the AUTOW booking system for trade
 
 ## Context
 
+### CRITICAL: Adapt, Don't Rebuild
+
+This project is NOT built from scratch. We are:
+1. **Backing up** autow-booking as the codebase foundation
+2. **Backing up** autow-parts-bot landing/signup system as template
+3. **Adapting** existing working code for multi-tenancy
+4. **Preserving** all unique features that make the system valuable
+
+### Key Differentiating Features (MUST PRESERVE)
+
+| Feature | Flow | Why It's Special |
+|---------|------|------------------|
+| **Booking → Estimate** | Click convert → all data transfers | No re-entering customer/vehicle/job info |
+| **Estimate → Invoice** | Click convert → all data transfers | Seamless quote-to-bill workflow |
+| **Share Links + Telegram** | Generate link → customer opens → instant notification | Real-time awareness when customer views document |
+| **OCR Receipt Import** | Photo → AI parse → Google Drive | Snap receipt, auto-extract supplier/amount/date |
+| **Smart Jotter → Booking** | Handwritten note → AI OCR → structured booking | Field notes become real bookings instantly |
+
+### Cloud Storage Strategy (Multi-Tenant)
+
+**Decision needed:**
+- **Supabase Storage** (Recommended) - Built-in, per-tenant buckets, no extra credentials
+- **Shared Google Drive** - Tenant folders, simpler but shared service account
+- **Tenant's own Google Drive** - Most isolated, requires each tenant to connect
+
 **Source Projects:**
 - `D:\Projects-AI\autow-booking` - Full booking/invoicing system (Next.js 14, PostgreSQL)
 - `D:\Projects-AI\AUTOW-ONLINE\autow-parts-bot` - Landing page + signup flow (n8n workflows)
