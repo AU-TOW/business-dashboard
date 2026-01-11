@@ -20,7 +20,7 @@ None (general web SaaS patterns)
 - [x] **Phase 4: Core Features (Tenant-Aware)** - Adapt bookings, estimates, invoices for multi-tenancy
 - [~] **Phase 5: Subscription & Billing** - SKIPPED (billing deferred to post-launch)
 - [x] **Phase 6: Extended Features** - Receipts, Smart Jotter, Notes, Assessments
-- [ ] **Phase 7: Branding & Customization** - Logo, settings, trade terminology, tiered branding
+- [x] **Phase 7: Branding & Customization** - Logo, settings, trade terminology, tiered branding
 - [ ] **Phase 8: Landing Page & Polish** - Marketing site, share links, final touches
 
 ## Phase Details
@@ -161,5 +161,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Core Features (Tenant-Aware) | 5/5 | Complete | 2026-01-11 |
 | 5. Subscription & Billing | 0/TBD | Skipped | - |
 | 6. Extended Features | 3/3 | Complete | 2026-01-11 |
-| 7. Branding & Customization | 2/3 | In Progress | - |
+| 7. Branding & Customization | 3/3 | Complete | 2026-01-11 |
 | 8. Landing Page & Polish | 0/TBD | Not started | - |

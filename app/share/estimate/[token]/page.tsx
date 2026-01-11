@@ -2,10 +2,67 @@ import pool from '@/lib/db';
 import { Estimate } from '@/lib/types';
 import PrintButton from './PrintButton';
 
+interface TenantBranding {
+  businessName: string;
+  logoUrl: string | null;
+  primaryColor: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  postcode: string | null;
+  bankName: string | null;
+  bankAccountName: string | null;
+  bankSortCode: string | null;
+  bankAccountNumber: string | null;
+  subscriptionTier: string;
+}
+
 async function getEstimateData(token: string) {
   const client = await pool.connect();
 
   try {
+    // First, look up the tenant from the share token
+    const lookupResult = await client.query(
+      `SELECT tenant_slug, tenant_schema FROM public.share_token_lookup WHERE share_token = $1`,
+      [token]
+    );
+
+    let schemaName = 'public';
+    let tenantBranding: TenantBranding | null = null;
+
+    if (lookupResult.rows.length > 0) {
+      // Multi-tenant: use tenant schema
+      schemaName = lookupResult.rows[0].tenant_schema;
+      const tenantSlug = lookupResult.rows[0].tenant_slug;
+
+      // Get tenant branding
+      const tenantResult = await client.query(
+        `SELECT business_name, logo_url, primary_color, email, phone, address, postcode,
+                bank_name, bank_account_name, bank_sort_code, bank_account_number, subscription_tier
+         FROM public.tenants WHERE slug = $1`,
+        [tenantSlug]
+      );
+
+      if (tenantResult.rows.length > 0) {
+        const t = tenantResult.rows[0];
+        tenantBranding = {
+          businessName: t.business_name,
+          logoUrl: t.logo_url,
+          primaryColor: t.primary_color || '#3B82F6',
+          email: t.email,
+          phone: t.phone,
+          address: t.address,
+          postcode: t.postcode,
+          bankName: t.bank_name,
+          bankAccountName: t.bank_account_name,
+          bankSortCode: t.bank_sort_code,
+          bankAccountNumber: t.bank_account_number,
+          subscriptionTier: t.subscription_tier,
+        };
+      }
+    }
+
+    // Query estimate from the appropriate schema
     const result = await client.query(
       `SELECT e.*,
         json_agg(
@@ -19,33 +76,40 @@ async function getEstimateData(token: string) {
             'sort_order', li.sort_order
           ) ORDER BY li.sort_order
         ) FILTER (WHERE li.id IS NOT NULL) as line_items
-       FROM estimates e
-       LEFT JOIN line_items li ON li.document_type = 'estimate' AND li.document_id = e.id
+       FROM ${schemaName}.estimates e
+       LEFT JOIN ${schemaName}.line_items li ON li.document_type = 'estimate' AND li.document_id = e.id
        WHERE e.share_token = $1
        GROUP BY e.id`,
       [token]
     );
 
     if (result.rows.length === 0) {
-      return { estimate: null, businessSettings: null };
+      return { estimate: null, tenantBranding: null };
     }
 
     const estimate = result.rows[0];
 
-    let businessSettings = null;
-    try {
-      const settingsResult = await client.query(
-        'SELECT * FROM business_settings LIMIT 1'
-      );
-      businessSettings = settingsResult.rows[0] || null;
-    } catch (settingsError) {
-      console.error('Business settings query failed:', settingsError);
+    // If no tenant branding found, try legacy business_settings
+    if (!tenantBranding) {
+      try {
+        const settingsResult = await client.query(
+          `SELECT * FROM ${schemaName}.business_settings LIMIT 1`
+        );
+        // No tenant branding, will use defaults in component
+      } catch (settingsError) {
+        console.error('Business settings query failed:', settingsError);
+      }
     }
 
-    return { estimate, businessSettings };
+    return { estimate, tenantBranding };
   } finally {
     client.release();
   }
+}
+
+// Helper to determine if color customization is enabled for tier
+function canCustomizeColor(tier: string): boolean {
+  return ['trial', 'business', 'enterprise'].includes(tier);
 }
 
 export default async function SharedEstimatePage({
@@ -54,7 +118,7 @@ export default async function SharedEstimatePage({
   params: { token: string };
 }) {
   const { token } = params;
-  const { estimate, businessSettings } = await getEstimateData(token);
+  const { estimate, tenantBranding } = await getEstimateData(token);
 
   if (!estimate) {
     return (
@@ -88,15 +152,26 @@ export default async function SharedEstimatePage({
     }
   });
 
-  const settings = businessSettings || {
-    business_name: 'AUTOW Services',
-    email: 'info@autow-services.co.uk',
-    address: 'Alverton, Penzance, TR18 4QB',
-    workshop_location: 'WORKSHOP LOCATION PENZANCE',
-    phone: '07352968276',
-    website: 'https://www.autow-services.co.uk',
-    owner: 'Business owner name'
+  // Use tenant branding or defaults
+  const branding = tenantBranding || {
+    businessName: 'Business Dashboard',
+    logoUrl: null,
+    primaryColor: '#3B82F6',
+    email: null,
+    phone: null,
+    address: null,
+    postcode: null,
+    bankName: null,
+    bankAccountName: null,
+    bankSortCode: null,
+    bankAccountNumber: null,
+    subscriptionTier: 'trial',
   };
+
+  // Apply primary color only for Business+ tiers (or trial)
+  const accentColor = canCustomizeColor(branding.subscriptionTier)
+    ? branding.primaryColor
+    : '#3B82F6';
 
   return (
     <div style={styles.container} className="estimate-container">
@@ -108,20 +183,26 @@ export default async function SharedEstimatePage({
       {/* Document */}
       <div style={styles.document} className="estimate-document">
         {/* Header */}
-        <div style={styles.docHeader} className="doc-header">
+        <div style={{ ...styles.docHeader, borderBottomColor: accentColor }} className="doc-header">
           <div>
-            <h1 style={styles.docTitle}>ESTIMATE</h1>
+            <h1 style={{ ...styles.docTitle, color: accentColor }}>ESTIMATE</h1>
             {estimate.estimate_number && (
-              <p style={styles.docNumber}>#{estimate.estimate_number}</p>
+              <p style={{ ...styles.docNumber, color: accentColor }}>#{estimate.estimate_number}</p>
             )}
             <p style={styles.docDate}>Date: {new Date(estimate.estimate_date).toLocaleDateString('en-GB')}</p>
           </div>
           <div style={{ textAlign: 'right' as const }}>
-            <img
-              src="/latest2.png"
-              alt="AUTOW"
-              style={styles.logo}
-            />
+            {branding.logoUrl ? (
+              <img
+                src={branding.logoUrl}
+                alt={branding.businessName}
+                style={styles.logo}
+              />
+            ) : (
+              <div style={{ ...styles.logoPlaceholder, borderColor: accentColor, color: accentColor }}>
+                {branding.businessName.charAt(0)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -129,12 +210,11 @@ export default async function SharedEstimatePage({
         <div style={styles.parties} className="parties">
           <div style={styles.party}>
             <h3 style={styles.partyTitle}>From</h3>
-            <p style={styles.businessName}>{settings.business_name}</p>
-            <p style={styles.partyText}>Email: {settings.email}</p>
-            <p style={styles.partyText}>Address: {settings.address}</p>
-            {settings.workshop_location && <p style={styles.partyText}>{settings.workshop_location}</p>}
-            <p style={styles.partyText}>Phone: {settings.phone}</p>
-            <p style={styles.partyText}>Website: {settings.website}</p>
+            <p style={styles.businessName}>{branding.businessName}</p>
+            {branding.email && <p style={styles.partyText}>Email: {branding.email}</p>}
+            {branding.address && <p style={styles.partyText}>Address: {branding.address}</p>}
+            {branding.postcode && <p style={styles.partyText}>{branding.postcode}</p>}
+            {branding.phone && <p style={styles.partyText}>Phone: {branding.phone}</p>}
           </div>
 
           <div style={styles.party}>
@@ -159,10 +239,10 @@ export default async function SharedEstimatePage({
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={{ ...styles.th, textAlign: 'left' as const }} className="desc-col">DESCRIPTION</th>
-                <th style={styles.th} className="rate-col">RATE</th>
-                <th style={styles.th} className="qty-col">QTY</th>
-                <th style={{ ...styles.th, textAlign: 'right' as const }} className="amount-col">AMOUNT</th>
+                <th style={{ ...styles.th, textAlign: 'left' as const, borderBottomColor: accentColor }} className="desc-col">DESCRIPTION</th>
+                <th style={{ ...styles.th, borderBottomColor: accentColor }} className="rate-col">RATE</th>
+                <th style={{ ...styles.th, borderBottomColor: accentColor }} className="qty-col">QTY</th>
+                <th style={{ ...styles.th, textAlign: 'right' as const, borderBottomColor: accentColor }} className="amount-col">AMOUNT</th>
               </tr>
             </thead>
             <tbody>
@@ -230,7 +310,7 @@ export default async function SharedEstimatePage({
               <span>VAT ({estimate.vat_rate}%)</span>
               <span>£{parseFloat(estimate.vat_amount.toString()).toFixed(2)}</span>
             </div>
-            <div style={{ ...styles.totalRow, ...styles.grandTotal }}>
+            <div style={{ ...styles.totalRow, ...styles.grandTotal, borderTopColor: accentColor, color: accentColor }}>
               <span>Total</span>
               <span>£{parseFloat(estimate.total.toString()).toFixed(2)}</span>
             </div>
@@ -245,6 +325,19 @@ export default async function SharedEstimatePage({
           </div>
         )}
 
+        {/* Bank Details (if available) */}
+        {branding.bankName && branding.bankAccountNumber && (
+          <div style={styles.bankSection} className="bank-section">
+            <h3 style={styles.bankTitle}>Payment Details</h3>
+            <div style={styles.bankDetails}>
+              <p><strong>Bank:</strong> {branding.bankName}</p>
+              <p><strong>Account Name:</strong> {branding.bankAccountName}</p>
+              <p><strong>Sort Code:</strong> {branding.bankSortCode}</p>
+              <p><strong>Account Number:</strong> {branding.bankAccountNumber}</p>
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         <div style={styles.footer} className="footer">
           <p>Thank you for your business!</p>
@@ -253,9 +346,9 @@ export default async function SharedEstimatePage({
           </p>
           <div style={styles.disclaimer} className="disclaimer">
             <p style={styles.disclaimerText}>
-              AUTOW Services provides mobile mechanics and recovery services.
-              Parts are subject to manufacturer warranty. Payment terms: Parts and/or vehicle collection/recovery required upfront,
-              labour on completion. Unpaid invoices may incur late payment fees. By accepting this estimate, you agree to these terms.
+              {branding.businessName} - Professional Services.
+              Parts are subject to manufacturer warranty. Payment terms: Parts upfront, labour on completion.
+              By accepting this estimate, you agree to these terms.
             </p>
           </div>
         </div>
@@ -272,7 +365,6 @@ export default async function SharedEstimatePage({
         }
 
         @media (max-width: 900px) {
-          /* Document responsive */
           .estimate-document {
             padding: 30px 15px !important;
           }
@@ -312,7 +404,6 @@ export default async function SharedEstimatePage({
           }
         }
 
-        /* Small mobile (480px and below) */
         @media (max-width: 480px) {
           .estimate-document {
             padding: 20px 12px !important;
@@ -401,7 +492,6 @@ export default async function SharedEstimatePage({
           }
         }
 
-        /* Extra small mobile (360px and below) */
         @media (max-width: 360px) {
           .estimate-document {
             padding: 15px 10px !important;
@@ -439,7 +529,6 @@ export default async function SharedEstimatePage({
           }
         }
 
-        /* iOS Safari specific fixes */
         @supports (-webkit-touch-callout: none) {
           .estimate-document {
             -webkit-text-size-adjust: 100%;
@@ -480,17 +569,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'space-between',
     marginBottom: '40px',
     paddingBottom: '20px',
-    borderBottom: '3px solid #30ff37',
+    borderBottom: '3px solid #3B82F6',
   },
   docTitle: {
     fontSize: '36px',
     fontWeight: '700' as const,
-    color: '#30ff37',
+    color: '#3B82F6',
     margin: '0 0 10px 0',
   },
   docNumber: {
     fontSize: '18px',
-    color: '#30ff37',
+    color: '#3B82F6',
     margin: '5px 0',
     fontFamily: 'monospace',
   },
@@ -502,6 +591,20 @@ const styles: { [key: string]: React.CSSProperties } = {
   logo: {
     width: '150px',
     height: 'auto',
+    maxHeight: '80px',
+    objectFit: 'contain' as const,
+  },
+  logoPlaceholder: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '12px',
+    border: '2px solid #3B82F6',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '36px',
+    fontWeight: '700' as const,
+    color: '#3B82F6',
   },
   parties: {
     display: 'grid',
@@ -551,7 +654,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   th: {
     padding: '12px',
-    borderBottom: '2px solid #30ff37',
+    borderBottom: '2px solid #3B82F6',
     fontSize: '12px',
     fontWeight: '700' as const,
     textTransform: 'uppercase' as const,
@@ -612,9 +715,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '20px',
     fontWeight: '700' as const,
     paddingTop: '15px',
-    borderTop: '2px solid #30ff37',
+    borderTop: '2px solid #3B82F6',
     marginTop: '10px',
-    color: '#30ff37',
+    color: '#3B82F6',
   },
   notesSection: {
     background: '#f8f8f8',
@@ -637,6 +740,25 @@ const styles: { [key: string]: React.CSSProperties } = {
     whiteSpace: 'pre-wrap' as const,
     margin: '0',
     color: '#444',
+  },
+  bankSection: {
+    background: '#f0f7ff',
+    padding: '15px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    border: '1px solid #bfdbfe',
+  },
+  bankTitle: {
+    fontSize: '12px',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+    color: '#1e40af',
+    marginBottom: '10px',
+    margin: '0 0 10px 0',
+  },
+  bankDetails: {
+    fontSize: '12px',
+    color: '#1e3a5f',
   },
   footer: {
     textAlign: 'center' as const,
