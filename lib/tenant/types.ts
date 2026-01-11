@@ -41,6 +41,7 @@ export interface TenantContext {
   tradeType: TradeType;
   subscriptionTier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus;
+  trialEndsAt?: Date;
   partsLabel: string;
   showVehicleFields: boolean;
   primaryColor: string;

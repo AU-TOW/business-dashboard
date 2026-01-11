@@ -81,7 +81,7 @@ export default function VerifyPage() {
 
     // Set up auth state listener
     const supabase = getSupabaseClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: any) => {
       if (event === 'SIGNED_IN' && session) {
         const tenant = searchParams.get('tenant');
         setStatus('success');

@@ -23,6 +23,7 @@ export function tenantToContext(tenant: Tenant): TenantContext {
     tradeType: tenant.tradeType,
     subscriptionTier: tenant.subscriptionTier,
     subscriptionStatus: tenant.subscriptionStatus,
+    trialEndsAt: tenant.trialEndsAt,
     partsLabel: tenant.partsLabel,
     showVehicleFields: tenant.showVehicleFields,
     primaryColor: tenant.primaryColor,

@@ -3,19 +3,24 @@ import { createClient } from '@supabase/supabase-js';
 import { createTenant, isSlugAvailable, generateSlug } from '@/lib/tenant/provisioning';
 import { TradeType, TRADE_DEFAULTS } from '@/lib/tenant/types';
 
-// Use service role for admin operations
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+/**
+ * Get Supabase admin client (lazy initialization for Next.js build compatibility)
+ */
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+}
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const body = await request.json();
     const { email, businessName, tradeType, phone, slug: providedSlug } = body;

@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('supabase')
-    ? { rejectUnauthorized: false }
-    : undefined
-});
+/**
+ * Get database pool (lazy initialization for Next.js build compatibility)
+ */
+function getPool() {
+  return new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL?.includes('supabase')
+      ? { rejectUnauthorized: false }
+      : undefined
+  });
+}
 
 export async function POST(request: NextRequest) {
+  const pool = getPool();
   try {
     const { userId, tenantSlug } = await request.json();
 
