@@ -14,7 +14,7 @@ None (general web SaaS patterns)
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation & Backup** - Backup source projects, set up business-dashboard structure
+- [x] **Phase 1: Foundation & Backup** - Backup source projects, set up business-dashboard structure
 - [ ] **Phase 2: Multi-Tenancy Architecture** - Schema-per-tenant database, tenant identification
 - [ ] **Phase 3: Authentication & Onboarding** - Magic link auth, signup flow, trade selection
 - [ ] **Phase 4: Core Features (Tenant-Aware)** - Adapt bookings, estimates, invoices for multi-tenancy
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Backup | 0/TBD | Not started | - |
+| 1. Foundation & Backup | 1/1 | Complete | 2026-01-11 |
 | 2. Multi-Tenancy Architecture | 0/TBD | Not started | - |
 | 3. Authentication & Onboarding | 0/TBD | Not started | - |
 | 4. Core Features (Tenant-Aware) | 0/TBD | Not started | - |
