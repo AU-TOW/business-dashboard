@@ -152,7 +152,9 @@ This project is NOT built from scratch. We are:
 | Stripe for payments | Industry standard, may switch to Tide later | - Pending |
 | All features in v1 | Ambitious but provides complete solution from launch | - Pending |
 | Vercel deployment (testing) | Use existing Vercel account for dev/testing, revisit for production scale | - Pending |
-| Subdomain: business-dashboard.autow-services.co.uk | Separate from booking.autow-services.co.uk, clear branding | - Pending |
+| Subdomain: business-dashboard.autow-services.co.uk | Separate from booking.autow-services.co.uk, clear branding | Live |
+| Light theme only (no dark mode) | Clean, professional appearance for business users | - Pending |
+| Glass UI design | Ultra modern glassmorphism with light blue backgrounds, futuristic aesthetic | - Pending |
 
 ---
-*Last updated: 2026-01-11 — added deployment decisions*
+*Last updated: 2026-01-11 — added UI design requirements*
