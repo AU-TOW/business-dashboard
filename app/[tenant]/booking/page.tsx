@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { shouldShowVehicleFields, TradeType } from '@/lib/features';
 
 export default function BookingPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
+  const trade = (tenant.tradeType || 'general') as TradeType;
+  const showVehicle = shouldShowVehicleFields(trade);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [bookedBy, setBookedBy] = useState('');
@@ -55,7 +61,7 @@ export default function BookingPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
     } else {
       setLoading(false);
       const username = localStorage.getItem('autow_username') || 'Staff';
@@ -94,7 +100,8 @@ export default function BookingPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
+          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({
           ...formData,
@@ -107,7 +114,7 @@ export default function BookingPage() {
       if (response.ok) {
         setSuccessMessage('✓ Booking confirmed!');
         setTimeout(() => {
-          router.push('/autow/dashboard');
+          router.push(paths.dashboard);
         }, 1500);
       } else {
         alert(data.error || 'Failed to create booking');
@@ -252,46 +259,50 @@ export default function BookingPage() {
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Vehicle Registration *</label>
-            <input
-              type="text"
-              name="vehicle_reg"
-              value={formData.vehicle_reg}
-              onChange={handleChange}
-              required
-              placeholder="AB12 CDE"
-              style={{ ...styles.input, textTransform: 'uppercase' }}
-            />
-          </div>
+          {showVehicle && (
+            <>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Vehicle Registration *</label>
+                <input
+                  type="text"
+                  name="vehicle_reg"
+                  value={formData.vehicle_reg}
+                  onChange={handleChange}
+                  required
+                  placeholder="AB12 CDE"
+                  style={{ ...styles.input, textTransform: 'uppercase' }}
+                />
+              </div>
 
-          <div style={styles.formRow} className="form-row">
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Vehicle Make *</label>
-              <input
-                type="text"
-                name="vehicle_make"
-                value={formData.vehicle_make}
-                onChange={handleChange}
-                required
-                placeholder="Ford"
-                style={styles.input}
-              />
-            </div>
+              <div style={styles.formRow} className="form-row">
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Vehicle Make *</label>
+                  <input
+                    type="text"
+                    name="vehicle_make"
+                    value={formData.vehicle_make}
+                    onChange={handleChange}
+                    required
+                    placeholder="Ford"
+                    style={styles.input}
+                  />
+                </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Vehicle Model *</label>
-              <input
-                type="text"
-                name="vehicle_model"
-                value={formData.vehicle_model}
-                onChange={handleChange}
-                required
-                placeholder="Focus"
-                style={styles.input}
-              />
-            </div>
-          </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Vehicle Model *</label>
+                  <input
+                    type="text"
+                    name="vehicle_model"
+                    value={formData.vehicle_model}
+                    onChange={handleChange}
+                    required
+                    placeholder="Focus"
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div style={styles.formGroup}>
             <label style={styles.label}>Location/Address *</label>
@@ -357,7 +368,7 @@ export default function BookingPage() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/autow/welcome')}
+              onClick={() => router.push(paths.welcome)}
               style={styles.btnCancel}
             >
               ❌ Cancel

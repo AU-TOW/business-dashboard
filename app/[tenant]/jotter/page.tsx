@@ -4,9 +4,12 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import SmartJotter from '@/components/smart-jotter/SmartJotter';
 import { ParsedBookingData } from '@/types/smart-jotter';
+import { useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 
 export default function SmartJotterPage() {
   const router = useRouter();
+  const paths = useTenantPath();
+  const branding = useBranding();
 
   const handleBookingCreate = async (data: ParsedBookingData) => {
     try {
@@ -29,22 +32,24 @@ export default function SmartJotterPage() {
       {/* Header */}
       <div style={styles.header} className="jotter-header">
         <div style={styles.headerLeft} className="header-left">
-          <img
-            src="https://autow-services.co.uk/logo.png"
-            alt="AUTOW"
-            style={styles.logo}
-            className="jotter-logo"
-          />
+          {branding.logoUrl && (
+            <img
+              src={branding.logoUrl}
+              alt={branding.businessName}
+              style={styles.logo}
+              className="jotter-logo"
+            />
+          )}
           <div style={styles.headerText}>
             <h1 style={styles.title} className="jotter-title">Smart Jotter</h1>
             <p style={styles.subtitle} className="jotter-subtitle">Convert handwritten notes or typed text into booking data</p>
           </div>
         </div>
         <div style={styles.headerButtons}>
-          <button onClick={() => router.push('/autow/welcome')} style={styles.backBtn}>
+          <button onClick={() => router.push(paths.welcome)} style={styles.backBtn}>
             ← Menu
           </button>
-          <button onClick={() => router.push('/autow/dashboard')} style={styles.dashboardBtn}>
+          <button onClick={() => router.push(paths.dashboard)} style={styles.dashboardBtn}>
             Dashboard
           </button>
         </div>

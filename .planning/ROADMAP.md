@@ -17,9 +17,9 @@ None (general web SaaS patterns)
 - [x] **Phase 1: Foundation & Backup** - Backup source projects, set up business-dashboard structure
 - [x] **Phase 2: Multi-Tenancy Architecture** - Schema-per-tenant database, tenant identification
 - [x] **Phase 3: Authentication & Onboarding** - Magic link auth, signup flow, trade selection
-- [ ] **Phase 4: Core Features (Tenant-Aware)** - Adapt bookings, estimates, invoices for multi-tenancy
-- [ ] **Phase 5: Subscription & Billing** - Stripe integration, tier management, feature gating
-- [ ] **Phase 6: Extended Features** - Receipts, Smart Jotter, Notes, Assessments
+- [x] **Phase 4: Core Features (Tenant-Aware)** - Adapt bookings, estimates, invoices for multi-tenancy
+- [~] **Phase 5: Subscription & Billing** - SKIPPED (billing deferred to post-launch)
+- [x] **Phase 6: Extended Features** - Receipts, Smart Jotter, Notes, Assessments
 - [ ] **Phase 7: Branding & Customization** - Logo, settings, trade terminology, tiered branding
 - [ ] **Phase 8: Landing Page & Polish** - Marketing site, share links, final touches
 
@@ -158,7 +158,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 1. Foundation & Backup | 1/1 | Complete | 2026-01-11 |
 | 2. Multi-Tenancy Architecture | 1/1 | Complete | 2026-01-11 |
 | 3. Authentication & Onboarding | 1/1 | Complete | 2026-01-11 |
-| 4. Core Features (Tenant-Aware) | 0/TBD | Not started | - |
+| 4. Core Features (Tenant-Aware) | 5/5 | Complete | 2026-01-11 |
 | 5. Subscription & Billing | 0/TBD | Not started | - |
 | 6. Extended Features | 0/TBD | Not started | - |
 | 7. Branding & Customization | 0/TBD | Not started | - |

@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTenant, useTenantPath, useBranding, useHasFeature } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
+import { canAccessFeature, getUpgradeTierForFeature, getTierDisplayName, SubscriptionTier, TradeType } from '@/lib/features';
 
 export default function WelcomePage() {
   const router = useRouter();
   const tenant = useTenant();
   const paths = useTenantPath();
   const branding = useBranding();
-  const hasReceipts = useHasFeature('receipts');
-  const hasDamageAssessments = useHasFeature('damage_assessments');
+
+  // Get subscription tier and trade type from tenant context
+  const tier = (tenant.subscriptionTier || 'trial') as SubscriptionTier;
+  const trade = (tenant.tradeType || 'general') as TradeType;
+
+  // Check feature access
+  const hasReceipts = canAccessFeature('receipts', tier, trade);
+  const hasDamageAssessments = canAccessFeature('damageAssessments', tier, trade);
+  const hasSmartJotter = canAccessFeature('smartJotter', tier, trade);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,35 +97,65 @@ export default function WelcomePage() {
             <p style={styles.optionDescription}>Create and manage invoices</p>
           </button>
 
-          {hasDamageAssessments && (
+          {/* Damage Assessments - only for car_mechanic trade */}
+          {trade === 'car_mechanic' && (
+            hasDamageAssessments ? (
+              <button
+                onClick={() => router.push(paths.damageAssessments)}
+                style={styles.optionCard}
+              >
+                <div style={styles.optionIcon}>🚗</div>
+                <h2 style={styles.optionTitle}>Damage Assessments</h2>
+                <p style={styles.optionDescription}>Document vehicle damage</p>
+              </button>
+            ) : (
+              <button
+                style={styles.lockedCard}
+                disabled
+              >
+                <div style={styles.upgradeBadge}>Upgrade to {getTierDisplayName(getUpgradeTierForFeature('damageAssessments') || 'pro')}</div>
+                <div style={styles.optionIcon}>🚗</div>
+                <h2 style={styles.optionTitle}>Damage Assessments</h2>
+                <p style={styles.optionDescription}>Document vehicle damage</p>
+              </button>
+            )
+          )}
+
+          {/* Smart Jotter */}
+          {hasSmartJotter ? (
             <button
-              onClick={() => router.push(paths.damageAssessments)}
-              style={styles.optionCard}
+              onClick={() => router.push(paths.jotter)}
+              style={{...styles.optionCard, borderColor: 'rgba(156, 39, 176, 0.4)'}}
             >
-              <div style={styles.optionIcon}>🚗</div>
-              <h2 style={styles.optionTitle}>Damage Assessments</h2>
-              <p style={styles.optionDescription}>Document vehicle damage</p>
+              <div style={styles.optionIcon}>✍️</div>
+              <h2 style={styles.optionTitle}>Smart Jotter</h2>
+              <p style={styles.optionDescription}>Handwriting to booking data</p>
+            </button>
+          ) : (
+            <button
+              style={styles.lockedCard}
+              disabled
+            >
+              <div style={styles.upgradeBadge}>Upgrade to {getTierDisplayName(getUpgradeTierForFeature('smartJotter') || 'starter')}</div>
+              <div style={styles.optionIcon}>✍️</div>
+              <h2 style={styles.optionTitle}>Smart Jotter</h2>
+              <p style={styles.optionDescription}>Handwriting to booking data</p>
             </button>
           )}
 
-          <button
-            onClick={() => router.push(paths.jotter)}
-            style={{...styles.optionCard, borderColor: 'rgba(156, 39, 176, 0.4)'}}
-          >
-            <div style={styles.optionIcon}>✍️</div>
-            <h2 style={styles.optionTitle}>Smart Jotter</h2>
-            <p style={styles.optionDescription}>Handwriting to booking data</p>
-          </button>
+          {/* Jotter Notes - always available if Smart Jotter is */}
+          {hasSmartJotter && (
+            <button
+              onClick={() => router.push(paths.notes)}
+              style={{...styles.optionCard, borderColor: 'rgba(156, 39, 176, 0.4)'}}
+            >
+              <div style={styles.optionIcon}>📝</div>
+              <h2 style={styles.optionTitle}>Jotter Notes</h2>
+              <p style={styles.optionDescription}>View and manage saved notes</p>
+            </button>
+          )}
 
-          <button
-            onClick={() => router.push(paths.notes)}
-            style={{...styles.optionCard, borderColor: 'rgba(156, 39, 176, 0.4)'}}
-          >
-            <div style={styles.optionIcon}>📝</div>
-            <h2 style={styles.optionTitle}>Jotter Notes</h2>
-            <p style={styles.optionDescription}>View and manage saved notes</p>
-          </button>
-
+          {/* Receipts */}
           {hasReceipts ? (
             <button
               onClick={() => router.push(paths.receipts)}
@@ -128,12 +167,13 @@ export default function WelcomePage() {
             </button>
           ) : (
             <button
-              style={{...styles.optionCard, borderColor: 'rgba(128, 128, 128, 0.2)', opacity: 0.5, cursor: 'not-allowed'}}
+              style={styles.lockedCard}
               disabled
             >
+              <div style={styles.upgradeBadge}>Upgrade to {getTierDisplayName(getUpgradeTierForFeature('receipts') || 'business')}</div>
               <div style={styles.optionIcon}>🧾</div>
               <h2 style={styles.optionTitle}>Receipts</h2>
-              <p style={styles.optionDescription}>Upgrade to Business tier</p>
+              <p style={styles.optionDescription}>Upload and manage receipts</p>
             </button>
           )}
         </div>
@@ -212,6 +252,29 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
     transition: 'all 0.3s',
     boxShadow: '0 4px 16px rgba(59, 130, 246, 0.08)',
+  },
+  lockedCard: {
+    background: 'rgba(200, 200, 200, 0.3)',
+    backdropFilter: 'blur(10px)',
+    border: '2px dashed rgba(128, 128, 128, 0.3)',
+    borderRadius: '20px',
+    padding: '40px 10px',
+    textAlign: 'center' as const,
+    cursor: 'not-allowed',
+    opacity: 0.6,
+    position: 'relative' as const,
+  },
+  upgradeBadge: {
+    position: 'absolute' as const,
+    top: '10px',
+    right: '10px',
+    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: 'bold' as const,
+    padding: '4px 10px',
+    borderRadius: '12px',
+    textTransform: 'uppercase' as const,
   },
   optionIcon: {
     fontSize: '64px',

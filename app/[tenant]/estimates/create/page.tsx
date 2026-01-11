@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LineItem } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { getPartsLabel, shouldShowVehicleFields, TradeType } from '@/lib/features';
 
 interface FormData {
   estimate_number: string;
@@ -22,6 +24,10 @@ interface FormData {
 export default function CreateEstimatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
+  const trade = (tenant.tradeType || 'general') as TradeType;
+  const showVehicle = shouldShowVehicleFields(trade);
   const bookingId = searchParams.get('booking_id');
   const estimateId = searchParams.get('id');
   const mode = estimateId ? 'edit' : 'create';
@@ -99,7 +105,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(vehicleReg)}&type=estimate`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -118,11 +124,17 @@ A/N: 20052044
     } else if (estimateId) {
       fetchEstimate(estimateId);
     } else {
-      // New estimate without booking - show vehicle reg modal first
-      setShowVehicleRegModal(true);
+      // New estimate without booking
+      if (showVehicle) {
+        // Vehicle trades - show vehicle reg modal first
+        setShowVehicleRegModal(true);
+      } else {
+        // Non-vehicle trades - skip straight to form, auto-fetch document number
+        handleSkipVehicleReg();
+      }
       setLoading(false);
     }
-  }, [bookingId, estimateId]);
+  }, [bookingId, estimateId, showVehicle]);
 
   // Handle vehicle reg modal submit
   const handleVehicleRegSubmit = async () => {
@@ -133,7 +145,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(upperReg)}&type=estimate`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -159,7 +171,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=&type=estimate`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -186,7 +198,7 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/booking/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -224,7 +236,7 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -442,7 +454,8 @@ A/N: 20052044
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify(payload)
       });
@@ -450,7 +463,7 @@ A/N: 20052044
       if (response.ok) {
         const data = await response.json();
         alert(`Estimate ${mode === 'edit' ? 'updated' : 'created'} successfully!`);
-        router.push(`/autow/estimates/view?id=${data.estimate.id}`);
+        router.push(`${paths.estimates}/view?id=${data.estimate.id}`);
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -525,7 +538,7 @@ A/N: 20052044
       <div style={styles.header}>
         <h1 style={styles.title}>{mode === 'edit' ? 'Edit' : 'Create'} Estimate</h1>
         <button
-          onClick={() => router.push('/autow/estimates')}
+          onClick={() => router.push(paths.estimates)}
           style={styles.backButton}
         >
           ← Back to Estimates
@@ -644,41 +657,43 @@ A/N: 20052044
           </div>
         </div>
 
-        {/* Vehicle Information */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Vehicle Details</h2>
-          <div style={styles.formGrid} className="form-grid">
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Registration</label>
-              <input
-                type="text"
-                value={formData.vehicle_reg}
-                onChange={(e) => setFormData({ ...formData, vehicle_reg: e.target.value.toUpperCase() })}
-                style={styles.input}
-              />
-            </div>
+        {/* Vehicle Information - only for vehicle trades */}
+        {showVehicle && (
+          <div style={styles.section}>
+            <h2 style={styles.sectionTitle}>Vehicle Details</h2>
+            <div style={styles.formGrid} className="form-grid">
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Registration</label>
+                <input
+                  type="text"
+                  value={formData.vehicle_reg}
+                  onChange={(e) => setFormData({ ...formData, vehicle_reg: e.target.value.toUpperCase() })}
+                  style={styles.input}
+                />
+              </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Make</label>
-              <input
-                type="text"
-                value={formData.vehicle_make}
-                onChange={(e) => setFormData({ ...formData, vehicle_make: e.target.value })}
-                style={styles.input}
-              />
-            </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Make</label>
+                <input
+                  type="text"
+                  value={formData.vehicle_make}
+                  onChange={(e) => setFormData({ ...formData, vehicle_make: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Model</label>
-              <input
-                type="text"
-                value={formData.vehicle_model}
-                onChange={(e) => setFormData({ ...formData, vehicle_model: e.target.value })}
-                style={styles.input}
-              />
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Model</label>
+                <input
+                  type="text"
+                  value={formData.vehicle_model}
+                  onChange={(e) => setFormData({ ...formData, vehicle_model: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Line Items */}
         <div style={styles.section}>
@@ -812,7 +827,7 @@ A/N: 20052044
           <div style={styles.totalsBox} className="totals-box">
             {totals.parts > 0 && (
               <div style={styles.breakdownRow}>
-                <span>Parts Total:</span>
+                <span>{getPartsLabel(trade)} Total:</span>
                 <span>£{totals.parts.toFixed(2)}</span>
               </div>
             )}
@@ -878,7 +893,7 @@ A/N: 20052044
         <div style={styles.submitSection} className="submit-section">
           <button
             type="button"
-            onClick={() => router.push('/autow/estimates')}
+            onClick={() => router.push(paths.estimates)}
             style={styles.cancelButton}
             className="cancel-btn"
           >
