@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { getTenantFromRequest, tenantMutate } from '@/lib/tenant/context';
 import { verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -11,6 +11,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get tenant context from header
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
     const data = await request.json();
 
     if (!data.id) {
@@ -20,8 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update booking
-    const result = await query(
+    // Update booking in tenant schema
+    const result = await tenantMutate(
+      tenant,
       `UPDATE bookings SET
         service_type = $1,
         booking_date = $2,

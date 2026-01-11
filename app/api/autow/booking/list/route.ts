@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { getTenantFromRequest, tenantQuery } from '@/lib/tenant/context';
 import { verifyToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +13,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await query(
+    // Get tenant context from header
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
+    // Query tenant schema
+    const bookings = await tenantQuery(
+      tenant,
       `SELECT * FROM bookings
        WHERE booking_date >= CURRENT_DATE
        ORDER BY booking_date, booking_time`
@@ -21,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      bookings: result.rows
+      bookings
     });
 
   } catch (error) {

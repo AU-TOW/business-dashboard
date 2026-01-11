@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { getTenantFromRequest, tenantMutate } from '@/lib/tenant/context';
 import { verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const rawAuth = request.headers.get('authorization');
-	const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
+    const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
 
-	if (!verifyToken(token)) {
-
+    if (!verifyToken(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context from header
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const { id } = await request.json();
@@ -21,7 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await query(
+    // Update booking status in tenant schema
+    const result = await tenantMutate(
+      tenant,
       `UPDATE bookings
        SET status = 'completed', updated_at = CURRENT_TIMESTAMP
        WHERE id = $1

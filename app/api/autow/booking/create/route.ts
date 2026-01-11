@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { getTenantFromRequest, tenantQuery, tenantMutate } from '@/lib/tenant/context';
 import { verifyToken } from '@/lib/auth';
 import { sendTelegramNotification } from '@/lib/telegram';
 
 export async function POST(request: NextRequest) {
   try {
     const rawAuth = request.headers.get('authorization');
-	const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
+    const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
 
-	if (!verifyToken(token)) {
-
+    if (!verifyToken(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context from header
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const data = await request.json();
@@ -51,21 +56,23 @@ export async function POST(request: NextRequest) {
       estimated_duration: 90
     };
 
-    // Check availability
-    const availabilityCheck = await query(
+    // Check availability in tenant schema
+    const availabilityCheck = await tenantQuery(
+      tenant,
       `SELECT * FROM check_availability($1::DATE, $2::TIME, $3)`,
       [bookingData.booking_date, bookingData.booking_time, bookingData.estimated_duration]
     );
 
-    if (!availabilityCheck.rows[0]?.available) {
+    if (!availabilityCheck[0]?.available) {
       return NextResponse.json(
         { success: false, error: 'Time slot unavailable' },
         { status: 400 }
       );
     }
 
-    // Insert booking
-    const result = await query(
+    // Insert booking in tenant schema
+    const result = await tenantMutate(
+      tenant,
       `INSERT INTO bookings (
         booked_by, booking_date, booking_time, service_type,
         customer_name, customer_phone, customer_email,
