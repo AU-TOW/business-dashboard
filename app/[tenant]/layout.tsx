@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTenantBySlug, tenantToContext } from '@/lib/tenant';
 import { TenantProvider } from '@/lib/tenant/TenantProvider';
+import { ThemeWrapper } from '@/lib/theme/ThemeWrapper';
 
 export async function generateMetadata({
   params,
@@ -50,7 +51,9 @@ export default async function TenantLayout({
 
   return (
     <TenantProvider value={tenantContext}>
-      {children}
+      <ThemeWrapper>
+        {children}
+      </ThemeWrapper>
     </TenantProvider>
   );
 }

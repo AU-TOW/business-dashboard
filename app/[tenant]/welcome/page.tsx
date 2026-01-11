@@ -221,7 +221,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backdropFilter: 'blur(20px)',
     borderRadius: '24px',
     padding: '40px',
-    boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+    boxShadow: '0 25px 50px -12px rgba(var(--primary-rgb), 0.15), 0 0 0 1px rgba(var(--primary-rgb), 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.8)',
   },
   header: {
@@ -232,11 +232,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '180px',
     height: 'auto',
     margin: '0 auto 20px',
-    filter: 'drop-shadow(0 4px 12px rgba(59, 130, 246, 0.2))',
+    filter: 'drop-shadow(0 4px 12px rgba(var(--primary-rgb), 0.2))',
     display: 'block',
   },
   title: {
-    color: '#1e40af',
+    color: 'var(--primary-dark)',
     fontSize: '32px',
     marginBottom: '5px',
     margin: '0 0 5px 0',
@@ -255,13 +255,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   optionCard: {
     background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
-    border: '2px solid rgba(59, 130, 246, 0.2)',
+    border: '2px solid rgba(var(--primary-rgb), 0.2)',
     borderRadius: '20px',
     padding: '40px 10px',
     textAlign: 'center' as const,
     cursor: 'pointer',
     transition: 'all 0.3s',
-    boxShadow: '0 4px 16px rgba(59, 130, 246, 0.08)',
+    boxShadow: '0 4px 16px rgba(var(--primary-rgb), 0.08)',
   },
   lockedCard: {
     background: 'rgba(200, 200, 200, 0.3)',
@@ -291,7 +291,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '20px',
   },
   optionTitle: {
-    color: '#1e40af',
+    color: 'var(--primary-dark)',
     fontSize: '24px',
     marginBottom: '10px',
     margin: '0 0 10px 0',
@@ -314,7 +314,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'all 0.3s',
   },
   loadingText: {
-    color: '#3b82f6',
+    color: 'var(--primary-color)',
     fontSize: '24px',
     textAlign: 'center' as const,
   },
