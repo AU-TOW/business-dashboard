@@ -108,5 +108,6 @@ export function useTenantPath() {
     damageAssessments: `/${tenant.slug}/damage-assessments`,
     damageAssessmentsCreate: `/${tenant.slug}/damage-assessments/create`,
     welcome: `/${tenant.slug}/welcome`,
+    settings: `/${tenant.slug}/settings`,
   };
 }

@@ -176,6 +176,16 @@ export default function WelcomePage() {
               <p style={styles.optionDescription}>Upload and manage receipts</p>
             </button>
           )}
+
+          {/* Settings */}
+          <button
+            onClick={() => router.push(paths.settings)}
+            style={{...styles.optionCard, borderColor: 'rgba(107, 114, 128, 0.3)'}}
+          >
+            <div style={styles.optionIcon}>⚙️</div>
+            <h2 style={styles.optionTitle}>Settings</h2>
+            <p style={styles.optionDescription}>Business details & branding</p>
+          </button>
         </div>
 
         <button onClick={handleLogout} style={styles.logoutButton}>
