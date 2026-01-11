@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 
 Phase: 2 of 8 (Multi-Tenancy Architecture)
 Plan: 02-01 (Multi-Tenancy Architecture)
-Status: Ready to execute
-Last activity: 2026-01-11 — Phase 2 plan created
+Status: In progress (5/8 tasks complete)
+Last activity: 2026-01-11 — Core multi-tenancy infrastructure added
 
 Progress: █░░░░░░░░░ 12.5%
 
@@ -59,5 +59,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-11
-Stopped at: Roadmap created with 8 phases
-Resume file: None
+Stopped at: Phase 2 task 5/8 — Core multi-tenancy infrastructure complete
+Resume with: Route restructuring (move /autow/* → /app/[tenant]/*)
+Resume file: .planning/phases/02-multi-tenancy/02-01-PLAN.md (Tasks 6-8)
