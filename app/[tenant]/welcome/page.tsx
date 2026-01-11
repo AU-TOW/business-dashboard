@@ -90,12 +90,12 @@ export default function WelcomePage() {
 
           {hasDamageAssessments && (
             <button
-              onClick={() => router.push(paths.assessments)}
+              onClick={() => router.push(paths.damageAssessments)}
               style={styles.optionCard}
             >
-              <div style={styles.optionIcon}>🔍</div>
-              <h2 style={styles.optionTitle}>Vehicle Assessments</h2>
-              <p style={styles.optionDescription}>Damage assessment reports</p>
+              <div style={styles.optionIcon}>🚗</div>
+              <h2 style={styles.optionTitle}>Damage Assessments</h2>
+              <p style={styles.optionDescription}>Document vehicle damage</p>
             </button>
           )}
 

@@ -105,6 +105,8 @@ export function useTenantPath() {
     notes: `/${tenant.slug}/notes`,
     jotter: `/${tenant.slug}/jotter`,
     assessments: `/${tenant.slug}/assessments`,
+    damageAssessments: `/${tenant.slug}/damage-assessments`,
+    damageAssessmentsCreate: `/${tenant.slug}/damage-assessments/create`,
     welcome: `/${tenant.slug}/welcome`,
   };
 }
