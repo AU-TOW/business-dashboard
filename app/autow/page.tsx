@@ -26,6 +26,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem('autow_token', data.token);
+        // Redirect to the tenant-aware route (autow is the default tenant)
         router.push('/autow/welcome');
       } else {
         setError(data.error || 'Invalid credentials');

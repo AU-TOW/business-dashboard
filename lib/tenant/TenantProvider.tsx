@@ -85,3 +85,25 @@ export function useBranding() {
     logoUrl: tenant.logoUrl,
   };
 }
+
+// Helper hook for generating tenant-scoped paths
+export function useTenantPath() {
+  const tenant = useTenant();
+
+  return {
+    // Generate a path within the tenant scope
+    path: (route: string) => `/${tenant.slug}${route.startsWith('/') ? route : '/' + route}`,
+    // Get the tenant slug
+    slug: tenant.slug,
+    // Common paths
+    dashboard: `/${tenant.slug}/dashboard`,
+    bookings: `/${tenant.slug}/booking`,
+    estimates: `/${tenant.slug}/estimates`,
+    invoices: `/${tenant.slug}/invoices`,
+    receipts: `/${tenant.slug}/receipts`,
+    notes: `/${tenant.slug}/notes`,
+    jotter: `/${tenant.slug}/jotter`,
+    assessments: `/${tenant.slug}/assessments`,
+    welcome: `/${tenant.slug}/welcome`,
+  };
+}
