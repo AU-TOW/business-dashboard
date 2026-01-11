@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 
 ## Current Position
 
-Phase: 6 of 8 (Extended Features) — PLANNED
-Plan: 06-01 ready for execution
-Status: Phase 5 SKIPPED (billing deferred), Phase 6 planned
-Last activity: 2026-01-11 — Phase 6 planned (3 plans, 9 tasks)
+Phase: 6 of 8 (Extended Features) — IN PROGRESS
+Plan: 06-01 complete, 06-02 ready for execution
+Status: Phase 5 SKIPPED (billing deferred), Phase 6 in progress
+Last activity: 2026-01-11 — Plan 06-01 complete (Supabase Storage)
 
-Progress: ██████░░░░ 50%
+Progress: ██████░░░░ 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05)
+- Total plans completed: 9 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01)
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -31,9 +31,10 @@ Progress: ██████░░░░ 50%
 | 2 | 1 | — | — |
 | 3 | 1 | — | — |
 | 4 | 5 | — | — |
+| 6 | 1 | — | — |
 
 **Recent Trend:**
-- Last 5 plans: 04-01, 04-02, 04-03, 04-04, 04-05
+- Last 5 plans: 04-02, 04-03, 04-04, 04-05, 06-01
 - Trend: —
 
 ## Accumulated Context
@@ -115,9 +116,23 @@ Technical notes:
 - Frontend pages use `useTenant()` hook to get tenant slug
 - All navigation uses `useTenantPath()` for dynamic paths
 
+## Phase 6 Deliverables
+
+In progress:
+1. Receipts with Supabase Storage (06-01) ✓
+
+Key files:
+- `lib/supabase-storage.ts` - Receipt image upload with tenant isolation
+- `app/api/autow/receipt/upload/route.ts` - Supabase Storage upload
+- `app/api/autow/receipt/delete/route.ts` - Supabase Storage deletion
+- `app/[tenant]/receipts/` - Tenant-aware receipts pages
+
+Commits:
+- 6d8c9b4: feat(receipts): migrate to Supabase Storage with tenant isolation
+
 ## Session Continuity
 
 Last session: 2026-01-11
-Completed: Phase 4 (Core Features - Tenant-Aware)
-Current: Ready for Phase 5 (Subscription & Billing)
-Next: /gsd:plan-phase 5
+Completed: Plan 06-01 (Supabase Storage migration)
+Current: Phase 6 in progress, 06-02 ready
+Next: run 06-02 (Damage Assessments)
