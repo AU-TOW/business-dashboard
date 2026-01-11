@@ -151,6 +151,8 @@ This project is NOT built from scratch. We are:
 | Start with 5 trade types | Manageable scope, covers major UK trades | - Pending |
 | Stripe for payments | Industry standard, may switch to Tide later | - Pending |
 | All features in v1 | Ambitious but provides complete solution from launch | - Pending |
+| Vercel deployment (testing) | Use existing Vercel account for dev/testing, revisit for production scale | - Pending |
+| Subdomain: business-dashboard.autow-services.co.uk | Separate from booking.autow-services.co.uk, clear branding | - Pending |
 
 ---
-*Last updated: 2026-01-11 after initialization*
+*Last updated: 2026-01-11 — added deployment decisions*
