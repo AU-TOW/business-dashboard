@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-11)
 
 **Core value:** Enable any trade business to manage bookings, estimates, invoices, and receipts from one dashboard with Telegram notifications - without needing technical skills to set up.
-**Current focus:** Phase 3 Complete — Ready for Phase 4
+**Current focus:** Phase 4 Complete — Ready for Phase 5
 
 ## Current Position
 
-Phase: 4 of 8 (Core Features - Tenant-Aware) — NOT STARTED
-Plan: Awaiting planning
-Status: Phase 3 completed
-Last activity: 2026-01-11 — Phase 3 executed (8 tasks)
+Phase: 6 of 8 (Extended Features) — PLANNED
+Plan: 06-01 ready for execution
+Status: Phase 5 SKIPPED (billing deferred), Phase 6 planned
+Last activity: 2026-01-11 — Phase 6 planned (3 plans, 9 tasks)
 
-Progress: █████░░░░░ 37.5%
+Progress: ██████░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3 (01-01, 02-01, 03-01)
+- Total plans completed: 8 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05)
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -30,9 +30,10 @@ Progress: █████░░░░░ 37.5%
 | 1 | 1 | — | — |
 | 2 | 1 | — | — |
 | 3 | 1 | — | — |
+| 4 | 5 | — | — |
 
 **Recent Trend:**
-- Last 5 plans: 01-01, 02-01, 03-01
+- Last 5 plans: 04-01, 04-02, 04-03, 04-04, 04-05
 - Trend: —
 
 ## Accumulated Context
@@ -55,9 +56,8 @@ Recent decisions affecting current work:
 
 ### Deferred Issues
 
-- Remaining route updates: 20+ files in `/app/[tenant]/` still have `/autow/` hardcoded paths
-  - These will be updated incrementally as features are developed
-  - API routes remain at `/api/autow/*` for now (Phase 4 will restructure)
+- API routes remain at `/api/autow/*` for now (backward compatible)
+- Some pages in `/app/autow/` (legacy routes) may still need tenant context
 
 ### Blockers/Concerns
 
@@ -94,9 +94,30 @@ Commits (9 total):
 - f57b981: Link Supabase users to tenants
 - 7cb7c39: Build error fixes (lazy initialization)
 
+## Phase 4 Deliverables
+
+Completed:
+1. Auth routes tenant context (04-01)
+2. Booking routes tenant context (04-02)
+3. Estimates/invoices routes tenant context (04-03)
+4. Notes/receipts routes tenant context (04-04)
+5. Frontend tenant context integration (04-05)
+
+Key files:
+- `lib/db.ts` - Tenant-aware database connections with `withTenantSchema()`
+- `lib/api/tenantFetch.ts` - Frontend fetch helpers with tenant headers
+- All `/app/api/autow/*` routes - Use `withTenantSchema()` for queries
+- All `/app/[tenant]/*` pages - Send `X-Tenant-Slug` header with API calls
+
+Technical notes:
+- Middleware extracts tenant from path/subdomain and sets in request
+- API routes use `withTenantSchema()` which sets `search_path` to tenant schema
+- Frontend pages use `useTenant()` hook to get tenant slug
+- All navigation uses `useTenantPath()` for dynamic paths
+
 ## Session Continuity
 
 Last session: 2026-01-11
-Completed: Phase 3 (Authentication & Onboarding)
-Current: Ready for Phase 4 (Core Features - Tenant-Aware)
-Next: /gsd:plan-phase 4
+Completed: Phase 4 (Core Features - Tenant-Aware)
+Current: Ready for Phase 5 (Subscription & Billing)
+Next: /gsd:plan-phase 5
