@@ -28,6 +28,7 @@ export interface Tenant {
   partsLabel: string;
   showVehicleFields: boolean;
   schemaName: string;
+  ownerUserId?: string; // Supabase Auth user ID
   createdAt: Date;
   updatedAt: Date;
 }

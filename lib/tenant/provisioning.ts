@@ -242,6 +242,37 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
 }
 
 /**
+ * Get tenant by owner's Supabase user ID
+ */
+export async function getTenantByUserId(userId: string): Promise<Tenant | null> {
+  const result = await pool.query(
+    'SELECT * FROM public.tenants WHERE owner_user_id = $1',
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  return mapRowToTenant(result.rows[0]);
+}
+
+/**
+ * Link a Supabase user to a tenant
+ */
+export async function linkUserToTenant(userId: string, tenantSlug: string): Promise<boolean> {
+  const result = await pool.query(
+    `UPDATE public.tenants
+     SET owner_user_id = $1, updated_at = NOW()
+     WHERE slug = $2 AND owner_user_id IS NULL
+     RETURNING id`,
+    [userId, tenantSlug]
+  );
+
+  return result.rows.length > 0;
+}
+
+/**
  * Map database row to Tenant object
  */
 function mapRowToTenant(row: any): Tenant {
@@ -267,6 +298,7 @@ function mapRowToTenant(row: any): Tenant {
     partsLabel: row.parts_label,
     showVehicleFields: row.show_vehicle_fields,
     schemaName: row.schema_name,
+    ownerUserId: row.owner_user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
