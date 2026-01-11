@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,12 @@ export async function POST(request: NextRequest) {
 
     if (token !== process.env.AUTOW_STAFF_TOKEN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const body = await request.json();
@@ -21,59 +27,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Booking date and time are required' }, { status: 400 });
     }
 
-    // Get the note
-    const noteResult = await pool.query(
-      'SELECT * FROM jotter_notes WHERE id = $1',
-      [note_id]
-    );
+    return await withTenantSchema(tenant, async (client) => {
+      // Get the note
+      const noteResult = await client.query(
+        'SELECT * FROM jotter_notes WHERE id = $1',
+        [note_id]
+      );
 
-    if (noteResult.rows.length === 0) {
-      return NextResponse.json({ error: 'Note not found' }, { status: 404 });
-    }
+      if (noteResult.rows.length === 0) {
+        return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+      }
 
-    const note = noteResult.rows[0];
+      const note = noteResult.rows[0];
 
-    // Create booking from note
-    const bookingResult = await pool.query(
-      `INSERT INTO bookings (
-        booked_by, booking_date, booking_time, service_type,
-        customer_name, customer_phone, customer_email,
-        vehicle_make, vehicle_model, vehicle_reg,
-        location_address, location_postcode,
-        issue_description, notes, status
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'confirmed'
-      ) RETURNING *`,
-      [
-        note.created_by || 'Staff',
-        booking_date,
-        booking_time,
-        service_type,
-        note.customer_name || '',
-        note.customer_phone || '',
-        note.customer_email || '',
-        note.vehicle_make || '',
-        note.vehicle_model || '',
-        note.vehicle_reg || '',
-        location_address || '',
-        location_postcode || '',
-        note.issue_description || '',
-        note.notes || ''
-      ]
-    );
+      // Create booking from note
+      const bookingResult = await client.query(
+        `INSERT INTO bookings (
+          booked_by, booking_date, booking_time, service_type,
+          customer_name, customer_phone, customer_email,
+          vehicle_make, vehicle_model, vehicle_reg,
+          location_address, location_postcode,
+          issue_description, notes, status
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'confirmed'
+        ) RETURNING *`,
+        [
+          note.created_by || 'Staff',
+          booking_date,
+          booking_time,
+          service_type,
+          note.customer_name || '',
+          note.customer_phone || '',
+          note.customer_email || '',
+          note.vehicle_make || '',
+          note.vehicle_model || '',
+          note.vehicle_reg || '',
+          location_address || '',
+          location_postcode || '',
+          note.issue_description || '',
+          note.notes || ''
+        ]
+      );
 
-    const booking = bookingResult.rows[0];
+      const booking = bookingResult.rows[0];
 
-    // Update note status and link to booking
-    await pool.query(
-      `UPDATE jotter_notes SET status = 'converted', booking_id = $1, converted_at = NOW() WHERE id = $2`,
-      [booking.id, note_id]
-    );
+      // Update note status and link to booking
+      await client.query(
+        `UPDATE jotter_notes SET status = 'converted', booking_id = $1, converted_at = NOW() WHERE id = $2`,
+        [booking.id, note_id]
+      );
 
-    return NextResponse.json({
-      message: 'Note converted to booking successfully',
-      booking,
-      note_id
+      return NextResponse.json({
+        message: 'Note converted to booking successfully',
+        booking,
+        note_id
+      });
     });
 
   } catch (error: any) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +10,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
     const body = await request.json();
     const { id } = body;
 
@@ -17,18 +23,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Note ID is required' }, { status: 400 });
     }
 
-    const result = await pool.query(
-      'DELETE FROM jotter_notes WHERE id = $1 RETURNING id',
-      [id]
-    );
+    return await withTenantSchema(tenant, async (client) => {
+      const result = await client.query(
+        'DELETE FROM jotter_notes WHERE id = $1 RETURNING id',
+        [id]
+      );
 
-    if (result.rows.length === 0) {
-      return NextResponse.json({ error: 'Note not found' }, { status: 404 });
-    }
+      if (result.rows.length === 0) {
+        return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+      }
 
-    return NextResponse.json({
-      message: 'Note deleted successfully',
-      id: result.rows[0].id
+      return NextResponse.json({
+        message: 'Note deleted successfully',
+        id: result.rows[0].id
+      });
     });
 
   } catch (error: any) {

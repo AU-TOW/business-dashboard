@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 import { uploadReceiptImage as uploadToGoogleDrive } from '@/lib/google-drive';
 import { getMonthlyFolderPath } from '@/lib/supabase-storage';
 
@@ -10,6 +10,12 @@ export async function POST(request: NextRequest) {
 
     if (token !== process.env.AUTOW_STAFF_TOKEN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const body = await request.json();
@@ -50,38 +56,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate receipt number using database function
-    const numberResult = await pool.query('SELECT generate_receipt_number() as receipt_number');
-    const receipt_number = numberResult.rows[0].receipt_number;
+    return await withTenantSchema(tenant, async (client) => {
+      // Generate receipt number using database function
+      const numberResult = await client.query('SELECT generate_receipt_number() as receipt_number');
+      const receipt_number = numberResult.rows[0].receipt_number;
 
-    // Insert receipt METADATA into database (image stored in Google Drive only)
-    const result = await pool.query(
-      `INSERT INTO receipts (
-        receipt_number, receipt_date, supplier, description, amount, category,
-        gdrive_file_id, gdrive_file_url, gdrive_folder_path,
-        status, created_by
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10
-      ) RETURNING *`,
-      [
-        receipt_number,
-        finalReceiptDate,
-        supplier,
-        description || null,
-        amount,
-        category || null,
-        driveResult.fileId,
-        driveResult.webViewLink,
-        driveResult.folderPath,
-        created_by
-      ]
-    );
+      // Insert receipt METADATA into database (image stored in Google Drive only)
+      const result = await client.query(
+        `INSERT INTO receipts (
+          receipt_number, receipt_date, supplier, description, amount, category,
+          gdrive_file_id, gdrive_file_url, gdrive_folder_path,
+          status, created_by
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10
+        ) RETURNING *`,
+        [
+          receipt_number,
+          finalReceiptDate,
+          supplier,
+          description || null,
+          amount,
+          category || null,
+          driveResult.fileId,
+          driveResult.webViewLink,
+          driveResult.folderPath,
+          created_by
+        ]
+      );
 
-    return NextResponse.json({
-      message: 'Receipt uploaded successfully',
-      receipt: result.rows[0],
-      storage: 'Google Drive (image) + Supabase Database (metadata only)',
-    }, { status: 201 });
+      return NextResponse.json({
+        message: 'Receipt uploaded successfully',
+        receipt: result.rows[0],
+        storage: 'Google Drive (image) + Supabase Database (metadata only)',
+      }, { status: 201 });
+    });
 
   } catch (error: any) {
     console.error('Error uploading receipt:', error);

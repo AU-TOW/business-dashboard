@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,35 +12,43 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let query = `
-      SELECT *,
-        COUNT(*) OVER() as total_count
-      FROM jotter_notes
-      WHERE 1=1
-    `;
-    const params: any[] = [];
+    return await withTenantSchema(tenant, async (client) => {
+      let query = `
+        SELECT *,
+          COUNT(*) OVER() as total_count
+        FROM jotter_notes
+        WHERE 1=1
+      `;
+      const params: any[] = [];
 
-    if (status && status !== 'all') {
-      params.push(status);
-      query += ` AND status = $${params.length}`;
-    }
+      if (status && status !== 'all') {
+        params.push(status);
+        query += ` AND status = $${params.length}`;
+      }
 
-    query += ` ORDER BY note_date DESC, id DESC`;
-    query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(limit, offset);
+      query += ` ORDER BY note_date DESC, id DESC`;
+      query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+      params.push(limit, offset);
 
-    const result = await pool.query(query, params);
+      const result = await client.query(query, params);
 
-    return NextResponse.json({
-      notes: result.rows,
-      total: result.rows[0]?.total_count || 0,
-      limit,
-      offset
+      return NextResponse.json({
+        notes: result.rows,
+        total: result.rows[0]?.total_count || 0,
+        limit,
+        offset
+      });
     });
 
   } catch (error: any) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,12 @@ export async function POST(request: NextRequest) {
 
     if (token !== process.env.AUTOW_STAFF_TOKEN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get tenant context
+    const tenant = await getTenantFromRequest(request);
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant required' }, { status: 400 });
     }
 
     const body = await request.json();
@@ -43,22 +49,24 @@ export async function POST(request: NextRequest) {
     updates.push(`updated_at = NOW()`);
     values.push(id);
 
-    const query = `
-      UPDATE jotter_notes
-      SET ${updates.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-    `;
+    return await withTenantSchema(tenant, async (client) => {
+      const query = `
+        UPDATE jotter_notes
+        SET ${updates.join(', ')}
+        WHERE id = $${paramIndex}
+        RETURNING *
+      `;
 
-    const result = await pool.query(query, values);
+      const result = await client.query(query, values);
 
-    if (result.rows.length === 0) {
-      return NextResponse.json({ error: 'Note not found' }, { status: 404 });
-    }
+      if (result.rows.length === 0) {
+        return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+      }
 
-    return NextResponse.json({
-      message: 'Note updated successfully',
-      note: result.rows[0]
+      return NextResponse.json({
+        message: 'Note updated successfully',
+        note: result.rows[0]
+      });
     });
 
   } catch (error: any) {
