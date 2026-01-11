@@ -1,0 +1,662 @@
+import pool from '@/lib/db';
+import { Invoice } from '@/lib/types';
+import PrintButton from './PrintButton';
+
+async function getInvoiceData(token: string) {
+  const client = await pool.connect();
+
+  try {
+    const result = await client.query(
+      `SELECT i.*,
+        json_agg(
+          json_build_object(
+            'id', li.id,
+            'description', li.description,
+            'item_type', li.item_type,
+            'rate', li.rate,
+            'quantity', li.quantity,
+            'amount', li.amount,
+            'sort_order', li.sort_order
+          ) ORDER BY li.sort_order
+        ) FILTER (WHERE li.id IS NOT NULL) as line_items
+       FROM invoices i
+       LEFT JOIN line_items li ON li.document_type = 'invoice' AND li.document_id = i.id
+       WHERE i.share_token = $1
+       GROUP BY i.id`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return { invoice: null, businessSettings: null };
+    }
+
+    const invoice = result.rows[0];
+
+    let businessSettings = null;
+    try {
+      const settingsResult = await client.query(
+        'SELECT * FROM business_settings LIMIT 1'
+      );
+      businessSettings = settingsResult.rows[0] || null;
+    } catch (settingsError) {
+      console.error('Business settings query failed:', settingsError);
+    }
+
+    return { invoice, businessSettings };
+  } finally {
+    client.release();
+  }
+}
+
+export default async function SharedInvoicePage({
+  params,
+}: {
+  params: { token: string };
+}) {
+  const { token } = params;
+  const { invoice, businessSettings } = await getInvoiceData(token);
+
+  if (!invoice) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.errorText}>Invoice not found or link has expired</div>
+      </div>
+    );
+  }
+
+  // Calculate breakdown by item type
+  const breakdown = {
+    parts: 0,
+    service: 0,
+    labor: 0,
+    other: 0,
+    discount: 0
+  };
+
+  invoice.line_items?.forEach((item: any) => {
+    const amount = parseFloat(item.amount.toString());
+    if (item.item_type === 'part') {
+      breakdown.parts += amount;
+    } else if (item.item_type === 'service') {
+      breakdown.service += amount;
+    } else if (item.item_type === 'labor') {
+      breakdown.labor += amount;
+    } else if (item.item_type === 'discount') {
+      breakdown.discount += Math.abs(amount);
+    } else {
+      breakdown.other += amount;
+    }
+  });
+
+  const settings = businessSettings || {
+    business_name: 'AUTOW Services',
+    email: 'info@autow-services.co.uk',
+    address: 'Alverton, Penzance, TR18 4QB',
+    workshop_location: 'WORKSHOP LOCATION PENZANCE',
+    phone: '07352968276',
+    website: 'https://www.autow-services.co.uk',
+    owner: 'Business owner name'
+  };
+
+  return (
+    <div style={styles.container} className="invoice-container">
+      {/* Print Button (don't print) */}
+      <div style={styles.actionBar} className="no-print">
+        <PrintButton />
+      </div>
+
+      {/* Document */}
+      <div style={styles.document} className="invoice-document">
+        {/* Header */}
+        <div style={styles.docHeader} className="doc-header">
+          <div>
+            <h1 style={styles.docTitle}>INVOICE</h1>
+            {invoice.invoice_number && (
+              <p style={styles.docNumber}>#{invoice.invoice_number}</p>
+            )}
+            <p style={styles.docDate}>Date: {new Date(invoice.invoice_date).toLocaleDateString('en-GB')}</p>
+          </div>
+          <div style={{ textAlign: 'right' as const }}>
+            <img
+              src="/latest2.png"
+              alt="AUTOW"
+              style={styles.logo}
+            />
+          </div>
+        </div>
+
+        {/* From / To */}
+        <div style={styles.parties} className="parties">
+          <div style={styles.party}>
+            <h3 style={styles.partyTitle}>From</h3>
+            <p style={styles.businessName}>{settings.business_name}</p>
+            <p style={styles.partyText}>Email: {settings.email}</p>
+            <p style={styles.partyText}>Address: {settings.address}</p>
+            {settings.workshop_location && <p style={styles.partyText}>{settings.workshop_location}</p>}
+            <p style={styles.partyText}>Phone: {settings.phone}</p>
+            <p style={styles.partyText}>Website: {settings.website}</p>
+          </div>
+
+          <div style={styles.party}>
+            <h3 style={styles.partyTitle}>Bill To</h3>
+            <p style={styles.clientName}>{invoice.client_name}</p>
+            {invoice.client_phone && <p style={styles.partyText}>Phone: {invoice.client_phone}</p>}
+            {invoice.client_mobile && <p style={styles.partyText}>Mobile: {invoice.client_mobile}</p>}
+          </div>
+        </div>
+
+        {/* Vehicle Info */}
+        {invoice.vehicle_reg && (
+          <div style={styles.vehicleInfo} className="vehicle-info">
+            <strong>Vehicle:</strong> {invoice.vehicle_reg}
+            {invoice.vehicle_make && ` - ${invoice.vehicle_make}`}
+            {invoice.vehicle_model && ` ${invoice.vehicle_model}`}
+          </div>
+        )}
+
+        {/* Line Items */}
+        <div className="table-container">
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ ...styles.th, textAlign: 'left' as const }} className="desc-col">DESCRIPTION</th>
+                <th style={styles.th} className="rate-col">RATE</th>
+                <th style={styles.th} className="qty-col">QTY</th>
+                <th style={{ ...styles.th, textAlign: 'right' as const }} className="amount-col">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.line_items && invoice.line_items.map((item: any, index: number) => (
+                <tr key={index}>
+                  <td style={styles.td} className="desc-col">
+                    {item.description}
+                    {item.item_type !== 'service' && (
+                      <span style={item.item_type === 'discount' ? styles.discountType : styles.itemType}> ({item.item_type})</span>
+                    )}
+                  </td>
+                  <td style={{ ...styles.td, textAlign: 'center' as const }} className="rate-col">
+                    £{parseFloat(item.rate.toString()).toFixed(2)}
+                  </td>
+                  <td style={{ ...styles.td, textAlign: 'center' as const }} className="qty-col">
+                    {item.quantity}
+                  </td>
+                  <td style={{ ...styles.td, textAlign: 'right' as const, ...(item.item_type === 'discount' ? { color: '#ff9800' } : {}) }} className="amount-col">
+                    {item.item_type === 'discount' ? '-' : ''}£{parseFloat(item.amount.toString()).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Totals */}
+        <div style={styles.totalsSection} className="totals-section">
+          <div style={styles.totalsBox} className="totals-box">
+            {breakdown.parts > 0 && (
+              <div style={styles.breakdownRow}>
+                <span>Parts Total</span>
+                <span>£{breakdown.parts.toFixed(2)}</span>
+              </div>
+            )}
+            {breakdown.service > 0 && (
+              <div style={styles.breakdownRow}>
+                <span>Service Total</span>
+                <span>£{breakdown.service.toFixed(2)}</span>
+              </div>
+            )}
+            {breakdown.labor > 0 && (
+              <div style={styles.breakdownRow}>
+                <span>Labour Total</span>
+                <span>£{breakdown.labor.toFixed(2)}</span>
+              </div>
+            )}
+            {breakdown.other > 0 && (
+              <div style={styles.breakdownRow}>
+                <span>Other Total</span>
+                <span>£{breakdown.other.toFixed(2)}</span>
+              </div>
+            )}
+            {breakdown.discount > 0 && (
+              <div style={styles.discountRow}>
+                <span>Discount</span>
+                <span>-£{breakdown.discount.toFixed(2)}</span>
+              </div>
+            )}
+            <div style={styles.totalRow}>
+              <span>Subtotal</span>
+              <span>£{parseFloat(invoice.subtotal.toString()).toFixed(2)}</span>
+            </div>
+            <div style={styles.totalRow}>
+              <span>VAT ({invoice.vat_rate}%)</span>
+              <span>£{parseFloat(invoice.vat_amount.toString()).toFixed(2)}</span>
+            </div>
+            <div style={{ ...styles.totalRow, ...styles.grandTotal }}>
+              <span>Total</span>
+              <span>£{parseFloat(invoice.total.toString()).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes */}
+        {invoice.notes && (
+          <div style={styles.notesSection} className="notes-section">
+            <h3 style={styles.notesTitle}>Notes</h3>
+            <p style={styles.notesText}>{invoice.notes}</p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={styles.footer} className="footer">
+          <p>Thank you for your business!</p>
+          <div style={styles.disclaimer} className="disclaimer">
+            <p style={styles.disclaimerText}>
+              AUTOW Services provides mobile mechanics and recovery services. All work is guaranteed for 30 days from completion.
+              Parts are subject to manufacturer warranty. Payment terms: Parts and/or vehicle collection/recovery required upfront,
+              labour on completion. Unpaid invoices may incur late payment fees. By accepting this invoice, you agree to these terms.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+          body {
+            background: white !important;
+          }
+        }
+
+        @media (max-width: 900px) {
+          /* Document responsive */
+          .invoice-document {
+            padding: 30px 15px !important;
+          }
+          .doc-header {
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            gap: 10px;
+          }
+          .doc-header > div:first-child {
+            flex: 1;
+          }
+          .doc-header > div:last-child {
+            text-align: right !important;
+            flex-shrink: 0;
+          }
+          .doc-header img {
+            width: 80px !important;
+          }
+          .doc-header h1 {
+            font-size: 24px !important;
+            margin-bottom: 5px !important;
+          }
+          .doc-header p {
+            font-size: 12px !important;
+          }
+          .parties {
+            grid-template-columns: 1fr !important;
+          }
+          .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .totals-box {
+            min-width: auto !important;
+            width: 100%;
+          }
+        }
+
+        /* Small mobile (480px and below) */
+        @media (max-width: 480px) {
+          .invoice-document {
+            padding: 20px 12px !important;
+            border-radius: 8px !important;
+          }
+          .invoice-container {
+            padding: 10px !important;
+          }
+          .doc-header h1 {
+            font-size: 28px !important;
+          }
+          .doc-header img {
+            width: 120px !important;
+          }
+          .parties {
+            gap: 20px !important;
+          }
+          .parties p {
+            font-size: 13px !important;
+            word-break: break-word;
+          }
+          .table-container table {
+            font-size: 12px !important;
+            table-layout: fixed !important;
+            width: 100% !important;
+          }
+          .table-container th.desc-col,
+          .table-container td.desc-col {
+            width: 55% !important;
+            word-wrap: break-word !important;
+            white-space: normal !important;
+          }
+          .table-container th.rate-col,
+          .table-container td.rate-col {
+            width: 15% !important;
+            font-size: 10px !important;
+            padding: 8px 2px !important;
+          }
+          .table-container th.qty-col,
+          .table-container td.qty-col {
+            width: 10% !important;
+            font-size: 10px !important;
+            padding: 8px 2px !important;
+          }
+          .table-container th.amount-col,
+          .table-container td.amount-col {
+            width: 20% !important;
+            font-size: 10px !important;
+            padding: 8px 2px !important;
+          }
+          .table-container th,
+          .table-container td {
+            padding: 8px 4px !important;
+          }
+          .vehicle-info {
+            padding: 10px !important;
+            font-size: 12px !important;
+            margin-bottom: 15px !important;
+          }
+          .totals-section {
+            justify-content: stretch !important;
+          }
+          .totals-box {
+            width: 100% !important;
+            padding: 15px !important;
+          }
+          .totals-box span {
+            font-size: 13px !important;
+          }
+          .notes-section {
+            padding: 15px !important;
+          }
+          .notes-section p {
+            font-size: 13px !important;
+          }
+          .footer p {
+            font-size: 12px !important;
+          }
+          .disclaimer p {
+            font-size: 8px !important;
+          }
+          .print-btn {
+            padding: 10px 16px !important;
+            font-size: 12px !important;
+            width: 100% !important;
+          }
+        }
+
+        /* Extra small mobile (360px and below) */
+        @media (max-width: 360px) {
+          .invoice-document {
+            padding: 15px 10px !important;
+          }
+          .doc-header h1 {
+            font-size: 24px !important;
+          }
+          .doc-header img {
+            width: 100px !important;
+          }
+          .parties p {
+            font-size: 12px !important;
+          }
+          .table-container th.desc-col,
+          .table-container td.desc-col {
+            width: 50% !important;
+            font-size: 10px !important;
+          }
+          .table-container th.rate-col,
+          .table-container td.rate-col,
+          .table-container th.qty-col,
+          .table-container td.qty-col,
+          .table-container th.amount-col,
+          .table-container td.amount-col {
+            font-size: 9px !important;
+            padding: 6px 1px !important;
+          }
+          .table-container th,
+          .table-container td {
+            padding: 6px 2px !important;
+            font-size: 10px !important;
+          }
+          .totals-box span {
+            font-size: 12px !important;
+          }
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+          .invoice-document {
+            -webkit-text-size-adjust: 100%;
+          }
+          .table-container {
+            -webkit-overflow-scrolling: touch;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    background: '#f5f5f5',
+    minHeight: '100vh',
+    padding: '20px',
+  },
+  actionBar: {
+    maxWidth: '900px',
+    margin: '0 auto 20px auto',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  document: {
+    maxWidth: '900px',
+    margin: '0 auto',
+    background: '#fff',
+    color: '#000',
+    padding: '60px',
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  },
+  docHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '40px',
+    paddingBottom: '20px',
+    borderBottom: '3px solid #30ff37',
+  },
+  docTitle: {
+    fontSize: '36px',
+    fontWeight: '700' as const,
+    color: '#30ff37',
+    margin: '0 0 10px 0',
+  },
+  docNumber: {
+    fontSize: '18px',
+    color: '#30ff37',
+    margin: '5px 0',
+    fontFamily: 'monospace',
+  },
+  docDate: {
+    fontSize: '14px',
+    color: '#666',
+    margin: '0',
+  },
+  logo: {
+    width: '150px',
+    height: 'auto',
+  },
+  parties: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '30px',
+    marginBottom: '20px',
+  },
+  party: {
+    lineHeight: 1.4,
+    fontSize: '12px',
+  },
+  partyTitle: {
+    fontSize: '11px',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+    color: '#666',
+    marginBottom: '6px',
+    margin: '0 0 6px 0',
+  },
+  businessName: {
+    fontSize: '13px',
+    fontWeight: '700' as const,
+    margin: '0 0 2px 0',
+  },
+  clientName: {
+    fontSize: '13px',
+    fontWeight: '700' as const,
+    margin: '0 0 2px 0',
+  },
+  partyText: {
+    fontSize: '11px',
+    margin: '0 0 1px 0',
+    color: '#444',
+  },
+  vehicleInfo: {
+    background: '#f8f8f8',
+    padding: '15px',
+    borderRadius: '8px',
+    marginBottom: '30px',
+    fontSize: '14px',
+    border: '1px solid #e0e0e0',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse' as const,
+    marginBottom: '30px',
+  },
+  th: {
+    padding: '12px',
+    borderBottom: '2px solid #30ff37',
+    fontSize: '12px',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+    color: '#666',
+    textAlign: 'center' as const,
+  },
+  td: {
+    padding: '15px 12px',
+    borderBottom: '1px solid #e0e0e0',
+    fontSize: '14px',
+    background: '#fafafa',
+  },
+  itemType: {
+    fontSize: '12px',
+    color: '#666',
+    fontStyle: 'italic' as const,
+  },
+  discountType: {
+    fontSize: '12px',
+    color: '#ff9800',
+    fontStyle: 'italic' as const,
+    fontWeight: '600' as const,
+  },
+  totalsSection: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: '40px',
+  },
+  totalsBox: {
+    minWidth: '300px',
+    background: '#f8f8f8',
+    padding: '20px',
+    borderRadius: '8px',
+    border: '1px solid #e0e0e0',
+  },
+  breakdownRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '8px 0',
+    fontSize: '14px',
+    color: '#666',
+  },
+  discountRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '8px 0',
+    fontSize: '14px',
+    color: '#ff9800',
+    fontWeight: '600' as const,
+  },
+  totalRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '10px 0',
+    fontSize: '16px',
+  },
+  grandTotal: {
+    fontSize: '20px',
+    fontWeight: '700' as const,
+    paddingTop: '15px',
+    borderTop: '2px solid #30ff37',
+    marginTop: '10px',
+    color: '#30ff37',
+  },
+  notesSection: {
+    background: '#f8f8f8',
+    padding: '12px 15px',
+    borderRadius: '6px',
+    marginBottom: '20px',
+    border: '1px solid #e0e0e0',
+  },
+  notesTitle: {
+    fontSize: '11px',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+    color: '#666',
+    marginBottom: '6px',
+    margin: '0 0 6px 0',
+  },
+  notesText: {
+    fontSize: '11px',
+    lineHeight: 1.4,
+    whiteSpace: 'pre-wrap' as const,
+    margin: '0',
+    color: '#444',
+  },
+  footer: {
+    textAlign: 'center' as const,
+    paddingTop: '40px',
+    borderTop: '1px solid #e0e0e0',
+    color: '#666',
+  },
+  disclaimer: {
+    marginTop: '20px',
+    paddingTop: '20px',
+    borderTop: '1px solid #e0e0e0',
+  },
+  disclaimerText: {
+    fontSize: '9px',
+    color: '#999',
+    margin: '0',
+    lineHeight: 1.4,
+    textAlign: 'justify' as const,
+  },
+  errorText: {
+    fontSize: '18px',
+    textAlign: 'center' as const,
+    padding: '60px 20px',
+    color: '#f44336',
+  },
+};

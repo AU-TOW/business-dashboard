@@ -1,0 +1,513 @@
+/* AUTOW Global Styles - Mobile Responsive Override System */
+
+/* ===== BASE RESET ===== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  /* Fix iOS 100vh bug - use dvh (dynamic viewport height) with fallback */
+  height: 100%;
+  height: -webkit-fill-available;
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Enable smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Safe area padding for notched devices */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ===== iOS SAFARI SPECIFIC FIXES ===== */
+@supports (-webkit-touch-callout: none) {
+  /* iOS only styles */
+  html, body {
+    height: -webkit-fill-available;
+  }
+
+  /* Fix iOS input zoom - ensure minimum 16px font */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Fix iOS button styling */
+  button, input[type="button"], input[type="submit"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Prevent iOS from auto-styling inputs */
+  input, textarea {
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 6px;
+  }
+}
+
+/* ===== FLEXBOX FIXES FOR SAFARI ===== */
+.flex, [style*="display: flex"], [style*="display:flex"] {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.flex-col, [style*="flex-direction: column"] {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+/* Fix Safari flex shrink issues */
+img, video, canvas, svg {
+  flex-shrink: 0;
+  -webkit-flex-shrink: 0;
+}
+
+/* ===== CONTAINER SAFE AREAS ===== */
+.safe-area-container {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Bottom safe area for fixed footers/buttons */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== SCROLLING FIXES ===== */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Prevent rubber-band scrolling issues */
+.no-overscroll {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+
+/* ===== DAMAGE MARKER STYLES ===== */
+.damage-marker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.damage-marker:hover {
+  transform: scale(1.3);
+  z-index: 10;
+}
+
+.damage-marker::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  margin-bottom: 4px;
+  max-width: 120px;
+  text-align: center;
+  line-height: 1.2;
+  z-index: 100;
+}
+
+.damage-marker:hover::after {
+  opacity: 1;
+}
+
+/* ===== TABLET BREAKPOINT (768px) ===== */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .total-label { font-size: 0.75em !important; }
+
+  .mobile-container { padding: 10px !important; }
+  .mobile-header { padding: 15px !important; }
+  .mobile-card { padding: 15px !important; }
+  .mobile-title { font-size: 1.1em !important; }
+  .mobile-btn { padding: 10px 16px !important; font-size: 12px !important; }
+
+  /* iOS Safari - fix min-height on containers */
+  .mobile-full-height {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
+  }
+
+  /* iOS Safari - fix flex containers */
+  .mobile-flex {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+  }
+
+  /* iOS Safari - fix overflow scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+}
+
+/* ===== MOBILE BREAKPOINT (480px) ===== */
+@media (max-width: 480px) {
+  .hide-mobile-sm { display: none !important; }
+
+  /* iOS Safari - prevent horizontal overflow */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* iOS Safari - fix word breaking */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+  }
+
+  /* iOS Safari - ensure tables don't overflow */
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed;
+  }
+
+  /* Damage markers */
+  .damage-marker { width: 12px; height: 12px; font-size: 0.45em; }
+  .damage-marker::after { font-size: 6px; padding: 2px 3px; max-width: 70px; }
+
+  /* Layout & Container */
+  .mobile-container {
+    padding: 6px !important;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .mobile-header { padding: 10px !important; border-radius: 8px !important; }
+  .mobile-logo { height: 35px !important; }
+
+  /* Cards */
+  .mobile-card { padding: 10px !important; border-radius: 8px !important; margin-bottom: 10px !important; }
+
+  /* Typography */
+  .mobile-title { font-size: 0.85em !important; }
+  .mobile-subtitle { font-size: 0.65em !important; }
+  .mobile-text { font-size: 0.7em !important; line-height: 1.4 !important; }
+
+  /* Buttons */
+  .mobile-btn { padding: 6px 10px !important; font-size: 10px !important; border-radius: 5px !important; }
+
+  /* Badges */
+  .mobile-badge { padding: 6px 10px !important; font-size: 0.75em !important; border-radius: 6px !important; }
+
+  /* Info Grid */
+  .mobile-grid { gap: 4px !important; grid-template-columns: repeat(2, 1fr) !important; }
+  .mobile-info-item { padding: 6px 8px !important; border-radius: 6px !important; }
+  .mobile-info-label { font-size: 0.5em !important; letter-spacing: 0.5px !important; }
+  .mobile-info-value { font-size: 0.65em !important; }
+
+  /* Alerts */
+  .mobile-alert { padding: 10px !important; border-radius: 8px !important; }
+  .mobile-alert-title { font-size: 0.75em !important; gap: 6px !important; }
+  .mobile-alert-text { font-size: 0.65em !important; margin-bottom: 6px !important; }
+
+  /* Transcript */
+  .mobile-transcript { padding: 10px !important; font-size: 0.7em !important; line-height: 1.5 !important; border-radius: 8px !important; }
+
+  /* Findings */
+  .mobile-finding-title { font-size: 0.65em !important; padding: 6px 8px !important; border-radius: 6px !important; }
+  .mobile-finding-item { font-size: 0.7em !important; padding: 5px 0 !important; gap: 6px !important; }
+  .mobile-finding-marker { width: 14px !important; height: 14px !important; font-size: 0.5em !important; }
+
+  /* Tables */
+  .mobile-table { font-size: 0.55em !important; }
+  .mobile-table th, .mobile-table td { padding: 4px 3px !important; }
+  .total-label { font-size: 0.6em !important; }
+
+  /* Value Boxes */
+  .mobile-value-box { padding: 10px !important; border-radius: 8px !important; }
+  .mobile-value-title { font-size: 0.65em !important; }
+  .mobile-value-amount { font-size: 1.1em !important; }
+
+  /* Recommendation */
+  .mobile-recommendation { padding: 12px !important; border-radius: 8px !important; }
+  .mobile-recommendation-title { font-size: 0.95em !important; }
+  .mobile-recommendation-text { font-size: 0.7em !important; line-height: 1.4 !important; }
+
+  /* Category */
+  .mobile-category { padding: 10px 12px !important; max-width: 200px !important; border-radius: 8px !important; }
+  .mobile-category-label { font-size: 0.5em !important; }
+  .mobile-category-value { font-size: 1.2em !important; }
+  .mobile-category-desc { font-size: 0.6em !important; }
+
+  /* Notes */
+  .mobile-note { padding: 10px !important; border-radius: 8px !important; }
+  .mobile-note-title { font-size: 0.65em !important; }
+  .mobile-note-text { font-size: 0.7em !important; line-height: 1.4 !important; }
+
+  /* Footer */
+  .mobile-footer { padding: 15px 8px !important; font-size: 0.65em !important; }
+  .mobile-footer-logo { height: 25px !important; }
+
+  /* Legend */
+  .mobile-legend { padding: 10px !important; min-width: 120px !important; border-radius: 8px !important; }
+  .mobile-legend-title { font-size: 0.7em !important; }
+  .mobile-legend-item { font-size: 0.65em !important; padding: 5px 0 !important; }
+  .mobile-legend-dot { width: 8px !important; height: 8px !important; }
+
+  /* Conclusion */
+  .mobile-conclusion-item { padding: 8px 10px !important; font-size: 0.7em !important; border-radius: 6px !important; }
+
+  /* Stats */
+  .mobile-stat-box { padding: 12px !important; border-radius: 8px !important; }
+  .mobile-stat-number { font-size: 1.5em !important; }
+  .mobile-stat-label { font-size: 0.6em !important; }
+
+  /* Forms */
+  .mobile-input { padding: 8px 10px !important; font-size: 14px !important; }
+  .mobile-label { font-size: 0.7em !important; }
+
+  /* Lists */
+  .mobile-list-item { padding: 10px !important; font-size: 0.8em !important; }
+
+  /* Dashboard specific */
+  .mobile-dashboard-title { font-size: 1.2em !important; }
+  .mobile-dashboard-subtitle { font-size: 0.7em !important; }
+}
+
+/* ===== EXTRA SMALL SCREENS (360px) ===== */
+@media (max-width: 360px) {
+  .mobile-container { padding: 4px !important; }
+  .mobile-header { padding: 8px !important; }
+  .mobile-logo { height: 28px !important; }
+  .mobile-card { padding: 8px !important; }
+  .mobile-title { font-size: 0.75em !important; }
+  .mobile-badge { padding: 5px 8px !important; font-size: 0.65em !important; }
+  .mobile-grid { grid-template-columns: 1fr !important; }
+  .mobile-info-label { font-size: 0.45em !important; }
+  .mobile-info-value { font-size: 0.6em !important; }
+  .mobile-alert-title { font-size: 0.65em !important; }
+  .mobile-alert-text { font-size: 0.55em !important; }
+  .mobile-transcript { font-size: 0.6em !important; }
+  .mobile-finding-title { font-size: 0.55em !important; }
+  .mobile-finding-item { font-size: 0.6em !important; }
+  .mobile-table { font-size: 0.5em !important; }
+  .mobile-value-amount { font-size: 0.95em !important; }
+  .mobile-recommendation-title { font-size: 0.85em !important; }
+  .mobile-recommendation-text { font-size: 0.6em !important; }
+  .mobile-category-value { font-size: 1em !important; }
+  .mobile-btn { padding: 5px 8px !important; font-size: 9px !important; }
+  .mobile-stat-number { font-size: 1.2em !important; }
+  .mobile-dashboard-title { font-size: 1em !important; }
+}
+
+/* ===== SHARE PAGE RESPONSIVE FIXES ===== */
+/* Target elements by their existing classes and common patterns */
+
+/* Document header - stack on mobile */
+.doc-header {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+/* Parties section - stack on mobile */
+.parties {
+  display: grid;
+}
+
+/* Table container - allow horizontal scroll */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 480px) {
+  /* Document header - stack vertically */
+  .doc-header {
+    -webkit-flex-direction: column !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    text-align: center !important;
+  }
+
+  .doc-header > div {
+    text-align: center !important;
+  }
+
+  /* Parties section - single column */
+  .parties {
+    display: block !important;
+  }
+
+  .parties > div {
+    margin-bottom: 20px !important;
+  }
+
+  /* Tables - make scrollable and readable */
+  .table-container {
+    margin: 0 -6px;
+    padding: 0 6px;
+  }
+
+  .table-container table {
+    font-size: 11px !important;
+    min-width: 100%;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 8px 4px !important;
+  }
+
+  /* Totals section - full width */
+  .totals-section {
+    display: block !important;
+  }
+
+  .totals-section > div {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+}
+
+/* ===== iOS MOBILE CRITICAL FIXES ===== */
+@media (max-width: 480px) {
+  /* iOS Safari - fix position:fixed elements */
+  .mobile-fixed-bottom {
+    position: fixed;
+    position: -webkit-sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+  }
+
+  /* iOS Safari - fix modals/overlays */
+  .mobile-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    z-index: 9999;
+  }
+
+  /* iOS Safari - prevent body scroll when modal open */
+  .modal-open {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* iOS Safari - fix flexbox in cards */
+  .mobile-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* iOS Safari - fix grid layouts */
+  .mobile-grid {
+    display: -webkit-box !important;
+    display: -webkit-flex !important;
+    display: flex !important;
+    -webkit-flex-wrap: wrap !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* iOS Safari - fix button touch targets */
+  .mobile-btn {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+
+  /* iOS Safari - prevent text selection on buttons */
+  button, .mobile-btn {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.hide-desktop { display: none; }
+@media (max-width: 768px) {
+  .hide-desktop { display: block; }
+  .show-desktop-only { display: none !important; }
+}
+
+/* Flex utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: 8px; }
+.gap-md { gap: 16px; }
+.gap-lg { gap: 24px; }
+
+/* Spacing utilities */
+.mt-sm { margin-top: 8px; }
+.mt-md { margin-top: 16px; }
+.mt-lg { margin-top: 24px; }
+.mb-sm { margin-bottom: 8px; }
+.mb-md { margin-bottom: 16px; }
+.mb-lg { margin-bottom: 24px; }
+.p-sm { padding: 8px; }
+.p-md { padding: 16px; }
+.p-lg { padding: 24px; }
