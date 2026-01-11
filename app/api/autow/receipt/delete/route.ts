@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
-import { deleteReceiptImage as deleteFromSupabase } from '@/lib/supabase-storage';
-import { deleteFile as deleteFromGoogleDrive } from '@/lib/google-drive';
+import { deleteReceiptImage } from '@/lib/supabase-storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     return await withTenantSchema(tenant, async (client) => {
-      // Get the receipt first to get storage paths
+      // Get the receipt first to get storage path
       const receiptResult = await client.query(
         'SELECT * FROM receipts WHERE id = $1',
         [id]
@@ -37,32 +36,16 @@ export async function POST(request: NextRequest) {
       }
 
       const receipt = receiptResult.rows[0];
-      const deletionResults = {
-        supabase: false,
-        googleDrive: false,
-      };
+      let storageDeleted = false;
 
-      if (deleteFromStorage) {
-        // Delete from Supabase Storage if path exists
-        if (receipt.supabase_file_path) {
-          try {
-            await deleteFromSupabase(receipt.supabase_file_path);
-            deletionResults.supabase = true;
-            console.log('Deleted from Supabase Storage:', receipt.supabase_file_path);
-          } catch (supabaseError: any) {
-            console.error('Failed to delete from Supabase Storage:', supabaseError);
-          }
-        }
-
-        // Delete from Google Drive if file ID exists
-        if (receipt.gdrive_file_id) {
-          try {
-            await deleteFromGoogleDrive(receipt.gdrive_file_id);
-            deletionResults.googleDrive = true;
-            console.log('Deleted from Google Drive:', receipt.gdrive_file_id);
-          } catch (driveError: any) {
-            console.error('Failed to delete from Google Drive:', driveError);
-          }
+      if (deleteFromStorage && receipt.storage_file_id) {
+        try {
+          await deleteReceiptImage(receipt.storage_file_id);
+          storageDeleted = true;
+          console.log('Deleted from Supabase Storage:', receipt.storage_file_id);
+        } catch (storageError: any) {
+          console.error('Failed to delete from Supabase Storage:', storageError);
+          // Continue with database deletion even if storage delete fails
         }
       }
 
@@ -71,7 +54,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         message: 'Receipt deleted successfully',
-        deletionResults,
+        storageDeleted,
       });
     });
 

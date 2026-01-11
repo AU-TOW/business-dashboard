@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
-import { uploadReceiptImage as uploadToGoogleDrive } from '@/lib/google-drive';
-import { getMonthlyFolderPath } from '@/lib/supabase-storage';
+import { uploadReceiptImage } from '@/lib/supabase-storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,30 +41,30 @@ export async function POST(request: NextRequest) {
 
     const finalReceiptDate = receipt_date || new Date().toISOString().slice(0, 10);
 
-    // Upload image to Google Drive ONLY (Supabase Storage disabled to save quota)
-    let driveResult: { fileId: string; webViewLink: string; folderPath: string };
-
-    try {
-      driveResult = await uploadToGoogleDrive(imageData, supplier, finalReceiptDate);
-      console.log('Google Drive upload successful:', driveResult.webViewLink);
-    } catch (driveError: any) {
-      console.error('Google Drive upload failed:', driveError);
-      return NextResponse.json(
-        { error: 'Failed to upload image to Google Drive', details: driveError.message },
-        { status: 500 }
-      );
-    }
-
     return await withTenantSchema(tenant, async (client) => {
       // Generate receipt number using database function
       const numberResult = await client.query('SELECT generate_receipt_number() as receipt_number');
       const receipt_number = numberResult.rows[0].receipt_number;
 
-      // Insert receipt METADATA into database (image stored in Google Drive only)
+      // Upload image to Supabase Storage
+      let storageResult: { url: string; path: string };
+
+      try {
+        storageResult = await uploadReceiptImage(imageData, tenant.slug, supplier);
+        console.log('Supabase Storage upload successful:', storageResult.url);
+      } catch (storageError: any) {
+        console.error('Supabase Storage upload failed:', storageError);
+        return NextResponse.json(
+          { error: 'Failed to upload image', details: storageError.message },
+          { status: 500 }
+        );
+      }
+
+      // Insert receipt into database
       const result = await client.query(
         `INSERT INTO receipts (
           receipt_number, receipt_date, supplier, description, amount, category,
-          gdrive_file_id, gdrive_file_url, gdrive_folder_path,
+          storage_file_id, storage_file_url, storage_folder_path,
           status, created_by
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10
@@ -77,9 +76,9 @@ export async function POST(request: NextRequest) {
           description || null,
           amount,
           category || null,
-          driveResult.fileId,
-          driveResult.webViewLink,
-          driveResult.folderPath,
+          storageResult.path,
+          storageResult.url,
+          storageResult.path.split('/').slice(0, -1).join('/'),
           created_by
         ]
       );
@@ -87,7 +86,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         message: 'Receipt uploaded successfully',
         receipt: result.rows[0],
-        storage: 'Google Drive (image) + Supabase Database (metadata only)',
+        storage: 'Supabase Storage',
       }, { status: 201 });
     });
 

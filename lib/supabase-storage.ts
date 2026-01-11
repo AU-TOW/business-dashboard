@@ -43,12 +43,14 @@ export function getMonthlyFolderPath(date?: Date): string {
 /**
  * Upload a receipt image to Supabase Storage
  * @param base64Data - Base64 encoded image data (with or without data URL prefix)
+ * @param tenantSlug - Tenant slug for path isolation
  * @param supplier - Supplier name for filename
  * @param originalFilename - Original filename (optional)
  * @returns Object with file URL and path
  */
 export async function uploadReceiptImage(
   base64Data: string,
+  tenantSlug: string,
   supplier: string,
   originalFilename?: string
 ): Promise<{ url: string; path: string }> {
@@ -58,10 +60,10 @@ export async function uploadReceiptImage(
   // Convert base64 to buffer
   const buffer = Buffer.from(base64Content, 'base64');
 
-  // Generate filename and path
+  // Generate filename and path with tenant isolation
   const filename = generateReceiptFilename(supplier, originalFilename);
   const folderPath = getMonthlyFolderPath();
-  const fullPath = `${folderPath}/${filename}`;
+  const fullPath = `${tenantSlug}/${folderPath}/${filename}`;
 
   // Determine content type
   let contentType = 'image/jpeg';

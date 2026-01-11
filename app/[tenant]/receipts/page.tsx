@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Receipt } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 const styles = {
   container: {
@@ -274,6 +275,8 @@ const categoryColors: Record<string, { bg: string; text: string }> = {
 
 export default function ReceiptsPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0, month_count: 0 });
   const [loading, setLoading] = useState(true);
@@ -301,11 +304,11 @@ export default function ReceiptsPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
     fetchReceipts();
-  }, [router, monthFilter, categoryFilter, supplierSearch]);
+  }, [router, paths, monthFilter, categoryFilter, supplierSearch]);
 
   const fetchReceipts = async () => {
     try {
@@ -318,6 +321,7 @@ export default function ReceiptsPage() {
       const response = await fetch(`/api/autow/receipt/list?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
       });
 
@@ -346,6 +350,7 @@ export default function ReceiptsPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: deleteModal.receipt.id }),
       });
@@ -418,10 +423,10 @@ export default function ReceiptsPage() {
           priority
         />
         <div style={styles.headerButtons}>
-          <button style={styles.backButton} onClick={() => router.push('/autow/welcome')}>
+          <button style={styles.backButton} onClick={() => router.push(paths.welcome)}>
             ← Menu
           </button>
-          <button style={styles.uploadButton} onClick={() => router.push('/autow/receipts/upload')}>
+          <button style={styles.uploadButton} onClick={() => router.push(paths.receiptsUpload)}>
             + Upload Receipt
           </button>
         </div>
@@ -494,7 +499,7 @@ export default function ReceiptsPage() {
         <div style={styles.emptyState}>
           <div style={styles.emptyIcon}>🧾</div>
           <div style={styles.emptyText}>No receipts found</div>
-          <button style={styles.uploadButton} onClick={() => router.push('/autow/receipts/upload')}>
+          <button style={styles.uploadButton} onClick={() => router.push(paths.receiptsUpload)}>
             Upload Your First Receipt
           </button>
         </div>
@@ -526,9 +531,9 @@ export default function ReceiptsPage() {
               )}
 
               <div style={styles.receiptActions}>
-                {(receipt as any).supabase_file_url && (
+                {(receipt as any).storage_file_url && (
                   <a
-                    href={(receipt as any).supabase_file_url}
+                    href={(receipt as any).storage_file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.viewButton}
@@ -536,14 +541,14 @@ export default function ReceiptsPage() {
                     View Image
                   </a>
                 )}
-                {receipt.gdrive_file_url && (
+                {receipt.gdrive_file_url && !(receipt as any).storage_file_url && (
                   <a
                     href={receipt.gdrive_file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{...styles.viewButton, backgroundColor: '#1a73e8'}}
                   >
-                    Google Drive
+                    View Image (Legacy)
                   </a>
                 )}
                 <button

@@ -101,6 +101,7 @@ export function useTenantPath() {
     estimates: `/${tenant.slug}/estimates`,
     invoices: `/${tenant.slug}/invoices`,
     receipts: `/${tenant.slug}/receipts`,
+    receiptsUpload: `/${tenant.slug}/receipts/upload`,
     notes: `/${tenant.slug}/notes`,
     jotter: `/${tenant.slug}/jotter`,
     assessments: `/${tenant.slug}/assessments`,

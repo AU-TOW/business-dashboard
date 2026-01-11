@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 const styles = {
   container: {
@@ -284,6 +285,8 @@ const styles = {
 
 export default function ReceiptUploadPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -307,9 +310,9 @@ export default function ReceiptUploadPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
     }
-  }, [router]);
+  }, [router, paths]);
 
   const parseReceipt = async (imgData: string) => {
     setScanning(true);
@@ -322,6 +325,7 @@ export default function ReceiptUploadPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ imageData: imgData }),
       });
@@ -438,7 +442,7 @@ export default function ReceiptUploadPage() {
     }
 
     setLoading(true);
-    setLoadingMessage('Uploading to Google Drive...');
+    setLoadingMessage('Uploading receipt...');
 
     try {
       const token = localStorage.getItem('autow_token');
@@ -447,6 +451,7 @@ export default function ReceiptUploadPage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({
           imageData,
@@ -468,7 +473,7 @@ export default function ReceiptUploadPage() {
 
       // Clear form after short delay
       setTimeout(() => {
-        router.push('/autow/receipts');
+        router.push(paths.receipts);
       }, 1500);
 
     } catch (err: any) {
@@ -513,7 +518,7 @@ export default function ReceiptUploadPage() {
           style={styles.logo}
           priority
         />
-        <button style={styles.backButton} onClick={() => router.push('/autow/receipts')}>
+        <button style={styles.backButton} onClick={() => router.push(paths.receipts)}>
           ← Back to Receipts
         </button>
       </div>
