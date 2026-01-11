@@ -15,8 +15,8 @@ None (general web SaaS patterns)
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Foundation & Backup** - Backup source projects, set up business-dashboard structure
-- [ ] **Phase 2: Multi-Tenancy Architecture** - Schema-per-tenant database, tenant identification
-- [ ] **Phase 3: Authentication & Onboarding** - Magic link auth, signup flow, trade selection
+- [x] **Phase 2: Multi-Tenancy Architecture** - Schema-per-tenant database, tenant identification
+- [x] **Phase 3: Authentication & Onboarding** - Magic link auth, signup flow, trade selection
 - [ ] **Phase 4: Core Features (Tenant-Aware)** - Adapt bookings, estimates, invoices for multi-tenancy
 - [ ] **Phase 5: Subscription & Billing** - Stripe integration, tier management, feature gating
 - [ ] **Phase 6: Extended Features** - Receipts, Smart Jotter, Notes, Assessments
@@ -156,8 +156,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Backup | 1/1 | Complete | 2026-01-11 |
-| 2. Multi-Tenancy Architecture | 0/TBD | Not started | - |
-| 3. Authentication & Onboarding | 0/TBD | Not started | - |
+| 2. Multi-Tenancy Architecture | 1/1 | Complete | 2026-01-11 |
+| 3. Authentication & Onboarding | 1/1 | Complete | 2026-01-11 |
 | 4. Core Features (Tenant-Aware) | 0/TBD | Not started | - |
 | 5. Subscription & Billing | 0/TBD | Not started | - |
 | 6. Extended Features | 0/TBD | Not started | - |
