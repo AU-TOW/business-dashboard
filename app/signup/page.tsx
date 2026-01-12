@@ -117,7 +117,7 @@ export default function SignupPage() {
               )}
             </p>
             {emailFailed ? (
-              <a href="/autow" style={{...styles.backButton, textDecoration: 'none', display: 'inline-block'}}>
+              <a href="/login" style={{...styles.backButton, textDecoration: 'none', display: 'inline-block'}}>
                 Go to Login →
               </a>
             ) : (
@@ -231,7 +231,7 @@ export default function SignupPage() {
 
           <div style={styles.loginLink}>
             Already have an account?{' '}
-            <a href="/autow" style={styles.link}>Log in</a>
+            <a href="/login" style={styles.link}>Log in</a>
           </div>
         </form>
       </div>
