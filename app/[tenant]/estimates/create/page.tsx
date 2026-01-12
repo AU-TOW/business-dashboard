@@ -3,8 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LineItem } from '@/lib/types';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { getPartsLabel, shouldShowVehicleFields, TradeType } from '@/lib/features';
+import { colors, shadows } from '@/lib/theme';
+
+interface BusinessSettings {
+  businessName: string;
+  email: string;
+  phone: string;
+  address: string;
+  postcode: string;
+  logoUrl: string | null;
+  bankAccountName: string;
+  bankSortCode: string;
+  bankAccountNumber: string;
+}
 
 interface FormData {
   estimate_number: string;
@@ -26,6 +39,7 @@ export default function CreateEstimatePage() {
   const searchParams = useSearchParams();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
   const trade = (tenant.tradeType || 'general') as TradeType;
   const showVehicle = shouldShowVehicleFields(trade);
   const bookingId = searchParams.get('booking_id');
@@ -45,25 +59,8 @@ export default function CreateEstimatePage() {
   const [vehicleRegInput, setVehicleRegInput] = useState('');
   const [fetchingNumber, setFetchingNumber] = useState(false);
 
-  const defaultNotes = `We Provide Mobile mechanics and Recovery services,
-we have dedicated ramp spaces for works that are not suitable at roadside etc.
-
-OUR TERMS:
-PARTS AND / OR VEHICLE COLLECTION/RECOVERY
-REQUIRED UPFRONT.
-
-LABOUR ON COMPLETION
-
-Best Regards
-
-G, AuToW Services
-
-
-BACS DETAILS:
-Account Name: Gavin White
-S/C: 04-06-05
-A/N: 20052044
-(Business Account)`;
+  // Business settings for dynamic branding
+  const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     estimate_number: '',
@@ -76,7 +73,7 @@ A/N: 20052044
     vehicle_make: '',
     vehicle_model: '',
     vehicle_reg: '',
-    notes: defaultNotes,
+    notes: '',
     vat_rate: 0
   });
 
@@ -117,6 +114,41 @@ A/N: 20052044
       console.error('Error fetching document number:', error);
     }
   };
+
+  // Fetch business settings for dynamic branding
+  useEffect(() => {
+    const fetchBusinessSettings = async () => {
+      try {
+        const response = await fetch('/api/autow/tenant/settings', {
+          headers: { 'X-Tenant-Slug': tenant.slug }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setBusinessSettings({
+            businessName: data.businessName || branding.businessName,
+            email: data.email || '',
+            phone: data.phone || '',
+            address: data.address || '',
+            postcode: data.postcode || '',
+            logoUrl: data.logoUrl || branding.logoUrl || null,
+            bankAccountName: data.bankAccountName || '',
+            bankSortCode: data.bankSortCode || '',
+            bankAccountNumber: data.bankAccountNumber || '',
+          });
+          // Set default notes if not already set (only for new estimates)
+          if (mode === 'create' && !formData.notes) {
+            const bankInfo = data.bankAccountName
+              ? `\n\nBACS DETAILS:\nAccount Name: ${data.bankAccountName}\nS/C: ${data.bankSortCode}\nA/N: ${data.bankAccountNumber}`
+              : '';
+            setFormData(prev => ({ ...prev, notes: `Thank you for your business.${bankInfo}` }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching business settings:', error);
+      }
+    };
+    fetchBusinessSettings();
+  }, [tenant.slug, branding, mode]);
 
   // Auto-fill from booking or show vehicle reg modal for new estimates
   useEffect(() => {
@@ -551,20 +583,29 @@ A/N: 20052044
 
       {/* Business Header */}
       <div style={styles.businessHeader}>
-        <img
-          src="https://autow-services.co.uk/logo.png"
-          alt="AUTOW Services"
-          style={styles.headerLogo}
-        />
+        {(businessSettings?.logoUrl || branding.logoUrl) ? (
+          <img
+            src={businessSettings?.logoUrl || branding.logoUrl}
+            alt={businessSettings?.businessName || branding.businessName}
+            style={styles.headerLogo}
+          />
+        ) : (
+          <div style={styles.logoPlaceholder}>
+            {(businessSettings?.businessName || branding.businessName).charAt(0)}
+          </div>
+        )}
         <div style={styles.businessInfo}>
-          <h2 style={styles.businessName}>AUTOW SERVICES</h2>
-          <p style={styles.businessDetails}>
-            Email: info@autow-services.co.uk | Phone: 07352968276
-            <br />
-            Address: Alverton, Penzance, TR18 4QB | WORKSHOP LOCATION PENZANCE
-            <br />
-            Website: https://www.autow-services.co.uk
-          </p>
+          <h2 style={styles.businessNameText}>{businessSettings?.businessName || branding.businessName}</h2>
+          {businessSettings && (businessSettings.email || businessSettings.phone || businessSettings.address) && (
+            <p style={styles.businessDetails}>
+              {businessSettings.email && `Email: ${businessSettings.email}`}
+              {businessSettings.email && businessSettings.phone && ' | '}
+              {businessSettings.phone && `Phone: ${businessSettings.phone}`}
+              {(businessSettings.email || businessSettings.phone) && businessSettings.address && <br />}
+              {businessSettings.address && `Address: ${businessSettings.address}`}
+              {businessSettings.postcode && `, ${businessSettings.postcode}`}
+            </p>
+          )}
         </div>
       </div>
 
@@ -1128,7 +1169,7 @@ A/N: 20052044
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: '#000',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
   },
@@ -1219,32 +1260,44 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
   },
   businessHeader: {
-    background: '#1a1a1a',
-    borderRadius: '12px',
-    padding: '20px 30px',
-    marginBottom: '20px',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
+    background: colors.cardBackground,
+    borderRadius: '16px',
+    padding: '20px 24px',
+    marginBottom: '24px',
+    border: `1px solid ${colors.borderLight}`,
     display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'flex-start',
-    gap: '15px',
+    alignItems: 'center',
+    gap: '16px',
+    boxShadow: shadows.small,
   },
   headerLogo: {
     height: '60px',
     width: 'auto',
+    objectFit: 'contain' as const,
+  },
+  logoPlaceholder: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '12px',
+    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '28px',
+    fontWeight: '700',
   },
   businessInfo: {
-    width: '100%',
+    flex: 1,
   },
-  businessName: {
-    color: '#30ff37',
-    fontSize: '14.4px',
-    margin: '0 0 8px 0',
-    fontWeight: '700' as const,
-    textTransform: 'uppercase' as const,
+  businessNameText: {
+    color: colors.textHeading,
+    fontSize: '18px',
+    margin: '0 0 6px 0',
+    fontWeight: '700',
   },
   businessDetails: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '13px',
     margin: '0',
     lineHeight: 1.6,
