@@ -7,16 +7,16 @@ export default function PricingContent() {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <section style={styles.header}>
-        <h1 style={styles.title}>Simple, Transparent Pricing</h1>
+      <section style={styles.header} aria-labelledby="pricing-heading">
+        <h1 id="pricing-heading" style={styles.title}>Simple, Transparent Pricing</h1>
         <p style={styles.subtitle}>
           Start with a 7-day free trial. No credit card required.
         </p>
       </section>
 
       {/* Pricing Tiers */}
-      <section style={styles.tiersSection}>
-        <div style={styles.tiersGrid}>
+      <section style={styles.tiersSection} aria-label="Pricing plans">
+        <div style={styles.tiersGrid} role="list">
           <PricingCard
             name="Starter"
             price="12"
@@ -76,17 +76,17 @@ export default function PricingContent() {
       </section>
 
       {/* Feature Comparison Table */}
-      <section style={styles.comparisonSection}>
-        <h2 style={styles.sectionTitle}>Feature Comparison</h2>
+      <section style={styles.comparisonSection} aria-labelledby="comparison-heading">
+        <h2 id="comparison-heading" style={styles.sectionTitle}>Feature Comparison</h2>
         <div style={styles.tableWrapper}>
           <table style={styles.table}>
             <thead>
               <tr style={styles.tableHeader}>
-                <th style={styles.th}>Feature</th>
-                <th style={styles.th}>Starter</th>
-                <th style={styles.thPopular}>Pro</th>
-                <th style={styles.th}>Business</th>
-                <th style={styles.th}>Enterprise</th>
+                <th scope="col" style={styles.th}>Feature</th>
+                <th scope="col" style={styles.th}>Starter</th>
+                <th scope="col" style={styles.thPopular}>Pro</th>
+                <th scope="col" style={styles.th}>Business</th>
+                <th scope="col" style={styles.th}>Enterprise</th>
               </tr>
             </thead>
             <tbody>
@@ -148,8 +148,8 @@ export default function PricingContent() {
       </section>
 
       {/* FAQ Section */}
-      <section style={styles.faqSection}>
-        <h2 style={styles.sectionTitle}>Frequently Asked Questions</h2>
+      <section style={styles.faqSection} aria-labelledby="faq-heading">
+        <h2 id="faq-heading" style={styles.sectionTitle}>Frequently Asked Questions</h2>
         <div style={styles.faqGrid}>
           <FAQItem
             question="What happens after my trial ends?"
@@ -175,10 +175,14 @@ export default function PricingContent() {
       </section>
 
       {/* Final CTA */}
-      <section style={styles.finalCta}>
-        <h2 style={styles.ctaTitle}>Ready to streamline your business?</h2>
+      <section style={styles.finalCta} aria-labelledby="cta-heading">
+        <h2 id="cta-heading" style={styles.ctaTitle}>Ready to streamline your business?</h2>
         <p style={styles.ctaSubtitle}>Start your 7-day free trial today</p>
-        <Link href="/signup" style={styles.ctaButton}>
+        <Link
+          href="/signup"
+          style={styles.ctaButton}
+          aria-label="Get started with your free trial"
+        >
           Get Started Free
         </Link>
       </section>
@@ -202,46 +206,56 @@ function PricingCard({
   ctaLink: string;
 }) {
   return (
-    <div style={popular ? styles.cardPopular : styles.card}>
-      {popular && <div style={styles.popularBadge}>Popular</div>}
-      <h3 style={styles.cardName}>{name}</h3>
-      <div style={styles.priceWrapper}>
-        <span style={styles.currency}>£</span>
+    <article
+      style={popular ? styles.cardPopular : styles.card}
+      role="listitem"
+      aria-labelledby={`plan-${name.toLowerCase()}`}
+    >
+      {popular && <div style={styles.popularBadge} aria-label="Most popular plan">Popular</div>}
+      <h3 id={`plan-${name.toLowerCase()}`} style={styles.cardName}>{name}</h3>
+      <div style={styles.priceWrapper} aria-label={`${price} pounds per month`}>
+        <span style={styles.currency} aria-hidden="true">£</span>
         <span style={styles.price}>{price}</span>
-        <span style={styles.period}>/mo</span>
+        <span style={styles.period} aria-hidden="true">/mo</span>
       </div>
-      <ul style={styles.featureList}>
+      <ul style={styles.featureList} aria-label={`Features included in ${name} plan`}>
         {features.map((feature, index) => (
           <li key={index} style={styles.featureItem}>
-            <span style={styles.checkIcon}>✓</span>
+            <span style={styles.checkIcon} aria-hidden="true">✓</span>
             {feature}
           </li>
         ))}
       </ul>
-      <Link href={ctaLink} style={popular ? styles.ctaPrimary : styles.ctaSecondary}>
+      <Link
+        href={ctaLink}
+        style={popular ? styles.ctaPrimary : styles.ctaSecondary}
+        aria-label={`${cta} with ${name} plan`}
+      >
         {cta}
       </Link>
-    </div>
+    </article>
   );
 }
 
 function ComparisonRow({ feature, values }: { feature: string; values: string[] }) {
-  const renderValue = (value: string, index: number) => {
+  const planNames = ['Starter', 'Pro', 'Business', 'Enterprise'];
+
+  const renderValue = (value: string, planName: string) => {
     if (value === 'check') {
-      return <span style={styles.checkMark}>✓</span>;
+      return <span style={styles.checkMark} aria-label={`Included in ${planName}`}>✓</span>;
     }
     if (value === 'dash') {
-      return <span style={styles.dashMark}>—</span>;
+      return <span style={styles.dashMark} aria-label={`Not included in ${planName}`}>—</span>;
     }
     return value;
   };
 
   return (
     <tr style={styles.tableRow}>
-      <td style={styles.tdFeature}>{feature}</td>
+      <th scope="row" style={styles.tdFeature}>{feature}</th>
       {values.map((value, index) => (
         <td key={index} style={index === 1 ? styles.tdPopular : styles.td}>
-          {renderValue(value, index)}
+          {renderValue(value, planNames[index])}
         </td>
       ))}
     </tr>
@@ -285,7 +299,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   subtitle: {
     fontSize: '20px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast from #64748b
     margin: 0,
   },
   tiersSection: {
@@ -359,7 +373,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   period: {
     fontSize: '16px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast
     marginLeft: '4px',
   },
   featureList: {
@@ -523,7 +537,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '0 24px 18px',
     margin: 0,
     fontSize: '15px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast
     lineHeight: 1.6,
   },
   finalCta: {
@@ -539,7 +553,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   ctaSubtitle: {
     fontSize: '18px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast
     margin: '0 0 32px 0',
   },
   ctaButton: {

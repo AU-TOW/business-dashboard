@@ -29,26 +29,35 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
       {/* Hero Section */}
-      <section style={styles.hero}>
+      <section style={styles.hero} aria-labelledby="hero-heading">
         <div style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>
+          <h1 id="hero-heading" style={styles.heroTitle}>
             Manage Your Trade Business in One Place
           </h1>
           <p style={styles.heroSubtitle}>
             Bookings, estimates, invoices, and receipts - with instant Telegram notifications
           </p>
-          <div style={styles.heroCtas}>
-            <Link href="/signup" style={styles.primaryCta}>
+          <div style={styles.heroCtas} role="group" aria-label="Get started options">
+            <Link
+              href="/signup"
+              style={styles.primaryCta}
+              aria-label="Start your free trial - no credit card required"
+            >
               Start Free Trial
             </Link>
-            <Link href="/pricing" style={styles.secondaryCta}>
+            <Link
+              href="/pricing"
+              style={styles.secondaryCta}
+              aria-label="View pricing plans"
+            >
               See Pricing
             </Link>
           </div>
         </div>
-        <div style={styles.heroVisual}>
-          <div style={styles.heroPlaceholder}>
+        <div style={styles.heroVisual} aria-hidden="true">
+          <div style={styles.heroPlaceholder} role="img" aria-label="Dashboard preview illustration">
             <span style={styles.heroPlaceholderIcon}>📊</span>
             <span style={styles.heroPlaceholderText}>Dashboard Preview</span>
           </div>
@@ -56,9 +65,11 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section style={styles.features}>
-        <h2 style={styles.sectionTitle}>Everything You Need to Run Your Business</h2>
-        <div style={styles.featuresGrid}>
+      <section id="features" style={styles.features} aria-labelledby="features-heading">
+        <h2 id="features-heading" style={styles.sectionTitle}>
+          Everything You Need to Run Your Business
+        </h2>
+        <div style={styles.featuresGrid} role="list" aria-label="Product features">
           <FeatureCard
             icon="📅"
             title="Bookings"
@@ -93,35 +104,77 @@ export default function LandingPage() {
       </section>
 
       {/* Trust Section */}
-      <section style={styles.trust}>
-        <div style={styles.trustBadge}>
-          🇬🇧 Built for UK Tradespeople
+      <section style={styles.trust} aria-labelledby="trust-heading">
+        <h2 id="trust-heading" className="sr-only">Why choose Business Dashboard</h2>
+        <div style={styles.trustBadge} role="status">
+          <span aria-hidden="true">🇬🇧</span> Built for UK Tradespeople
         </div>
         <p style={styles.trustMessage}>
           7-Day Free Trial - No Card Required
         </p>
-        <div style={styles.tradeTypes}>
-          <span style={styles.tradeTag}>Car Mechanics</span>
-          <span style={styles.tradeTag}>Plumbers</span>
-          <span style={styles.tradeTag}>Electricians</span>
-          <span style={styles.tradeTag}>Builders</span>
-          <span style={styles.tradeTag}>General Trades</span>
+        <div style={styles.tradeTypes} role="list" aria-label="Supported trades">
+          <span style={styles.tradeTag} role="listitem">Car Mechanics</span>
+          <span style={styles.tradeTag} role="listitem">Plumbers</span>
+          <span style={styles.tradeTag} role="listitem">Electricians</span>
+          <span style={styles.tradeTag} role="listitem">Builders</span>
+          <span style={styles.tradeTag} role="listitem">General Trades</span>
         </div>
-        <Link href="/signup" style={styles.trustCta}>
-          Get Started Free →
+        <Link
+          href="/signup"
+          style={styles.trustCta}
+          aria-label="Get started with your free trial"
+        >
+          Get Started Free <span aria-hidden="true">→</span>
         </Link>
       </section>
+
+      {/* Screen reader only styles */}
+      <style>{`
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
+
+        /* Responsive grid for features */
+        @media (max-width: 768px) {
+          section[aria-labelledby="hero-heading"] {
+            grid-template-columns: 1fr !important;
+            text-align: center;
+          }
+          section[aria-labelledby="hero-heading"] > div:first-child {
+            align-items: center;
+          }
+          section[aria-labelledby="hero-heading"] > div:last-child {
+            order: -1;
+          }
+          div[role="list"][aria-label="Product features"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+          div[role="list"][aria-label="Product features"] {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
 function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
-    <div style={styles.featureCard}>
-      <span style={styles.featureIcon}>{icon}</span>
+    <article style={styles.featureCard} role="listitem">
+      <span style={styles.featureIcon} role="img" aria-hidden="true">{icon}</span>
       <h3 style={styles.featureTitle}>{title}</h3>
       <p style={styles.featureDescription}>{description}</p>
-    </div>
+    </article>
   );
 }
 
@@ -154,7 +207,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   heroSubtitle: {
     fontSize: '20px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast from #64748b
     lineHeight: 1.6,
     margin: 0,
   },
@@ -162,6 +215,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     gap: '16px',
     marginTop: '8px',
+    flexWrap: 'wrap',
   },
   primaryCta: {
     background: 'linear-gradient(135deg, #3B82F6, #2563eb)',
@@ -175,14 +229,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'transform 0.2s, box-shadow 0.2s',
   },
   secondaryCta: {
-    background: 'rgba(255, 255, 255, 0.8)',
-    color: '#3B82F6',
+    background: 'rgba(255, 255, 255, 0.9)',
+    color: '#2563eb', // Darker blue for better contrast
     padding: '16px 32px',
     borderRadius: '12px',
     textDecoration: 'none',
     fontSize: '16px',
     fontWeight: 600,
-    border: '2px solid rgba(59, 130, 246, 0.3)',
+    border: '2px solid rgba(37, 99, 235, 0.4)',
     transition: 'background 0.2s, border-color 0.2s',
   },
   heroVisual: {
@@ -209,7 +263,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '64px',
   },
   heroPlaceholderText: {
-    color: '#64748b',
+    color: '#475569', // Improved contrast
     fontSize: '16px',
     fontWeight: 500,
   },
@@ -225,6 +279,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#1e293b',
     textAlign: 'center',
     marginBottom: '48px',
+    margin: '0 0 48px 0',
   },
   featuresGrid: {
     display: 'grid',
@@ -254,7 +309,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   featureDescription: {
     fontSize: '15px',
-    color: '#64748b',
+    color: '#475569', // Improved contrast
     lineHeight: 1.6,
     margin: 0,
   },
@@ -281,7 +336,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   trustMessage: {
     fontSize: '24px',
     fontWeight: 600,
-    color: '#059669',
+    color: '#047857', // Darker green for better contrast
     margin: 0,
   },
   tradeTypes: {
@@ -291,15 +346,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '12px',
   },
   tradeTag: {
-    background: 'rgba(59, 130, 246, 0.1)',
-    color: '#3B82F6',
+    background: 'rgba(37, 99, 235, 0.1)',
+    color: '#1d4ed8', // Darker blue for better contrast
     padding: '8px 16px',
     borderRadius: '100px',
     fontSize: '14px',
     fontWeight: 500,
   },
   trustCta: {
-    color: '#3B82F6',
+    color: '#1d4ed8', // Darker blue for better contrast
     fontSize: '18px',
     fontWeight: 600,
     textDecoration: 'none',
