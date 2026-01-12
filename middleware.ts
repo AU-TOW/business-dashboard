@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -62,6 +61,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
+  // Dynamically import Supabase to avoid edge runtime issues
+  const { createServerClient } = await import('@supabase/ssr');
+
   // Create a response to potentially modify
   let response = NextResponse.next({
     request: {
@@ -81,7 +83,7 @@ export async function middleware(request: NextRequest) {
             value: cookie.value,
           }));
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
             response = NextResponse.next({
