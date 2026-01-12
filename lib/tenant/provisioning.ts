@@ -377,15 +377,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ============================================
--- GRANT PERMISSIONS
--- ============================================
--- Note: Adjust these based on your Supabase RLS setup
-
-GRANT USAGE ON SCHEMA {{SCHEMA_NAME}} TO authenticated;
-GRANT ALL ON ALL TABLES IN SCHEMA {{SCHEMA_NAME}} TO authenticated;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA {{SCHEMA_NAME}} TO authenticated;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA {{SCHEMA_NAME}} TO authenticated;
+-- Note: Permissions are handled by Supabase RLS policies
+-- GRANT statements removed as they cause issues with connection pooler
 `;
 
 const pool = new Pool({
@@ -578,9 +571,16 @@ async function provisionTenantSchema(client: PoolClient, schemaName: string): Pr
       await client.query(statement);
     } catch (error: any) {
       // Ignore "already exists" errors for idempotency
-      if (!error.message?.includes('already exists')) {
+      const isIgnorable =
+        error.message?.includes('already exists') ||
+        error.message?.includes('does not exist') && statement.toUpperCase().includes('GRANT');
+
+      if (!isIgnorable) {
         console.error('Error executing statement:', statement.substring(0, 100));
+        console.error('Error details:', error.message);
         throw error;
+      } else {
+        console.log('Ignoring error for statement:', statement.substring(0, 50) + '...');
       }
     }
   }
