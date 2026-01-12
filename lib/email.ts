@@ -276,7 +276,18 @@ export async function sendVerificationEmail(
   token: string
 ): Promise<boolean> {
   try {
+    // Check if SMTP is configured
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+      console.error('❌ SMTP not configured - missing SMTP_USER or SMTP_PASSWORD env vars');
+      console.error('SMTP_USER:', process.env.SMTP_USER ? 'SET' : 'MISSING');
+      console.error('SMTP_PASSWORD:', process.env.SMTP_PASSWORD ? 'SET' : 'MISSING');
+      return false;
+    }
+
     const verificationLink = `${APP_URL}/signup/verify?token=${token}`;
+    console.log('📧 Sending verification email to:', email);
+    console.log('📧 Verification link:', verificationLink);
+
     const htmlContent = getVerificationEmailHTML(verificationLink, businessName);
 
     await transporter.sendMail({
@@ -288,8 +299,10 @@ export async function sendVerificationEmail(
 
     console.log(`✅ Verification email sent to ${email}`);
     return true;
-  } catch (error) {
-    console.error('❌ Error sending verification email:', error);
+  } catch (error: any) {
+    console.error('❌ Error sending verification email:', error?.message || error);
+    console.error('❌ Error code:', error?.code);
+    console.error('❌ Error response:', error?.response);
     return false;
   }
 }
