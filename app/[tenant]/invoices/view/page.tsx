@@ -47,7 +47,7 @@ export default function ViewInvoicePage() {
       return;
     }
 
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push(paths.welcome);
       return;
@@ -58,7 +58,7 @@ export default function ViewInvoicePage() {
 
   const fetchInvoice = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
         headers: {
           'X-Tenant-Slug': tenant.slug,
@@ -85,7 +85,7 @@ export default function ViewInvoicePage() {
     if (!confirm('Mark this invoice as paid?')) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/mark-as-paid', {
         method: 'POST',
         headers: {
@@ -115,7 +115,7 @@ export default function ViewInvoicePage() {
   // Fetch expenses for this invoice
   const fetchExpenses = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/invoice/expense/list?invoice_id=${id}`, {
         headers: {
           'X-Tenant-Slug': tenant.slug,
@@ -135,7 +135,7 @@ export default function ViewInvoicePage() {
   const parseExpenseImage = async (imgData: string) => {
     setScanningExpense(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/expense/parse', {
         method: 'POST',
         headers: {
@@ -249,7 +249,7 @@ export default function ViewInvoicePage() {
   const handleSaveExpense = async () => {
     setSavingExpense(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const totalAmount =
         parseFloat(expensePartsAmount) +
         parseFloat(expenseLabourAmount);
@@ -296,7 +296,7 @@ export default function ViewInvoicePage() {
     if (!confirm('Delete this expense?')) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/expense/delete', {
         method: 'POST',
         headers: {

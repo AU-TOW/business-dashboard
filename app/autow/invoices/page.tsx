@@ -11,7 +11,7 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
       return;
@@ -23,7 +23,7 @@ export default function InvoicesPage() {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const url = statusFilter === 'all'
         ? '/api/autow/invoice/list'
         : `/api/autow/invoice/list?status=${statusFilter}`;
@@ -69,7 +69,7 @@ export default function InvoicesPage() {
     if (!confirm('Mark this invoice as paid?')) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/mark-as-paid', {
         method: 'POST',
         headers: {
@@ -93,7 +93,7 @@ export default function InvoicesPage() {
 
   const generateShareLink = async (invoiceId: number) => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/generate-share-link', {
         method: 'POST',
         headers: {
@@ -124,7 +124,7 @@ export default function InvoicesPage() {
     }
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/invoice/delete', {
         method: 'POST',
         headers: {

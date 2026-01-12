@@ -45,6 +45,10 @@ function VerifyContent() {
         setTenantSlug(data.tenantSlug);
         setBusinessName(data.businessName);
 
+        // Set localStorage flag for client-side auth checks
+        localStorage.setItem('bd_logged_in', 'true');
+        localStorage.setItem('bd_tenant', data.tenantSlug);
+
         // Redirect to dashboard after short delay
         setTimeout(() => {
           router.push(`/${data.tenantSlug}/dashboard`);

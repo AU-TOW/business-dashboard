@@ -25,7 +25,9 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('autow_token', data.token);
+        // Set localStorage flags for client-side auth checks
+        localStorage.setItem('bd_logged_in', 'true');
+        localStorage.setItem('bd_tenant', 'autow');
         // Redirect to the tenant-aware route (autow is the default tenant)
         router.push('/autow/welcome');
       } else {

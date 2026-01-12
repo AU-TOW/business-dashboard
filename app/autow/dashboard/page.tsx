@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ today: 0, pending: 0, completed: 0, total: 0 });
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
       return;

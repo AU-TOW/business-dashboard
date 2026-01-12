@@ -11,7 +11,7 @@ export default function EstimatesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
       return;
@@ -23,7 +23,7 @@ export default function EstimatesPage() {
   const fetchEstimates = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const url = statusFilter === 'all'
         ? '/api/autow/estimate/list'
         : `/api/autow/estimate/list?status=${statusFilter}`;
@@ -232,7 +232,7 @@ export default function EstimatesPage() {
     if (!confirm('Convert this estimate to an invoice?')) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/estimate/convert-to-invoice', {
         method: 'POST',
         headers: {
@@ -257,7 +257,7 @@ export default function EstimatesPage() {
 
   async function generateShareLink(estimateId: number) {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/estimate/generate-share-link', {
         method: 'POST',
         headers: {
@@ -288,7 +288,7 @@ export default function EstimatesPage() {
     }
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/estimate/delete', {
         method: 'POST',
         headers: {

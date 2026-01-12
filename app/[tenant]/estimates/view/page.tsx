@@ -23,7 +23,7 @@ export default function ViewEstimatePage() {
       return;
     }
 
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push(paths.welcome);
       return;
@@ -34,7 +34,7 @@ export default function ViewEstimatePage() {
 
   const fetchEstimate = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
         headers: {
  'X-Tenant-Slug': tenant.slug }
@@ -60,7 +60,7 @@ export default function ViewEstimatePage() {
     if (!confirm('Convert this estimate to an invoice?\n\nThis will create a new invoice and mark this estimate as converted.')) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/estimate/convert-to-invoice', {
         method: 'POST',
         headers: {

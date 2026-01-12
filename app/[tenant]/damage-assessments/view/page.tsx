@@ -236,7 +236,7 @@ export default function ViewDamageAssessmentPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push(paths.welcome);
       return;
@@ -253,7 +253,7 @@ export default function ViewDamageAssessmentPage() {
 
   const fetchAssessment = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/damage-assessment/get?id=${id}`, {
         headers: {
           'X-Tenant-Slug': tenant.slug,
@@ -277,7 +277,7 @@ export default function ViewDamageAssessmentPage() {
     if (!assessment) return;
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/damage-assessment/generate-share-link', {
         method: 'POST',
         headers: {

@@ -35,7 +35,7 @@ function AssessmentViewContent() {
   const [assessment, setAssessment] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
       return;

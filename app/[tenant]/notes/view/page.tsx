@@ -15,7 +15,7 @@ export default function ViewNotePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push(paths.welcome);
       return;
@@ -27,7 +27,7 @@ export default function ViewNotePage() {
 
   const fetchNote = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/note/get?id=${noteId}`, {
         headers: {
           'X-Tenant-Slug': tenant.slug,

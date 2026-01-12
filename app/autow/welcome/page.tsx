@@ -8,7 +8,7 @@ export default function WelcomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
     } else {
@@ -17,7 +17,8 @@ export default function WelcomePage() {
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('autow_token');
+    localStorage.removeItem('bd_logged_in');
+    localStorage.removeItem('bd_tenant');
     router.push('/autow');
   };
 

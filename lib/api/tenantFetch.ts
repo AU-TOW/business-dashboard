@@ -26,28 +26,15 @@ export async function tenantFetch(
 }
 
 /**
- * Create a tenant-scoped API client with auth and tenant headers
+ * Create a tenant-scoped API client with tenant headers
+ * Auth is handled via httpOnly session cookies
  */
 export function createTenantApi(tenantSlug: string) {
-  const getAuthToken = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('autow_token');
-    }
-    return null;
-  };
-
   const getHeaders = (): HeadersInit => {
-    const headers: HeadersInit = {
+    return {
       'Content-Type': 'application/json',
       'X-Tenant-Slug': tenantSlug,
     };
-
-    const authToken = getAuthToken();
-    if (authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`;
-    }
-
-    return headers;
   };
 
   return {

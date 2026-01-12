@@ -202,11 +202,10 @@ const SmartJotter: React.FC<SmartJotterProps> = ({
 
   const handleSaveNote = useCallback(async () => {
     if (!parsedData) return;
-    
+
     try {
       setIsProcessing(true);
-      const token = localStorage.getItem('autow_token');
-      
+
       // Split vehicle into make and model
       let vehicle_make = '';
       let vehicle_model = '';
@@ -215,12 +214,12 @@ const SmartJotter: React.FC<SmartJotterProps> = ({
         vehicle_make = parts[0] || '';
         vehicle_model = parts.slice(1).join(' ') || '';
       }
-      
+
       const response = await fetch('/api/autow/note/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'X-Tenant-Slug': 'autow'
         },
         body: JSON.stringify({
           customer_name: parsedData.customer_name,

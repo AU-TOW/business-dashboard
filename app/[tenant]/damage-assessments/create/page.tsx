@@ -226,7 +226,7 @@ export default function CreateDamageAssessmentPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push(paths.welcome);
       return;
@@ -239,7 +239,7 @@ export default function CreateDamageAssessmentPage() {
 
   const fetchAssessment = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/damage-assessment/get?id=${editId}`, {
         headers: {
           'X-Tenant-Slug': tenant.slug,
@@ -294,7 +294,7 @@ export default function CreateDamageAssessmentPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const endpoint = isEditing
         ? '/api/autow/damage-assessment/update'
         : '/api/autow/damage-assessment/create';

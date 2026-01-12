@@ -299,7 +299,7 @@ export default function ReceiptsPage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
       return;
@@ -309,7 +309,7 @@ export default function ReceiptsPage() {
 
   const fetchReceipts = async () => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const params = new URLSearchParams();
       if (monthFilter) params.append('month', monthFilter);
       if (categoryFilter) params.append('category', categoryFilter);
@@ -339,7 +339,7 @@ export default function ReceiptsPage() {
 
     setDeleting(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/receipt/delete', {
         method: 'POST',
         headers: {

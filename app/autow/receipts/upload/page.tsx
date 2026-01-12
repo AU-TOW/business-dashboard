@@ -305,7 +305,7 @@ export default function ReceiptUploadPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('autow_token');
+    const token = localStorage.getItem('bd_logged_in');
     if (!token) {
       router.push('/autow');
     }
@@ -316,7 +316,7 @@ export default function ReceiptUploadPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/receipt/parse', {
         method: 'POST',
         headers: {
@@ -440,7 +440,7 @@ export default function ReceiptUploadPage() {
     setLoadingMessage('Uploading to Google Drive...');
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch('/api/autow/receipt/upload', {
         method: 'POST',
         headers: {

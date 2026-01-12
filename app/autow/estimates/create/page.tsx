@@ -96,7 +96,7 @@ A/N: 20052044
     }
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(vehicleReg)}&type=estimate`,
         { headers: {
@@ -131,7 +131,7 @@ A/N: 20052044
     setFetchingNumber(true);
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(upperReg)}&type=estimate`,
         { headers: {
@@ -158,7 +158,7 @@ A/N: 20052044
   const handleSkipVehicleReg = async () => {
     setFetchingNumber(true);
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=&type=estimate`,
         { headers: {
@@ -187,7 +187,7 @@ A/N: 20052044
 
   const fetchBooking = async (id: string) => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/booking/get?id=${id}`, {
         headers: {
  }
@@ -226,7 +226,7 @@ A/N: 20052044
 
   const fetchEstimate = async (id: string) => {
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
         headers: {
  }
@@ -428,7 +428,7 @@ A/N: 20052044
     setSaving(true);
 
     try {
-      const token = localStorage.getItem('autow_token');
+      const token = localStorage.getItem('bd_logged_in');
       const endpoint = mode === 'edit'
         ? '/api/autow/estimate/update'
         : '/api/autow/estimate/create';
