@@ -518,6 +518,48 @@ export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
 }
 
 /**
+ * Split SQL into statements, respecting $$ quoted function bodies
+ */
+function splitSqlStatements(sql: string): string[] {
+  const statements: string[] = [];
+  let current = '';
+  let inDollarQuote = false;
+
+  for (let i = 0; i < sql.length; i++) {
+    const char = sql[i];
+    const nextChar = sql[i + 1];
+
+    // Check for $$ delimiter
+    if (char === '$' && nextChar === '$') {
+      inDollarQuote = !inDollarQuote;
+      current += '$$';
+      i++; // Skip next $
+      continue;
+    }
+
+    // Only split on semicolon if not inside $$ block
+    if (char === ';' && !inDollarQuote) {
+      const trimmed = current.trim();
+      if (trimmed.length > 0 && !trimmed.startsWith('--')) {
+        statements.push(trimmed);
+      }
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  // Add final statement if any
+  const trimmed = current.trim();
+  if (trimmed.length > 0 && !trimmed.startsWith('--')) {
+    statements.push(trimmed);
+  }
+
+  return statements;
+}
+
+/**
  * Provision a tenant schema with all required tables
  */
 async function provisionTenantSchema(client: PoolClient, schemaName: string): Promise<void> {
@@ -528,11 +570,8 @@ async function provisionTenantSchema(client: PoolClient, schemaName: string): Pr
   template = template.replace(/\{\{SCHEMA_NAME\}\}/g, schemaName);
 
   // Execute the schema creation SQL
-  // Split by semicolon and execute each statement
-  const statements = template
-    .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--'));
+  // Use smart splitting that respects $$ quoted function bodies
+  const statements = splitSqlStatements(template);
 
   for (const statement of statements) {
     try {
