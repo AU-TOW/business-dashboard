@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 ## Current Position
 
 Phase: 8 of 8 (Landing Page & Polish) — IN PROGRESS
-Plan: 08-02 complete, starting 08-03
+Plan: 08-03 complete, starting 08-04
 Status: Phase 5 SKIPPED (billing deferred), Phases 6-7 COMPLETE, Phase 8 in progress
-Last activity: 2026-01-11 — Plan 08-02 complete (Pricing Page)
+Last activity: 2026-01-11 — Plan 08-03 complete (SEO & Metadata)
 
-Progress: █████████░ 96%
+Progress: █████████░ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03, 08-01, 08-02)
+- Total plans completed: 17 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03, 08-01, 08-02, 08-03)
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -33,10 +33,10 @@ Progress: █████████░ 96%
 | 4 | 5 | — | — |
 | 6 | 3 | — | — |
 | 7 | 3 | — | — |
-| 8 | 2 | — | — |
+| 8 | 3 | — | — |
 
 **Recent Trend:**
-- Last 5 plans: 07-01, 07-02, 07-03, 08-01, 08-02
+- Last 5 plans: 07-02, 07-03, 08-01, 08-02, 08-03
 - Trend: —
 
 ## Accumulated Context
@@ -171,12 +171,17 @@ Technical notes:
 In Progress:
 1. Marketing Landing Page (08-01) ✓
 2. Pricing Page (08-02) ✓
+3. SEO & Metadata (08-03) ✓
 
 Key files:
-- `app/page.tsx` - Complete landing page with hero, features, trust sections
+- `app/page.tsx` - Complete landing page with hero, features, trust sections, JSON-LD
 - `app/(marketing)/layout.tsx` - Marketing layout with header/footer
 - `app/(marketing)/page.tsx` - Marketing route group page
-- `app/(marketing)/pricing/page.tsx` - Pricing page with tiers, comparison, FAQ
+- `app/(marketing)/pricing/page.tsx` - Pricing page (server component) with metadata, JSON-LD
+- `app/(marketing)/pricing/PricingContent.tsx` - Pricing interactive content (client component)
+- `app/layout.tsx` - Root layout with comprehensive SEO metadata
+- `app/sitemap.ts` - Dynamic sitemap generation
+- `app/robots.ts` - Robots.txt rules
 
 Technical notes:
 - Glass UI styling consistent with app theme
@@ -186,14 +191,19 @@ Technical notes:
 - 4 pricing tiers: Starter £12, Pro £29, Business £59, Enterprise £99
 - Pro tier highlighted as "Popular"
 - Accordion FAQ component
+- Open Graph and Twitter card metadata for social sharing
+- JSON-LD structured data (SoftwareApplication, Product schemas)
+- Sitemap includes /, /pricing, /signup
+- Robots.txt blocks /api/, /autow/, /share/
 
 Commits:
 - 1f9c726: feat(landing): create marketing landing page with hero, features, trust
 - 79f336f: feat(08-02): create pricing page with tier cards, comparison, FAQ
+- 1874051: feat(08-03): add SEO metadata, sitemap, robots.txt, JSON-LD
 
 ## Session Continuity
 
-Last session: 2026-01-11
-Completed: Plan 08-02 (Pricing Page)
+Last session: 2026-01-12
+Completed: Plan 08-03 (SEO & Metadata)
 Current: Phase 8 IN PROGRESS
-Next: Plan 08-03 (SEO & Metadata)
+Next: Plan 08-04 (Final Polish)
