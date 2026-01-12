@@ -88,25 +88,7 @@ export async function POST(request: NextRequest) {
     // Get the origin for redirect URL
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-    // Send magic link via Supabase Auth
-    const { error: authError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
-      options: {
-        redirectTo: `${origin}/signup/verify?tenant=${slug}`,
-      },
-    });
-
-    if (authError) {
-      console.error('Supabase auth error:', authError);
-      // Don't expose internal error details
-      return NextResponse.json(
-        { error: 'Failed to send verification email. Please try again.' },
-        { status: 500 }
-      );
-    }
-
-    // Also send the magic link email via signInWithOtp (for actual email delivery)
+    // Send magic link email via signInWithOtp (creates user + sends email)
     const { error: otpError } = await supabaseAdmin.auth.signInWithOtp({
       email,
       options: {
@@ -117,15 +99,22 @@ export async function POST(request: NextRequest) {
 
     if (otpError) {
       console.error('OTP error:', otpError);
-      // Tenant was created but email failed - log for debugging
-      return NextResponse.json(
-        { error: 'Account created but email failed. Please try logging in.' },
-        { status: 500 }
-      );
+      // Tenant was created but email failed - still return success
+      // User can request new email from login page
+      return NextResponse.json({
+        success: true,
+        emailSent: false,
+        message: 'Account created! Email delivery failed (rate limit). Try logging in at /autow',
+        tenant: {
+          slug: tenant.slug,
+          businessName: tenant.businessName,
+        },
+      });
     }
 
     return NextResponse.json({
       success: true,
+      emailSent: true,
       message: 'Check your email for the magic link',
       tenant: {
         slug: tenant.slug,

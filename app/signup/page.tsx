@@ -33,6 +33,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [emailFailed, setEmailFailed] = useState(false);
 
   // Auto-generate slug from business name
   useEffect(() => {
@@ -75,10 +76,15 @@ export default function SignupPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok && !data.success) {
         throw new Error(data.error || 'Signup failed');
       }
 
+      // Account created - check if email was sent
+      if (data.success && !data.emailSent) {
+        // Email failed but account exists - show alternate message
+        setEmailFailed(true);
+      }
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
@@ -92,20 +98,36 @@ export default function SignupPage() {
       <div style={styles.container}>
         <div style={styles.signupBox}>
           <div style={styles.successContent}>
-            <div style={styles.successIcon}>✉️</div>
-            <h1 style={styles.successTitle}>Check Your Email</h1>
+            <div style={styles.successIcon}>{emailFailed ? '✅' : '✉️'}</div>
+            <h1 style={styles.successTitle}>
+              {emailFailed ? 'Account Created!' : 'Check Your Email'}
+            </h1>
             <p style={styles.successText}>
-              We've sent a magic link to <strong>{formData.email}</strong>
+              {emailFailed ? (
+                <>Your account for <strong>{formData.businessName}</strong> is ready!</>
+              ) : (
+                <>We've sent a magic link to <strong>{formData.email}</strong></>
+              )}
             </p>
             <p style={styles.successSubtext}>
-              Click the link in your email to complete your signup and access your dashboard.
+              {emailFailed ? (
+                <>Email delivery was delayed. Visit the login page to request a new magic link.</>
+              ) : (
+                <>Click the link in your email to complete your signup and access your dashboard.</>
+              )}
             </p>
-            <button
-              onClick={() => setSuccess(false)}
-              style={styles.backButton}
-            >
-              ← Back to Signup
-            </button>
+            {emailFailed ? (
+              <a href="/autow" style={{...styles.backButton, textDecoration: 'none', display: 'inline-block'}}>
+                Go to Login →
+              </a>
+            ) : (
+              <button
+                onClick={() => setSuccess(false)}
+                style={styles.backButton}
+              >
+                ← Back to Signup
+              </button>
+            )}
           </div>
         </div>
       </div>
