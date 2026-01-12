@@ -389,7 +389,10 @@ function getPool(): Pool {
     const dbUrl = process.env.DATABASE_URL || '';
     // Use session mode (port 5432) for schema operations - transaction mode (6543) can't see newly created schemas
     const sessionUrl = dbUrl.replace(':6543/', ':5432/');
-    console.log('Initializing DB pool with session mode connection');
+
+    // Log connection info (mask password)
+    const maskedUrl = sessionUrl.replace(/:[^:@]+@/, ':***@');
+    console.log('Initializing DB pool:', maskedUrl);
 
     pool = new Pool({
       connectionString: sessionUrl,
