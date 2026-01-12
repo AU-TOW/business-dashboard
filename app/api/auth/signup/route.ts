@@ -134,6 +134,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Signup error:', error);
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
 
     // Handle specific database errors
     if (error.code === '23505') {
@@ -143,8 +145,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Include error details for debugging (remove in production later)
     return NextResponse.json(
-      { error: 'An error occurred during signup. Please try again.' },
+      {
+        error: 'An error occurred during signup. Please try again.',
+        debug: {
+          message: error?.message || 'Unknown error',
+          code: error?.code,
+          name: error?.name,
+        }
+      },
       { status: 500 }
     );
   }
