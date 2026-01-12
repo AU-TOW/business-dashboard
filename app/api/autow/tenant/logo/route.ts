@@ -15,13 +15,14 @@ const pool = new Pool({
     : undefined
 });
 
-// Lazy-initialize Supabase client
+// Lazy-initialize Supabase client with service role key for storage operations
 let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
 function getSupabaseClient() {
   if (!supabaseInstance) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // Use service role key for storage operations (has full access)
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Supabase environment variables not configured');
