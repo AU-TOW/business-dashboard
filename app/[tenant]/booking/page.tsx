@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 import { shouldShowVehicleFields, TradeType } from '@/lib/features';
+import { colors, shadows, animations } from '@/lib/theme';
 
 export default function BookingPage() {
   const router = useRouter();
@@ -129,7 +130,11 @@ export default function BookingPage() {
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={{ color: '#30ff37', fontSize: '24px', textAlign: 'center' }}>Loading...</div>
+        <div style={styles.loadingBox}>
+          <div style={styles.spinner}></div>
+          <p style={{ color: colors.textSecondary, fontSize: '16px' }}>Loading...</p>
+        </div>
+        <style>{animations}</style>
       </div>
     );
   }
@@ -407,16 +412,14 @@ export default function BookingPage() {
           .date-input {
             -webkit-appearance: none;
             appearance: none;
-            background: rgba(255, 255, 255, 0.05) !important;
-            color: #fff !important;
           }
 
           .date-input::-webkit-calendar-picker-indicator {
-            filter: invert(1);
             cursor: pointer;
             opacity: 0.8;
           }
         }
+        ${animations}
       `}</style>
     </div>
   );
@@ -425,58 +428,78 @@ export default function BookingPage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: '#000',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingBox: {
+    textAlign: 'center' as const,
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: `4px solid ${colors.borderLight}`,
+    borderTop: `4px solid ${colors.primary}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 16px',
   },
   formContainer: {
     maxWidth: '700px',
+    width: '100%',
     margin: '0 auto',
-    background: 'linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%)',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(20px)',
     borderRadius: '24px',
     padding: '40px',
-    boxShadow: '0 25px 50px -12px rgba(48, 255, 55, 0.25), 0 0 0 1px rgba(48, 255, 55, 0.1)',
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.borderLight}`,
   },
   header: {
     textAlign: 'center' as const,
     marginBottom: '40px',
   },
   logo: {
-    width: '180px',
-    height: 'auto',
+    width: '60px',
+    height: '60px',
     margin: '0 auto 20px',
-    filter: 'drop-shadow(0 4px 12px rgba(48, 255, 55, 0.3))',
+    borderRadius: '12px',
     display: 'block',
+    objectFit: 'contain' as const,
   },
   title: {
-    color: '#30ff37',
+    color: colors.textHeading,
     fontSize: '28px',
     marginBottom: '5px',
     margin: '0 0 5px 0',
+    fontWeight: '700',
   },
   subtitle: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '14px',
     margin: '0',
   },
   jotterBanner: {
-    background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
+    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
     color: '#fff',
     padding: '16px',
     borderRadius: '12px',
     marginBottom: '20px',
     fontWeight: '600' as const,
-    boxShadow: '0 4px 16px rgba(156, 39, 176, 0.4)',
+    boxShadow: '0 4px 16px rgba(139, 92, 246, 0.4)',
     textAlign: 'center' as const,
   },
   successMessage: {
-    background: 'linear-gradient(135deg, #30ff37 0%, #28cc2f 100%)',
-    color: '#000',
+    background: `linear-gradient(135deg, ${colors.success} 0%, #059669 100%)`,
+    color: '#fff',
     padding: '16px',
     borderRadius: '12px',
     marginBottom: '20px',
     fontWeight: '600' as const,
-    boxShadow: '0 4px 16px rgba(48, 255, 55, 0.4)',
+    boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
     textAlign: 'center' as const,
   },
   form: {
@@ -497,46 +520,49 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'block',
     fontWeight: '600' as const,
     marginBottom: '8px',
-    color: '#30ff37',
+    color: colors.textHeading,
     fontSize: '13px',
     letterSpacing: '0.5px',
   },
   input: {
     width: '100%',
     padding: '14px',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
+    border: `2px solid ${colors.border}`,
     borderRadius: '12px',
     fontSize: '15px',
     fontFamily: 'inherit',
     transition: 'all 0.3s',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#fff',
+    background: 'rgba(255, 255, 255, 0.9)',
+    color: colors.textPrimary,
     boxSizing: 'border-box' as const,
+    outline: 'none',
   },
   select: {
     width: '100%',
     padding: '14px',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
+    border: `2px solid ${colors.border}`,
     borderRadius: '12px',
     fontSize: '15px',
     fontFamily: 'inherit',
     cursor: 'pointer',
-    background: '#1a1a1a',
-    color: '#fff',
+    background: 'rgba(255, 255, 255, 0.9)',
+    color: colors.textPrimary,
     boxSizing: 'border-box' as const,
+    outline: 'none',
   },
   textarea: {
     width: '100%',
     padding: '14px',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
+    border: `2px solid ${colors.border}`,
     borderRadius: '12px',
     fontSize: '15px',
     fontFamily: 'inherit',
     transition: 'all 0.3s',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#fff',
+    background: 'rgba(255, 255, 255, 0.9)',
+    color: colors.textPrimary,
     resize: 'vertical' as const,
     boxSizing: 'border-box' as const,
+    outline: 'none',
   },
   buttons: {
     display: 'flex',
@@ -553,20 +579,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
     transition: 'all 0.3s',
     letterSpacing: '0.5px',
-    background: 'linear-gradient(135deg, #30ff37 0%, #28cc2f 100%)',
-    color: '#000',
-    boxShadow: '0 4px 16px rgba(48, 255, 55, 0.4)',
+    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+    color: '#fff',
+    boxShadow: shadows.button,
   },
   btnCancel: {
     flex: 1,
     padding: '16px',
-    border: '2px solid rgba(244, 67, 54, 0.2)',
+    border: `2px solid rgba(239, 68, 68, 0.3)`,
     borderRadius: '12px',
     fontSize: '16px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'rgba(244, 67, 54, 0.1)',
-    color: '#f44336',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: colors.error,
     transition: 'all 0.3s',
   },
   btnDisabled: {

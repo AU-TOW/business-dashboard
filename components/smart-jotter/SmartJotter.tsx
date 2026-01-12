@@ -327,7 +327,7 @@ const SmartJotter: React.FC<SmartJotterProps> = ({
                 >
                   <SignatureCanvas
                     ref={canvasRef}
-                    penColor="#ffffff"
+                    penColor="#1e40af"
                     canvasProps={{
                       width: canvasSize.width,
                       height: canvasSize.height,
@@ -335,12 +335,12 @@ const SmartJotter: React.FC<SmartJotterProps> = ({
                       style: {
                         display: 'block',
                         borderRadius: '16px',
-                        border: '2px solid rgba(48, 255, 55, 0.3)',
+                        border: '2px solid rgba(59, 130, 246, 0.3)',
                         touchAction: 'none',
                         cursor: 'crosshair',
                       },
                     }}
-                    backgroundColor="#0a0a0a"
+                    backgroundColor="#f8fafc"
                     dotSize={1}
                     minWidth={0.5}
                     maxWidth={1.5}
@@ -500,6 +500,23 @@ const SmartJotter: React.FC<SmartJotterProps> = ({
   );
 };
 
+// Blue theme colors
+const themeColors = {
+  primary: '#3b82f6',
+  primaryDark: '#1e40af',
+  primaryLight: '#60a5fa',
+  primaryRgb: '59, 130, 246',
+  textPrimary: '#1e293b',
+  textSecondary: '#64748b',
+  textMuted: '#94a3b8',
+  textHeading: '#1e40af',
+  success: '#10b981',
+  warning: '#f59e0b',
+  error: '#ef4444',
+  border: 'rgba(59, 130, 246, 0.2)',
+  borderLight: 'rgba(59, 130, 246, 0.1)',
+};
+
 const styles: { [key: string]: React.CSSProperties } = {
   modeToggle: {
     display: 'flex',
@@ -517,19 +534,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: 'none',
   },
   modeBtnActive: {
-    background: 'linear-gradient(135deg, #30ff37 0%, #28cc2f 100%)',
-    color: '#000',
-    boxShadow: '0 4px 16px rgba(48, 255, 55, 0.4)',
+    background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.primaryDark} 100%)`,
+    color: '#fff',
+    boxShadow: `0 4px 16px rgba(${themeColors.primaryRgb}, 0.4)`,
   },
   modeBtnInactive: {
-    background: 'rgba(48, 255, 55, 0.1)',
-    color: '#30ff37',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
+    background: `rgba(${themeColors.primaryRgb}, 0.1)`,
+    color: themeColors.primary,
+    border: `2px solid ${themeColors.border}`,
   },
   error: {
-    background: 'rgba(244, 67, 54, 0.1)',
-    border: '2px solid rgba(244, 67, 54, 0.3)',
-    color: '#f44336',
+    background: 'rgba(239, 68, 68, 0.1)',
+    border: '2px solid rgba(239, 68, 68, 0.3)',
+    color: themeColors.error,
     padding: '16px',
     borderRadius: '12px',
     marginBottom: '20px',
@@ -541,7 +558,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   label: {
     display: 'block',
-    color: '#30ff37',
+    color: themeColors.textHeading,
     fontSize: '14px',
     fontWeight: '600' as const,
     marginBottom: '12px',
@@ -551,18 +568,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '100%',
     padding: '20px',
     borderRadius: '16px',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#fff',
+    border: `2px solid ${themeColors.border}`,
+    background: 'rgba(255, 255, 255, 0.9)',
+    color: themeColors.textPrimary,
     fontSize: '16px',
     fontFamily: 'inherit',
     resize: 'vertical' as const,
     minHeight: '280px',
     boxSizing: 'border-box' as const,
     lineHeight: '1.6',
+    outline: 'none',
   },
   hint: {
-    color: '#888',
+    color: themeColors.textSecondary,
     fontSize: '13px',
     marginTop: '12px',
     margin: '12px 0 0 0',
@@ -576,7 +594,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'relative' as const,
     display: 'block',
     margin: '0 auto',
-    background: '#0a0a0a',
+    background: '#f8fafc',
     borderRadius: '16px',
     maxWidth: '100%',
     overflow: 'hidden' as const,
@@ -587,7 +605,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     textAlign: 'center' as const,
-    color: 'rgba(48, 255, 55, 0.5)',
+    color: `rgba(${themeColors.primaryRgb}, 0.5)`,
     pointerEvents: 'none' as const,
   },
   canvasControls: {
@@ -600,9 +618,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   canvasBtn: {
     padding: '12px 24px',
     borderRadius: '12px',
-    border: '2px solid rgba(48, 255, 55, 0.3)',
-    background: 'rgba(48, 255, 55, 0.1)',
-    color: '#30ff37',
+    border: `2px solid ${themeColors.border}`,
+    background: `rgba(${themeColors.primaryRgb}, 0.1)`,
+    color: themeColors.primary,
     fontSize: '14px',
     fontWeight: '600' as const,
     cursor: 'pointer',
@@ -613,12 +631,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'not-allowed',
   },
   clearBtn: {
-    borderColor: 'rgba(244, 67, 54, 0.3)',
-    background: 'rgba(244, 67, 54, 0.1)',
-    color: '#f44336',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: themeColors.error,
   },
   canvasStatus: {
-    color: '#888',
+    color: themeColors.textSecondary,
     fontSize: '14px',
     marginLeft: 'auto',
   },
@@ -631,9 +649,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '18px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'linear-gradient(135deg, #30ff37 0%, #28cc2f 100%)',
-    color: '#000',
-    boxShadow: '0 4px 16px rgba(48, 255, 55, 0.4)',
+    background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.primaryDark} 100%)`,
+    color: '#fff',
+    boxShadow: `0 4px 16px rgba(${themeColors.primaryRgb}, 0.4)`,
     transition: 'all 0.3s',
     letterSpacing: '0.5px',
   },
@@ -642,8 +660,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'not-allowed',
   },
   processingCard: {
-    background: 'rgba(48, 255, 55, 0.05)',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
+    background: `rgba(${themeColors.primaryRgb}, 0.05)`,
+    border: `2px solid ${themeColors.border}`,
     borderRadius: '20px',
     padding: '60px 40px',
     textAlign: 'center' as const,
@@ -651,21 +669,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   processingSpinner: {
     width: '48px',
     height: '48px',
-    border: '4px solid rgba(48, 255, 55, 0.2)',
-    borderTop: '4px solid #30ff37',
+    border: `4px solid ${themeColors.borderLight}`,
+    borderTop: `4px solid ${themeColors.primary}`,
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
     margin: '0 auto 20px',
   },
   processingText: {
-    color: '#30ff37',
+    color: themeColors.primary,
     fontSize: '18px',
     fontWeight: '600' as const,
     margin: '0',
   },
   previewCard: {
-    background: 'rgba(48, 255, 55, 0.05)',
-    border: '2px solid rgba(48, 255, 55, 0.3)',
+    background: `rgba(${themeColors.primaryRgb}, 0.05)`,
+    border: `2px solid ${themeColors.border}`,
     borderRadius: '20px',
     padding: '30px',
   },
@@ -675,17 +693,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     marginBottom: '24px',
     paddingBottom: '20px',
-    borderBottom: '2px solid rgba(48, 255, 55, 0.1)',
+    borderBottom: `2px solid ${themeColors.borderLight}`,
   },
   previewTitle: {
-    color: '#30ff37',
+    color: themeColors.textHeading,
     fontSize: '22px',
     fontWeight: '700' as const,
   },
   editBtn: {
-    background: 'rgba(48, 255, 55, 0.1)',
-    border: '2px solid rgba(48, 255, 55, 0.2)',
-    color: '#30ff37',
+    background: `rgba(${themeColors.primaryRgb}, 0.1)`,
+    border: `2px solid ${themeColors.border}`,
+    color: themeColors.primary,
     padding: '10px 20px',
     borderRadius: '8px',
     cursor: 'pointer',
@@ -699,14 +717,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '24px',
   },
   dataItem: {
-    background: 'rgba(0, 0, 0, 0.4)',
+    background: 'rgba(255, 255, 255, 0.8)',
     borderRadius: '16px',
     padding: '20px',
-    borderLeft: '4px solid #30ff37',
+    borderLeft: `4px solid ${themeColors.primary}`,
+    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.08)',
   },
   dataLabel: {
     display: 'block',
-    color: '#888',
+    color: themeColors.textSecondary,
     fontSize: '12px',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
@@ -714,32 +733,32 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   dataValue: {
     display: 'block',
-    color: '#fff',
+    color: themeColors.textPrimary,
     fontSize: '18px',
     fontWeight: '600' as const,
   },
   confidence: {
-    color: '#888',
+    color: themeColors.textSecondary,
     fontSize: '14px',
     textAlign: 'right' as const,
     marginBottom: '24px',
   },
   debugSection: {
-    background: 'rgba(255, 165, 0, 0.1)',
-    border: '1px solid rgba(255, 165, 0, 0.3)',
+    background: 'rgba(245, 158, 11, 0.1)',
+    border: '1px solid rgba(245, 158, 11, 0.3)',
     borderRadius: '8px',
     padding: '12px',
     marginBottom: '16px',
   },
   debugLabel: {
-    color: '#ffa500',
+    color: themeColors.warning,
     fontSize: '12px',
     fontWeight: '600' as const,
     display: 'block',
     marginBottom: '4px',
   },
   debugValue: {
-    color: '#fff',
+    color: themeColors.textPrimary,
     fontSize: '14px',
     fontFamily: 'monospace',
     wordBreak: 'break-all' as const,
@@ -749,7 +768,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '12px',
     flexWrap: 'wrap' as const,
     paddingTop: '24px',
-    borderTop: '2px solid rgba(48, 255, 55, 0.1)',
+    borderTop: `2px solid ${themeColors.borderLight}`,
   },
   bookingBtn: {
     flex: 1,
@@ -760,9 +779,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '16px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'linear-gradient(135deg, #30ff37 0%, #28cc2f 100%)',
-    color: '#000',
-    boxShadow: '0 4px 16px rgba(48, 255, 55, 0.4)',
+    background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.primaryDark} 100%)`,
+    color: '#fff',
+    boxShadow: `0 4px 16px rgba(${themeColors.primaryRgb}, 0.4)`,
   },
   noteBtn: {
     flex: 1,
@@ -773,21 +792,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '16px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
+    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
     color: '#fff',
-    boxShadow: '0 4px 16px rgba(156, 39, 176, 0.4)',
+    boxShadow: '0 4px 16px rgba(139, 92, 246, 0.4)',
   },
   resetBtn: {
     flex: 1,
     minWidth: '180px',
     padding: '18px 24px',
-    border: '2px solid rgba(255, 255, 255, 0.2)',
+    border: `2px solid ${themeColors.border}`,
     borderRadius: '12px',
     fontSize: '16px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#888',
+    background: 'rgba(255, 255, 255, 0.5)',
+    color: themeColors.textSecondary,
   },
   errorActions: {
     textAlign: 'center' as const,

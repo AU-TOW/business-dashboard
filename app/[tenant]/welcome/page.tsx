@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { canAccessFeature, getUpgradeTierForFeature, getTierDisplayName, SubscriptionTier, TradeType } from '@/lib/features';
+import { colors, shadows, animations } from '@/lib/theme';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -40,7 +41,11 @@ export default function WelcomePage() {
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loadingText}>Loading...</div>
+        <div style={styles.loadingBox}>
+          <div style={styles.spinner}></div>
+          <p style={styles.loadingText}>Loading...</p>
+        </div>
+        <style>{animations}</style>
       </div>
     );
   }
@@ -207,42 +212,61 @@ export default function WelcomePage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: 'linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 50%, #f5f5f5 100%)',
+    background: colors.background,
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
   },
+  loadingBox: {
+    textAlign: 'center' as const,
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: `4px solid ${colors.borderLight}`,
+    borderTop: `4px solid ${colors.primary}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 16px',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: '16px',
+    margin: '0',
+  },
   welcomeBox: {
     maxWidth: '900px',
     width: '100%',
-    background: 'rgba(255, 255, 255, 0.85)',
+    background: colors.cardBackground,
     backdropFilter: 'blur(20px)',
     borderRadius: '24px',
     padding: '40px',
-    boxShadow: '0 25px 50px -12px rgba(var(--primary-rgb), 0.15), 0 0 0 1px rgba(var(--primary-rgb), 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.8)',
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.borderLight}`,
   },
   header: {
     textAlign: 'center' as const,
     marginBottom: '40px',
   },
   logo: {
-    width: '180px',
-    height: 'auto',
+    width: '80px',
+    height: '80px',
     margin: '0 auto 20px',
-    filter: 'drop-shadow(0 4px 12px rgba(var(--primary-rgb), 0.2))',
+    borderRadius: '16px',
     display: 'block',
+    objectFit: 'contain' as const,
   },
   title: {
-    color: 'var(--primary-dark)',
+    color: colors.textHeading,
     fontSize: '32px',
     marginBottom: '5px',
     margin: '0 0 5px 0',
+    fontWeight: '700',
   },
   subtitle: {
-    color: '#64748b',
+    color: colors.textSecondary,
     fontSize: '16px',
     margin: '0',
   },
@@ -255,13 +279,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   optionCard: {
     background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
-    border: '2px solid rgba(var(--primary-rgb), 0.2)',
+    border: `2px solid ${colors.border}`,
     borderRadius: '20px',
     padding: '40px 10px',
     textAlign: 'center' as const,
     cursor: 'pointer',
     transition: 'all 0.3s',
-    boxShadow: '0 4px 16px rgba(var(--primary-rgb), 0.08)',
+    boxShadow: shadows.small,
   },
   lockedCard: {
     background: 'rgba(200, 200, 200, 0.3)',
@@ -291,31 +315,27 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '20px',
   },
   optionTitle: {
-    color: 'var(--primary-dark)',
+    color: colors.textHeading,
     fontSize: '24px',
     marginBottom: '10px',
     margin: '0 0 10px 0',
+    fontWeight: '600',
   },
   optionDescription: {
-    color: '#64748b',
+    color: colors.textSecondary,
     fontSize: '14px',
     margin: '0',
   },
   logoutButton: {
     width: '100%',
     padding: '14px',
-    border: '2px solid rgba(244, 67, 54, 0.2)',
+    border: `2px solid rgba(239, 68, 68, 0.3)`,
     borderRadius: '12px',
     fontSize: '15px',
     fontWeight: '700' as const,
     cursor: 'pointer',
-    background: 'rgba(244, 67, 54, 0.1)',
-    color: '#f44336',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: colors.error,
     transition: 'all 0.3s',
-  },
-  loadingText: {
-    color: 'var(--primary-color)',
-    fontSize: '24px',
-    textAlign: 'center' as const,
   },
 };

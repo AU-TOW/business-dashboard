@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { createTenantApi } from '@/lib/api/tenantFetch';
 import { canAccessFeature, getTierDisplayName, getUpgradeTierForFeature, SubscriptionTier, TradeType } from '@/lib/features';
+import { colors, shadows, animations } from '@/lib/theme';
 
 interface TenantSettings {
   id: string;
@@ -209,8 +210,12 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingText}>Loading settings...</div>
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={styles.loadingBox}>
+          <div style={styles.spinner}></div>
+          <p style={styles.loadingText}>Loading settings...</p>
+        </div>
+        <style>{animations}</style>
       </div>
     );
   }
@@ -513,19 +518,36 @@ export default function SettingsPage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: 'linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 50%, #f5f5f5 100%)',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
+  },
+  loadingBox: {
+    textAlign: 'center' as const,
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: `4px solid ${colors.borderLight}`,
+    borderTop: `4px solid ${colors.primary}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 16px',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: '16px',
+    margin: '0',
   },
   settingsBox: {
     maxWidth: '900px',
     margin: '0 auto',
-    background: 'rgba(255, 255, 255, 0.85)',
+    background: colors.cardBackground,
     backdropFilter: 'blur(20px)',
     borderRadius: '24px',
     padding: '40px',
-    boxShadow: '0 25px 50px -12px rgba(var(--primary-rgb), 0.15), 0 0 0 1px rgba(var(--primary-rgb), 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.8)',
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.borderLight}`,
   },
   header: {
     marginBottom: '30px',
@@ -533,19 +555,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   backButton: {
     background: 'none',
     border: 'none',
-    color: 'var(--primary-color)',
+    color: colors.primary,
     fontSize: '14px',
     cursor: 'pointer',
     padding: '0',
     marginBottom: '10px',
+    fontWeight: '600',
   },
   title: {
-    color: 'var(--primary-dark)',
+    color: colors.textHeading,
     fontSize: '28px',
     margin: '0 0 5px 0',
+    fontWeight: '700',
   },
   subtitle: {
-    color: '#64748b',
+    color: colors.textSecondary,
     fontSize: '16px',
     margin: '0',
   },
@@ -569,10 +593,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: 'rgba(255, 255, 255, 0.6)',
     borderRadius: '16px',
     padding: '24px',
-    border: '1px solid rgba(var(--primary-rgb), 0.1)',
+    border: `1px solid ${colors.borderLight}`,
   },
   sectionTitle: {
-    color: 'var(--primary-dark)',
+    color: colors.textHeading,
     fontSize: '18px',
     margin: '0 0 16px 0',
     fontWeight: '600',
@@ -605,7 +629,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   input: {
     padding: '10px 14px',
-    border: '1px solid rgba(var(--primary-rgb), 0.2)',
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
@@ -614,7 +638,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   inputDisabled: {
     padding: '10px 14px',
-    border: '1px solid rgba(var(--primary-rgb), 0.1)',
+    border: `1px solid ${colors.borderLight}`,
     borderRadius: '8px',
     fontSize: '14px',
     backgroundColor: '#f3f4f6',
@@ -622,7 +646,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   textarea: {
     padding: '10px 14px',
-    border: '1px solid rgba(var(--primary-rgb), 0.2)',
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
@@ -645,7 +669,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '120px',
     height: '120px',
     borderRadius: '12px',
-    border: '2px dashed rgba(var(--primary-rgb), 0.3)',
+    border: `2px dashed ${colors.border}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -677,7 +701,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   uploadButton: {
     padding: '10px 20px',
-    background: 'var(--primary-color)',
+    background: colors.primary,
     color: '#fff',
     border: 'none',
     borderRadius: '8px',
@@ -782,7 +806,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   tierName: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: 'var(--primary-dark)',
+    color: colors.textHeading,
   },
   trialText: {
     fontSize: '14px',
@@ -820,7 +844,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: '30px',
     width: '100%',
     padding: '14px',
-    background: 'linear-gradient(135deg, var(--primary-color), var(--primary-dark))',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
     color: '#fff',
     border: 'none',
     borderRadius: '12px',
@@ -828,11 +852,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s',
-  },
-  loadingText: {
-    color: 'var(--primary-color)',
-    fontSize: '24px',
-    textAlign: 'center' as const,
-    marginTop: '100px',
+    boxShadow: shadows.button,
   },
 };
