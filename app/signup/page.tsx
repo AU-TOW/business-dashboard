@@ -96,6 +96,13 @@ export default function SignupPage() {
   if (success) {
     return (
       <div style={styles.container}>
+        {/* Top Navigation */}
+        <div style={styles.topNav}>
+          <a href="/" style={styles.brandLink}>
+            <span style={styles.brandText}>Business Dashboard</span>
+          </a>
+        </div>
+
         <div style={styles.signupBox}>
           <div style={styles.successContent}>
             <div style={styles.successIcon}>{emailFailed ? '✅' : '✉️'}</div>
@@ -136,6 +143,14 @@ export default function SignupPage() {
 
   return (
     <div style={styles.container}>
+      {/* Top Navigation */}
+      <div style={styles.topNav}>
+        <a href="/" style={styles.brandLink}>
+          <span style={styles.backArrow}>←</span>
+          <span style={styles.brandText}>Business Dashboard</span>
+        </a>
+      </div>
+
       <div style={styles.signupBox}>
         <div style={styles.header}>
           <h1 style={styles.title}>Start Your Free Trial</h1>
@@ -245,9 +260,37 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: 'linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 50%, #f5f5f5 100%)',
     minHeight: '100vh',
     display: 'flex',
+    flexDirection: 'column' as const,
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
+    gap: '20px',
+  },
+  topNav: {
+    position: 'fixed' as const,
+    top: '20px',
+    left: '20px',
+    zIndex: 100,
+  },
+  brandLink: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    textDecoration: 'none',
+    color: '#1e40af',
+    fontWeight: '700',
+    fontSize: '18px',
+    padding: '10px 16px',
+    background: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.15)',
+    transition: 'all 0.3s',
+  },
+  backArrow: {
+    fontSize: '16px',
+  },
+  brandText: {
+    color: '#1e40af',
   },
   signupBox: {
     maxWidth: '500px',
