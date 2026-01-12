@@ -21,7 +21,7 @@ None (general web SaaS patterns)
 - [~] **Phase 5: Subscription & Billing** - SKIPPED (billing deferred to post-launch)
 - [x] **Phase 6: Extended Features** - Receipts, Smart Jotter, Notes, Assessments
 - [x] **Phase 7: Branding & Customization** - Logo, settings, trade terminology, tiered branding
-- [ ] **Phase 8: Landing Page & Polish** - Marketing site, share links, final touches
+- [x] **Phase 8: Landing Page & Polish** - Marketing site, share links, final touches
 
 ## Phase Details
 
@@ -162,4 +162,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Subscription & Billing | 0/TBD | Skipped | - |
 | 6. Extended Features | 3/3 | Complete | 2026-01-11 |
 | 7. Branding & Customization | 3/3 | Complete | 2026-01-11 |
-| 8. Landing Page & Polish | 0/TBD | Not started | - |
+| 8. Landing Page & Polish | 4/4 | Complete | 2026-01-12 |
