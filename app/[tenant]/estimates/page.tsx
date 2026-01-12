@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Estimate } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 export default function EstimatesPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -13,7 +16,7 @@ export default function EstimatesPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
 
@@ -30,7 +33,8 @@ export default function EstimatesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         }
       });
 
@@ -84,21 +88,21 @@ export default function EstimatesPage() {
         </div>
         <div style={styles.headerActions}>
           <button
-            onClick={() => router.push('/autow/estimates/create')}
+            onClick={() => router.push(paths.path('/estimates/create'))}
             style={styles.createButton}
             className="header-btn"
           >
             + New Estimate
           </button>
           <button
-            onClick={() => router.push('/autow/invoices')}
+            onClick={() => router.push(paths.invoices)}
             style={styles.invoicesButton}
             className="header-btn"
           >
             📄 Invoices
           </button>
           <button
-            onClick={() => router.push('/autow/welcome')}
+            onClick={() => router.push(paths.welcome)}
             style={styles.backButton}
             className="header-btn"
           >
@@ -129,7 +133,7 @@ export default function EstimatesPage() {
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>No estimates found</p>
             <button
-              onClick={() => router.push('/autow/estimates/create')}
+              onClick={() => router.push(paths.path('/estimates/create'))}
               style={styles.createButton}
             >
               Create Your First Estimate
@@ -174,13 +178,13 @@ export default function EstimatesPage() {
 
               <div style={styles.cardActions}>
                 <button
-                  onClick={() => router.push(`/autow/estimates/view?id=${estimate.id}`)}
+                  onClick={() => router.push(`${paths.estimates}/view?id=${estimate.id}`)}
                   style={styles.actionButton}
                 >
                   View
                 </button>
                 <button
-                  onClick={() => router.push(`/autow/estimates/edit?id=${estimate.id}`)}
+                  onClick={() => router.push(`${paths.estimates}/edit?id=${estimate.id}`)}
                   style={styles.actionButton}
                 >
                   Edit
@@ -238,7 +242,8 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ estimate_id: estimateId })
       });
@@ -246,7 +251,7 @@ export default function EstimatesPage() {
       if (response.ok) {
         const data = await response.json();
         alert('Estimate converted to invoice successfully!');
-        router.push(`/autow/invoices/view?id=${data.invoice.id}`);
+        router.push(`${paths.invoices}/view?id=${data.invoice.id}`);
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -264,7 +269,8 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ estimate_id: estimateId })
       });
@@ -296,7 +302,8 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: estimateId })
       });

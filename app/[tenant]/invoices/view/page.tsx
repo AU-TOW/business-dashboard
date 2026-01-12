@@ -3,11 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Invoice, InvoiceExpense } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 
 export default function ViewInvoicePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const id = searchParams.get('id');
 
   const [loading, setLoading] = useState(true);
@@ -40,24 +43,27 @@ export default function ViewInvoicePage() {
 
   useEffect(() => {
     if (!id) {
-      router.push('/autow/invoices');
+      router.push(paths.invoices);
       return;
     }
 
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
 
     fetchInvoice();
-  }, [id]);
+  }, [id, paths]);
 
   const fetchInvoice = async () => {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
+        }
       });
 
       if (response.ok) {
@@ -66,7 +72,7 @@ export default function ViewInvoicePage() {
         setBusinessSettings(data.invoice.business_settings);
       } else {
         alert('Failed to load invoice');
-        router.push('/autow/invoices');
+        router.push(paths.invoices);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -85,7 +91,8 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ invoice_id: id })
       });
@@ -112,7 +119,10 @@ export default function ViewInvoicePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/expense/list?invoice_id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -134,6 +144,7 @@ export default function ViewInvoicePage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ imageData: imgData }),
       });
@@ -252,6 +263,7 @@ export default function ViewInvoicePage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({
           invoice_id: id,
@@ -295,6 +307,7 @@ export default function ViewInvoicePage() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: expenseId }),
       });
@@ -366,11 +379,11 @@ export default function ViewInvoicePage() {
     <div style={styles.container}>
       {/* Action Buttons (don't print) */}
       <div style={styles.actionBar} className="no-print action-bar">
-        <button onClick={() => router.push('/autow/invoices')} style={styles.backBtn}>
+        <button onClick={() => router.push(paths.invoices)} style={styles.backBtn}>
           ← Back to Invoices
         </button>
         <div style={styles.actionButtons} className="action-buttons">
-          <button onClick={() => router.push(`/autow/invoices/edit?id=${id}`)} style={styles.editBtn}>
+          <button onClick={() => router.push(`${paths.invoices}/edit?id=${id}`)} style={styles.editBtn}>
             ✏️ Edit
           </button>
           {invoice.status === 'pending' && (

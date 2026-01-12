@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { JotterNote } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 export default function EditNotePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const noteId = searchParams.get('id');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,19 +29,22 @@ export default function EditNotePage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
     if (noteId) {
       fetchNote();
     }
-  }, [router, noteId]);
+  }, [router, noteId, paths]);
 
   const fetchNote = async () => {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/note/get?id=${noteId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -78,13 +84,14 @@ export default function EditNotePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: noteId, ...formData })
       });
 
       if (response.ok) {
-        router.push(`/autow/notes/view?id=${noteId}`);
+        router.push(`${paths.notes}/view?id=${noteId}`);
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -259,7 +266,7 @@ export default function EditNotePage() {
             </button>
             <button
               type="button"
-              onClick={() => router.push(`/autow/notes/view?id=${noteId}`)}
+              onClick={() => router.push(`${paths.notes}/view?id=${noteId}`)}
               style={styles.cancelButton}
               className="mobile-btn"
             >

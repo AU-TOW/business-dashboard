@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization to avoid build-time errors
+let openaiClient: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiClient;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +27,8 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
+
+    const openai = getOpenAI();
 
     const body = await request.json();
     const { imageData } = body;

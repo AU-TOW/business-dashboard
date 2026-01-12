@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { JotterNote } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 export default function ViewNotePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const noteId = searchParams.get('id');
   const [note, setNote] = useState<JotterNote | null>(null);
   const [loading, setLoading] = useState(true);
@@ -14,19 +17,22 @@ export default function ViewNotePage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
     if (noteId) {
       fetchNote();
     }
-  }, [router, noteId]);
+  }, [router, noteId, paths]);
 
   const fetchNote = async () => {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/note/get?id=${noteId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
+        }
       });
       if (response.ok) {
         const data = await response.json();
@@ -51,7 +57,7 @@ export default function ViewNotePage() {
       issue: note.issue_description || '',
       from_note: 'true'
     });
-    router.push(`/autow/booking?${params.toString()}`);
+    router.push(`${paths.bookings}?${params.toString()}`);
   };
 
   if (loading) {
@@ -78,7 +84,7 @@ export default function ViewNotePage() {
           <p style={styles.subtitle}>Created {new Date(note.created_at || '').toLocaleDateString('en-GB')}</p>
         </div>
         <div style={styles.headerActions} className="mobile-actions">
-          <button onClick={() => router.push(`/autow/notes/edit?id=${note.id}`)} style={styles.editButton} className="mobile-btn">
+          <button onClick={() => router.push(`${paths.notes}/edit?id=${note.id}`)} style={styles.editButton} className="mobile-btn">
             Edit
           </button>
           {note.status !== 'converted' && (
@@ -86,7 +92,7 @@ export default function ViewNotePage() {
               Make Booking
             </button>
           )}
-          <button onClick={() => router.push('/autow/notes')} style={styles.backButton} className="mobile-btn">
+          <button onClick={() => router.push(paths.notes)} style={styles.backButton} className="mobile-btn">
             Back
           </button>
         </div>

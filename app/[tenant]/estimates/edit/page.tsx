@@ -2,20 +2,22 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTenantPath } from '@/lib/tenant/TenantProvider';
 
 
 export default function EditEstimatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const paths = useTenantPath();
   const id = searchParams.get('id');
 
   useEffect(() => {
     if (id) {
-      router.replace(`/autow/estimates/create?id=${id}`);
+      router.replace(`${paths.estimates}/create?id=${id}`);
     } else {
-      router.replace('/autow/estimates');
+      router.replace(paths.estimates);
     }
-  }, [id, router]);
+  }, [id, router, paths]);
 
   return null;
 }

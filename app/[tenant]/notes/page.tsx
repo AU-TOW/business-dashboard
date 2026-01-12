@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { JotterNote } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 export default function NotesPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const [notes, setNotes] = useState<JotterNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -13,7 +16,7 @@ export default function NotesPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
     fetchNotes();
@@ -28,7 +31,10 @@ export default function NotesPage() {
         : `/api/autow/note/list?status=${statusFilter}`;
 
       const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
+        }
       });
 
       if (response.ok) {
@@ -64,7 +70,8 @@ export default function NotesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: noteId })
       });
@@ -89,7 +96,7 @@ export default function NotesPage() {
       issue: note.issue_description || '',
       from_note: 'true'
     });
-    router.push(`/autow/booking?${params.toString()}`);
+    router.push(`${paths.bookings}?${params.toString()}`);
   };
 
   if (loading) {
@@ -108,13 +115,13 @@ export default function NotesPage() {
           <p style={styles.subtitle}>Quick notes from Smart Jotter</p>
         </div>
         <div style={styles.headerActions} className="mobile-actions">
-          <button onClick={() => router.push('/autow/jotter')} style={styles.createButton} className="mobile-btn">
+          <button onClick={() => router.push(paths.jotter)} style={styles.createButton} className="mobile-btn">
             + New Note
           </button>
-          <button onClick={() => router.push('/autow/dashboard')} style={styles.dashboardButton} className="mobile-btn">
+          <button onClick={() => router.push(paths.dashboard)} style={styles.dashboardButton} className="mobile-btn">
             Dashboard
           </button>
-          <button onClick={() => router.push('/autow/welcome')} style={styles.backButton} className="mobile-btn">
+          <button onClick={() => router.push(paths.welcome)} style={styles.backButton} className="mobile-btn">
             Menu
           </button>
         </div>
@@ -140,7 +147,7 @@ export default function NotesPage() {
         {notes.length === 0 ? (
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>No notes found</p>
-            <button onClick={() => router.push('/autow/jotter')} style={styles.createButton} className="mobile-btn">
+            <button onClick={() => router.push(paths.jotter)} style={styles.createButton} className="mobile-btn">
               Create Your First Note
             </button>
           </div>
@@ -191,14 +198,14 @@ export default function NotesPage() {
 
               <div style={styles.cardActions} className="mobile-actions">
                 <button
-                  onClick={() => router.push(`/autow/notes/view?id=${note.id}`)}
+                  onClick={() => router.push(`${paths.notes}/view?id=${note.id}`)}
                   style={styles.actionButton}
                   className="mobile-btn"
                 >
                   View
                 </button>
                 <button
-                  onClick={() => router.push(`/autow/notes/edit?id=${note.id}`)}
+                  onClick={() => router.push(`${paths.notes}/edit?id=${note.id}`)}
                   style={styles.actionButton}
                   className="mobile-btn"
                 >

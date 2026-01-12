@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Invoice } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 export default function InvoicesPage() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -13,7 +16,7 @@ export default function InvoicesPage() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
 
@@ -30,7 +33,8 @@ export default function InvoicesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         }
       });
 
@@ -75,7 +79,8 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: invoiceId })
       });
@@ -100,7 +105,8 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ invoice_id: invoiceId })
       });
@@ -132,7 +138,8 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: invoiceId })
       });
@@ -167,21 +174,21 @@ export default function InvoicesPage() {
         </div>
         <div style={styles.headerActions}>
           <button
-            onClick={() => router.push('/autow/invoices/create')}
+            onClick={() => router.push(paths.path('/invoices/create'))}
             style={styles.createButton}
             className="header-btn"
           >
             + New Invoice
           </button>
           <button
-            onClick={() => router.push('/autow/estimates')}
+            onClick={() => router.push(paths.estimates)}
             style={styles.estimatesButton}
             className="header-btn"
           >
             📋 Estimates
           </button>
           <button
-            onClick={() => router.push('/autow/welcome')}
+            onClick={() => router.push(paths.welcome)}
             style={styles.backButton}
             className="header-btn"
           >
@@ -212,7 +219,7 @@ export default function InvoicesPage() {
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>No invoices found</p>
             <button
-              onClick={() => router.push('/autow/invoices/create')}
+              onClick={() => router.push(paths.path('/invoices/create'))}
               style={styles.createButton}
             >
               Create Your First Invoice
@@ -263,13 +270,13 @@ export default function InvoicesPage() {
 
               <div style={styles.cardActions}>
                 <button
-                  onClick={() => router.push(`/autow/invoices/view?id=${invoice.id}`)}
+                  onClick={() => router.push(`${paths.invoices}/view?id=${invoice.id}`)}
                   style={styles.actionButton}
                 >
                   View
                 </button>
                 <button
-                  onClick={() => router.push(`/autow/invoices/edit?id=${invoice.id}`)}
+                  onClick={() => router.push(`${paths.invoices}/edit?id=${invoice.id}`)}
                   style={styles.actionButton}
                 >
                   Edit

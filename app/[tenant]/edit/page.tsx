@@ -3,9 +3,12 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Booking } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 function EditBookingContent() {
   const router = useRouter();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const searchParams = useSearchParams();
   const bookingId = searchParams.get('id');
 
@@ -33,23 +36,24 @@ function EditBookingContent() {
   useEffect(() => {
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
 
     if (!bookingId) {
-      router.push('/autow/dashboard');
+      router.push(paths.dashboard);
       return;
     }
 
     fetchBooking();
-  }, [router, bookingId]);
+  }, [router, bookingId, paths.welcome, paths.dashboard]);
 
   const fetchBooking = async () => {
     try {
       const response = await fetch(`/api/autow/booking/get?id=${bookingId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
+          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
+          'X-Tenant-Slug': tenant.slug,
         }
       });
 
@@ -75,11 +79,11 @@ function EditBookingContent() {
 
         setLoading(false);
       } else {
-        router.push('/autow/dashboard');
+        router.push(paths.dashboard);
       }
     } catch (err) {
       console.error('Failed to fetch booking:', err);
-      router.push('/autow/dashboard');
+      router.push(paths.dashboard);
     }
   };
 
@@ -101,7 +105,8 @@ function EditBookingContent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
+          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({
           id: bookingId,
@@ -114,7 +119,7 @@ function EditBookingContent() {
       if (response.ok) {
         setSuccessMessage('✓ Booking updated successfully!');
         setTimeout(() => {
-          router.push('/autow/dashboard');
+          router.push(paths.dashboard);
         }, 1000);
       } else {
         const data = await response.json();
@@ -348,7 +353,7 @@ function EditBookingContent() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/autow/dashboard')}
+              onClick={() => router.push(paths.dashboard)}
               style={styles.btnCancel}
             >
               ❌ Cancel

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LineItem } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 
 interface FormData {
@@ -24,6 +25,8 @@ interface FormData {
 export default function CreateInvoicePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const bookingId = searchParams.get('booking_id');
   const estimateId = searchParams.get('estimate_id');
   const invoiceId = searchParams.get('id');
@@ -103,7 +106,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(vehicleReg)}&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -139,7 +142,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(upperReg)}&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -165,7 +168,7 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug } }
       );
 
       if (response.ok) {
@@ -192,7 +195,7 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/booking/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -236,7 +239,7 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -292,7 +295,7 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -512,7 +515,8 @@ A/N: 20052044
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify(payload)
       });
@@ -520,7 +524,7 @@ A/N: 20052044
       if (response.ok) {
         const data = await response.json();
         alert(`Invoice ${mode === 'edit' ? 'updated' : 'created'} successfully!`);
-        router.push(`/autow/invoices/view?id=${data.invoice.id}`);
+        router.push(`${paths.invoices}/view?id=${data.invoice.id}`);
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -547,7 +551,7 @@ A/N: 20052044
       <div style={styles.header}>
         <h1 style={styles.title}>{mode === 'edit' ? 'Edit' : 'Create'} Invoice</h1>
         <button
-          onClick={() => router.push('/autow/invoices')}
+          onClick={() => router.push(paths.invoices)}
           style={styles.backButton}
         >
           ← Back to Invoices
@@ -887,7 +891,7 @@ A/N: 20052044
         <div style={styles.submitSection} className="submit-section">
           <button
             type="button"
-            onClick={() => router.push('/autow/invoices')}
+            onClick={() => router.push(paths.invoices)}
             style={styles.cancelButton}
             className="cancel-btn"
           >

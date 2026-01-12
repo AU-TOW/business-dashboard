@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Estimate } from '@/lib/types';
+import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
 
 
 export default function ViewEstimatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const tenant = useTenant();
+  const paths = useTenantPath();
   const id = searchParams.get('id');
 
   const [loading, setLoading] = useState(true);
@@ -16,13 +19,13 @@ export default function ViewEstimatePage() {
 
   useEffect(() => {
     if (!id) {
-      router.push('/autow/estimates');
+      router.push(paths.estimates);
       return;
     }
 
     const token = localStorage.getItem('autow_token');
     if (!token) {
-      router.push('/autow');
+      router.push(paths.welcome);
       return;
     }
 
@@ -33,7 +36,7 @@ export default function ViewEstimatePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'X-Tenant-Slug': tenant.slug }
       });
 
       if (response.ok) {
@@ -42,7 +45,7 @@ export default function ViewEstimatePage() {
         setBusinessSettings(data.estimate.business_settings);
       } else {
         alert('Failed to load estimate');
-        router.push('/autow/estimates');
+        router.push(paths.estimates);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -61,7 +64,8 @@ export default function ViewEstimatePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ estimate_id: id })
       });
@@ -69,7 +73,7 @@ export default function ViewEstimatePage() {
       if (response.ok) {
         const data = await response.json();
         alert('Estimate converted to invoice successfully!');
-        router.push(`/autow/invoices/view?id=${data.invoice.id}`);
+        router.push(`${paths.invoices}/view?id=${data.invoice.id}`);
       } else {
         const error = await response.json();
         alert(`Error: ${error.error}`);
@@ -134,11 +138,11 @@ export default function ViewEstimatePage() {
     <div style={styles.container}>
       {/* Action Buttons (don't print) */}
       <div style={styles.actionBar} className="no-print action-bar">
-        <button onClick={() => router.push('/autow/estimates')} style={styles.backBtn}>
+        <button onClick={() => router.push(paths.estimates)} style={styles.backBtn}>
           ← Back to Estimates
         </button>
         <div style={styles.actionButtons} className="action-buttons">
-          <button onClick={() => router.push(`/autow/estimates/edit?id=${id}`)} style={styles.editBtn}>
+          <button onClick={() => router.push(`${paths.estimates}/edit?id=${id}`)} style={styles.editBtn}>
             ✏️ Edit
           </button>
           {estimate.status === 'accepted' && (
