@@ -1,77 +1,54 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSupabaseClient } from '@/lib/supabase/client';
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState('');
   const [tenantSlug, setTenantSlug] = useState('');
+  const [businessName, setBusinessName] = useState('');
 
   useEffect(() => {
-    const verifyMagicLink = async () => {
-      const supabase = getSupabaseClient();
+    const verifyToken = async () => {
+      const token = searchParams.get('token');
 
-      // Get tenant slug from URL params
-      const tenant = searchParams.get('tenant');
-      if (tenant) {
-        setTenantSlug(tenant);
+      if (!token) {
+        setErrorMessage('No verification token provided');
+        setStatus('error');
+        return;
       }
 
       try {
-        // Supabase automatically handles the token verification from URL hash
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Call our verify API endpoint
+        const response = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
 
-        if (error) {
-          console.error('Verification error:', error);
-          setErrorMessage(error.message);
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          setErrorMessage(data.error || 'Verification failed');
           setStatus('error');
+          if (data.tenantSlug) {
+            setTenantSlug(data.tenantSlug);
+          }
           return;
         }
 
-        if (session) {
-          // Session established successfully
-          setStatus('success');
+        // Success!
+        setStatus('success');
+        setTenantSlug(data.tenantSlug);
+        setBusinessName(data.businessName);
 
-          // Link user to tenant if we have tenant slug
-          if (tenant && session.user) {
-            try {
-              await fetch('/api/auth/link-tenant', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  userId: session.user.id,
-                  tenantSlug: tenant,
-                }),
-              });
-            } catch (linkError) {
-              console.error('Failed to link tenant:', linkError);
-              // Continue anyway - tenant linking can be retried
-            }
-          }
-
-          // Redirect after short delay
-          setTimeout(() => {
-            if (tenant) {
-              router.push(`/${tenant}/onboarding`);
-            } else {
-              // If no tenant, redirect to home
-              router.push('/');
-            }
-          }, 2000);
-        } else {
-          // No session - check if we need to verify from URL
-          // Supabase Auth may handle this automatically via onAuthStateChange
-          const { error: refreshError } = await supabase.auth.refreshSession();
-
-          if (refreshError) {
-            setErrorMessage('Unable to verify your email. The link may have expired.');
-            setStatus('error');
-          }
-        }
+        // Redirect to onboarding after short delay
+        setTimeout(() => {
+          router.push(`/${data.tenantSlug}/onboarding`);
+        }, 2500);
       } catch (err: any) {
         console.error('Verification failed:', err);
         setErrorMessage('An unexpected error occurred during verification.');
@@ -79,28 +56,7 @@ export default function VerifyPage() {
       }
     };
 
-    // Set up auth state listener
-    const supabase = getSupabaseClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: any) => {
-      if (event === 'SIGNED_IN' && session) {
-        const tenant = searchParams.get('tenant');
-        setStatus('success');
-
-        setTimeout(() => {
-          if (tenant) {
-            router.push(`/${tenant}/onboarding`);
-          } else {
-            router.push('/');
-          }
-        }, 2000);
-      }
-    });
-
-    verifyMagicLink();
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    verifyToken();
   }, [router, searchParams]);
 
   return (
@@ -119,7 +75,10 @@ export default function VerifyPage() {
             <div style={styles.successIcon}>✓</div>
             <h1 style={styles.successTitle}>Email Verified!</h1>
             <p style={styles.subtitle}>
-              Redirecting you to your dashboard...
+              Welcome to Business Dashboard, <strong>{businessName}</strong>!
+            </p>
+            <p style={styles.redirectText}>
+              Redirecting you to complete your setup...
             </p>
           </div>
         )}
@@ -134,11 +93,11 @@ export default function VerifyPage() {
                 onClick={() => router.push('/signup')}
                 style={styles.primaryButton}
               >
-                Try Again
+                Sign Up Again
               </button>
               {tenantSlug && (
                 <button
-                  onClick={() => router.push(`/${tenantSlug}/login`)}
+                  onClick={() => router.push('/autow')}
                   style={styles.secondaryButton}
                 >
                   Go to Login
@@ -156,6 +115,23 @@ export default function VerifyPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div style={styles.container}>
+        <div style={styles.verifyBox}>
+          <div style={styles.content}>
+            <div style={styles.spinner}></div>
+            <h1 style={styles.title}>Loading...</h1>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   );
 }
 
@@ -202,6 +178,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#64748b',
     fontSize: '16px',
     margin: '0',
+  },
+  redirectText: {
+    color: '#94a3b8',
+    fontSize: '14px',
+    marginTop: '16px',
+    margin: '16px 0 0 0',
   },
   successIcon: {
     width: '64px',

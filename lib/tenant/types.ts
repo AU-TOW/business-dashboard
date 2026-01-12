@@ -12,6 +12,7 @@ export interface Tenant {
   businessName: string;
   tradeType: TradeType;
   email: string;
+  emailVerified?: boolean;
   phone?: string;
   address?: string;
   postcode?: string;

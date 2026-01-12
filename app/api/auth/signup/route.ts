@@ -1,26 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { createTenant, isSlugAvailable, generateSlug } from '@/lib/tenant/provisioning';
+import { createVerificationToken } from '@/lib/db';
+import { sendVerificationEmail } from '@/lib/email';
 import { TradeType, TRADE_DEFAULTS } from '@/lib/tenant/types';
 
-/**
- * Get Supabase admin client (lazy initialization for Next.js build compatibility)
- */
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
-}
-
 export async function POST(request: NextRequest) {
-  const supabaseAdmin = getSupabaseAdmin();
   try {
     const body = await request.json();
     const { email, businessName, tradeType, phone, slug: providedSlug } = body;
@@ -63,19 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if email already exists in Supabase Auth
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const emailExists = existingUsers?.users?.some(
-      (user) => user.email?.toLowerCase() === email.toLowerCase()
-    );
-
-    if (emailExists) {
-      return NextResponse.json(
-        { error: 'An account with this email already exists. Please log in instead.' },
-        { status: 409 }
-      );
-    }
-
     // Create the tenant (with trial status)
     const tenant = await createTenant({
       slug,
@@ -85,26 +56,18 @@ export async function POST(request: NextRequest) {
       phone: phone || undefined,
     });
 
-    // Get the origin for redirect URL
-    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Create verification token
+    const token = await createVerificationToken(email, slug, businessName);
 
-    // Send magic link email via signInWithOtp (creates user + sends email)
-    const { error: otpError } = await supabaseAdmin.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${origin}/signup/verify?tenant=${slug}`,
-        shouldCreateUser: true,
-      },
-    });
+    // Send verification email
+    const emailSent = await sendVerificationEmail(email, businessName, token);
 
-    if (otpError) {
-      console.error('OTP error:', otpError);
-      // Tenant was created but email failed - still return success
-      // User can request new email from login page
+    if (!emailSent) {
+      console.error('Failed to send verification email');
       return NextResponse.json({
         success: true,
         emailSent: false,
-        message: 'Account created! Email delivery failed (rate limit). Try logging in at /autow',
+        message: 'Account created! Email delivery failed. Try logging in at /autow',
         tenant: {
           slug: tenant.slug,
           businessName: tenant.businessName,
@@ -115,7 +78,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       emailSent: true,
-      message: 'Check your email for the magic link',
+      message: 'Check your email for the verification link',
       tenant: {
         slug: tenant.slug,
         businessName: tenant.businessName,
@@ -134,7 +97,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Include error details for debugging (remove in production later)
     return NextResponse.json(
       {
         error: 'An error occurred during signup. Please try again.',
