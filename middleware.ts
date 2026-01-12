@@ -4,6 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 // Routes that don't require authentication
 const publicRoutes = [
   '/',
+  '/pricing',
   '/signup',
   '/signup/verify',
   '/autow', // Legacy login page
@@ -53,6 +54,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // If Supabase env vars are not set, allow request through
+  // (avoids crash during build or if env vars are missing)
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn('Supabase environment variables not set - skipping auth check');
+    return NextResponse.next();
+  }
+
   // Create a response to potentially modify
   let response = NextResponse.next({
     request: {
@@ -62,8 +70,8 @@ export async function middleware(request: NextRequest) {
 
   // Create Supabase client with cookie handling
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
