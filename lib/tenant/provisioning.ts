@@ -385,53 +385,29 @@ $$ LANGUAGE plpgsql;
 let pool: Pool | null = null;
 
 /**
- * Convert Supabase pooler URL to direct connection URL
- * Pooler can have issues with DDL operations, direct connection is more reliable
- *
- * From: postgresql://postgres.PROJECT_REF:PASSWORD@*.pooler.supabase.com:PORT/postgres
- * To:   postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres
+ * Convert Supabase pooler URL to session mode (port 5432)
+ * Session mode maintains connection state, allowing DDL operations to work correctly
+ * Transaction mode (port 6543) resets state between statements, breaking CREATE SCHEMA
  */
-function toDirectConnection(url: string): string {
-  // Check if this is a Supabase pooler URL
-  if (!url.includes('.pooler.supabase.com')) {
-    // Already direct or non-Supabase, just ensure port 5432
-    return url.replace(':6543/', ':5432/');
-  }
-
-  try {
-    const parsed = new URL(url);
-
-    // Extract project ref from username (format: postgres.PROJECT_REF)
-    const username = parsed.username;
-    const projectRef = username.includes('.') ? username.split('.')[1] : null;
-
-    if (!projectRef) {
-      console.warn('Could not extract project ref from username, using pooler URL');
-      return url.replace(':6543/', ':5432/');
-    }
-
-    // Build direct connection URL
-    const directUrl = `postgresql://postgres:${parsed.password}@db.${projectRef}.supabase.co:5432${parsed.pathname}`;
-    return directUrl;
-  } catch (e) {
-    console.warn('Failed to parse DATABASE_URL, using as-is:', e);
-    return url.replace(':6543/', ':5432/');
-  }
+function toSessionMode(url: string): string {
+  // Replace port 6543 (transaction mode) with 5432 (session mode)
+  return url.replace(':6543/', ':5432/');
 }
 
 function getPool(): Pool {
   if (!pool) {
     const dbUrl = process.env.DATABASE_URL || '';
 
-    // Use direct connection for DDL operations (bypasses pooler which can cause issues)
-    const directUrl = toDirectConnection(dbUrl);
+    // Use session mode (port 5432) for DDL operations
+    // Session mode maintains connection state so CREATE SCHEMA is visible to subsequent statements
+    const sessionUrl = toSessionMode(dbUrl);
 
     // Log connection info (mask password)
-    const maskedUrl = directUrl.replace(/:[^:@]+@/, ':***@');
-    console.log('Initializing DB pool (direct):', maskedUrl);
+    const maskedUrl = sessionUrl.replace(/:[^:@]+@/, ':***@');
+    console.log('Initializing DB pool (session mode):', maskedUrl);
 
     pool = new Pool({
-      connectionString: directUrl,
+      connectionString: sessionUrl,
       ssl: { rejectUnauthorized: false }, // Required for Supabase
       max: 1, // Single connection for schema operations
     });
