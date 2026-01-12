@@ -384,19 +384,55 @@ $$ LANGUAGE plpgsql;
 // Lazy pool initialization (required for Vercel serverless)
 let pool: Pool | null = null;
 
+/**
+ * Convert Supabase pooler URL to direct connection URL
+ * Pooler can have issues with DDL operations, direct connection is more reliable
+ *
+ * From: postgresql://postgres.PROJECT_REF:PASSWORD@*.pooler.supabase.com:PORT/postgres
+ * To:   postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres
+ */
+function toDirectConnection(url: string): string {
+  // Check if this is a Supabase pooler URL
+  if (!url.includes('.pooler.supabase.com')) {
+    // Already direct or non-Supabase, just ensure port 5432
+    return url.replace(':6543/', ':5432/');
+  }
+
+  try {
+    const parsed = new URL(url);
+
+    // Extract project ref from username (format: postgres.PROJECT_REF)
+    const username = parsed.username;
+    const projectRef = username.includes('.') ? username.split('.')[1] : null;
+
+    if (!projectRef) {
+      console.warn('Could not extract project ref from username, using pooler URL');
+      return url.replace(':6543/', ':5432/');
+    }
+
+    // Build direct connection URL
+    const directUrl = `postgresql://postgres:${parsed.password}@db.${projectRef}.supabase.co:5432${parsed.pathname}`;
+    return directUrl;
+  } catch (e) {
+    console.warn('Failed to parse DATABASE_URL, using as-is:', e);
+    return url.replace(':6543/', ':5432/');
+  }
+}
+
 function getPool(): Pool {
   if (!pool) {
     const dbUrl = process.env.DATABASE_URL || '';
-    // Use session mode (port 5432) for schema operations - transaction mode (6543) can't see newly created schemas
-    const sessionUrl = dbUrl.replace(':6543/', ':5432/');
+
+    // Use direct connection for DDL operations (bypasses pooler which can cause issues)
+    const directUrl = toDirectConnection(dbUrl);
 
     // Log connection info (mask password)
-    const maskedUrl = sessionUrl.replace(/:[^:@]+@/, ':***@');
-    console.log('Initializing DB pool:', maskedUrl);
+    const maskedUrl = directUrl.replace(/:[^:@]+@/, ':***@');
+    console.log('Initializing DB pool (direct):', maskedUrl);
 
     pool = new Pool({
-      connectionString: sessionUrl,
-      ssl: dbUrl.includes('supabase') ? { rejectUnauthorized: false } : undefined,
+      connectionString: directUrl,
+      ssl: { rejectUnauthorized: false }, // Required for Supabase
       max: 1, // Single connection for schema operations
     });
   }
@@ -527,6 +563,7 @@ export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
 
 /**
  * Split SQL into statements, respecting $$ quoted function bodies
+ * Also strips leading comment-only lines from each statement
  */
 function splitSqlStatements(sql: string): string[] {
   const statements: string[] = [];
@@ -547,9 +584,9 @@ function splitSqlStatements(sql: string): string[] {
 
     // Only split on semicolon if not inside $$ block
     if (char === ';' && !inDollarQuote) {
-      const trimmed = current.trim();
-      if (trimmed.length > 0 && !trimmed.startsWith('--')) {
-        statements.push(trimmed);
+      const statement = extractStatement(current);
+      if (statement) {
+        statements.push(statement);
       }
       current = '';
       continue;
@@ -559,12 +596,40 @@ function splitSqlStatements(sql: string): string[] {
   }
 
   // Add final statement if any
-  const trimmed = current.trim();
-  if (trimmed.length > 0 && !trimmed.startsWith('--')) {
-    statements.push(trimmed);
+  const statement = extractStatement(current);
+  if (statement) {
+    statements.push(statement);
   }
 
   return statements;
+}
+
+/**
+ * Extract actual SQL statement from a block that may have leading comments
+ * Returns the statement without leading comment-only lines, or null if only comments
+ */
+function extractStatement(block: string): string | null {
+  // Split into lines and find the first non-comment, non-empty line
+  const lines = block.split('\n');
+  let foundSqlStart = false;
+  const resultLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+
+    // Skip empty lines and pure comment lines until we find SQL
+    if (!foundSqlStart) {
+      if (trimmedLine === '' || trimmedLine.startsWith('--')) {
+        continue;
+      }
+      foundSqlStart = true;
+    }
+
+    resultLines.push(line);
+  }
+
+  const result = resultLines.join('\n').trim();
+  return result.length > 0 ? result : null;
 }
 
 /**
@@ -581,9 +646,25 @@ async function provisionTenantSchema(client: PoolClient, schemaName: string): Pr
   // Use smart splitting that respects $$ quoted function bodies
   const statements = splitSqlStatements(template);
 
-  for (const statement of statements) {
+  console.log(`Provisioning schema ${schemaName} with ${statements.length} statements`);
+
+  for (let i = 0; i < statements.length; i++) {
+    const statement = statements[i];
     try {
+      // Log progress for first few statements
+      if (i < 5) {
+        console.log(`Executing statement ${i + 1}: ${statement.substring(0, 60)}...`);
+      }
       await client.query(statement);
+
+      // Verify schema exists after CREATE SCHEMA
+      if (i === 0) {
+        const schemaCheck = await client.query(
+          "SELECT schema_name FROM information_schema.schemata WHERE schema_name = $1",
+          [schemaName]
+        );
+        console.log(`Schema check after CREATE: ${schemaCheck.rows.length > 0 ? 'EXISTS' : 'NOT FOUND'}`);
+      }
     } catch (error: any) {
       // Ignore "already exists" errors for idempotency
       const isIgnorable =
@@ -591,7 +672,7 @@ async function provisionTenantSchema(client: PoolClient, schemaName: string): Pr
         error.message?.includes('does not exist') && statement.toUpperCase().includes('GRANT');
 
       if (!isIgnorable) {
-        console.error('Error executing statement:', statement.substring(0, 100));
+        console.error(`Error at statement ${i + 1}:`, statement.substring(0, 100));
         console.error('Error details:', error.message);
         throw error;
       } else {
