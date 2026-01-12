@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { JotterNote } from '@/lib/types';
 import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { colors, shadows, animations } from '@/lib/theme';
 
 export default function NotesPage() {
   const router = useRouter();
@@ -50,9 +51,9 @@ export default function NotesPage() {
 
   const getStatusBadge = (status: string) => {
     const statusStyles = {
-      draft: { bg: 'rgba(255, 193, 7, 0.2)', color: '#ffc107' },
-      active: { bg: 'rgba(48, 255, 55, 0.2)', color: '#30ff37' },
-      converted: { bg: 'rgba(33, 150, 243, 0.2)', color: '#2196f3' }
+      draft: { bg: 'rgba(148, 163, 184, 0.2)', color: '#64748b' },
+      active: { bg: 'rgba(16, 185, 129, 0.2)', color: colors.success },
+      converted: { bg: 'rgba(139, 92, 246, 0.2)', color: '#8b5cf6' }
     };
     const style = statusStyles[status as keyof typeof statusStyles] || statusStyles.draft;
     return (
@@ -101,8 +102,12 @@ export default function NotesPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingText}>Loading notes...</div>
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={styles.loadingBox}>
+          <div style={styles.spinner}></div>
+          <p style={styles.loadingText}>Loading notes...</p>
+        </div>
+        <style>{animations}</style>
       </div>
     );
   }
@@ -160,7 +165,14 @@ export default function NotesPage() {
                   <p style={styles.customerName}>{note.customer_name || 'No customer'}</p>
                 </div>
                 <div style={{ textAlign: 'right' as const }}>
-                  <span className="mobile-badge" style={{ background: note.status === 'converted' ? 'rgba(33, 150, 243, 0.2)' : note.status === 'active' ? 'rgba(48, 255, 55, 0.2)' : 'rgba(255, 193, 7, 0.2)', color: note.status === 'converted' ? '#2196f3' : note.status === 'active' ? '#30ff37' : '#ffc107' }}>
+                  <span className="mobile-badge" style={{
+                    padding: '4px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    background: note.status === 'converted' ? 'rgba(139, 92, 246, 0.2)' : note.status === 'active' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(148, 163, 184, 0.2)',
+                    color: note.status === 'converted' ? '#8b5cf6' : note.status === 'active' ? colors.success : '#64748b'
+                  }}>
                     {note.status.toUpperCase()}
                   </span>
                   <p style={styles.noteDate}>
@@ -239,112 +251,141 @@ export default function NotesPage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: '#000',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
-    color: '#fff',
+  },
+  loadingBox: {
+    textAlign: 'center' as const,
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: `4px solid ${colors.borderLight}`,
+    borderTop: `4px solid ${colors.primary}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 16px',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: '16px',
+    margin: '0',
   },
   header: {
+    background: colors.cardBackground,
+    backdropFilter: 'blur(20px)',
+    padding: '24px 32px',
+    borderRadius: '20px',
+    marginBottom: '24px',
+    boxShadow: shadows.small,
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '30px',
+    alignItems: 'center',
     flexWrap: 'wrap' as const,
     gap: '20px',
+    border: `1px solid ${colors.borderLight}`,
   },
   headerActions: {
     display: 'flex',
     gap: '10px',
+    flexWrap: 'wrap' as const,
   },
   title: {
-    color: '#ce93d8',
-    fontSize: '36px',
+    color: colors.textHeading,
+    fontSize: '28px',
     margin: '0 0 5px 0',
+    fontWeight: '700',
   },
   subtitle: {
-    color: '#888',
-    fontSize: '16px',
+    color: colors.textSecondary,
+    fontSize: '14px',
     margin: '0',
   },
   createButton: {
     padding: '12px 24px',
-    background: '#9c27b0',
+    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
     color: '#fff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '12px',
     fontSize: '15px',
     fontWeight: '700' as const,
     cursor: 'pointer',
+    boxShadow: shadows.button,
   },
   dashboardButton: {
     padding: '12px 24px',
-    background: 'rgba(48, 255, 55, 0.2)',
-    color: '#30ff37',
-    border: '1px solid rgba(48, 255, 55, 0.4)',
-    borderRadius: '8px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
     fontSize: '15px',
     fontWeight: '600' as const,
     cursor: 'pointer',
   },
   backButton: {
     padding: '12px 24px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    color: '#fff',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
     fontSize: '15px',
     cursor: 'pointer',
+    fontWeight: '600',
   },
   filterBar: {
     display: 'flex',
     gap: '10px',
-    marginBottom: '30px',
+    marginBottom: '24px',
     flexWrap: 'wrap' as const,
   },
   filterButton: {
-    padding: '8px 16px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#888',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '6px',
+    padding: '10px 20px',
+    background: 'rgba(255, 255, 255, 0.8)',
+    color: colors.textSecondary,
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '12px',
     fontSize: '14px',
     cursor: 'pointer',
+    fontWeight: '500',
   },
   filterButtonActive: {
-    background: 'rgba(156, 39, 176, 0.2)',
-    color: '#ce93d8',
-    borderColor: '#9c27b0',
+    background: `rgba(${colors.primaryRgb}, 0.15)`,
+    color: colors.primary,
+    borderColor: colors.primary,
   },
   notesList: {
     display: 'grid',
     gap: '20px',
   },
   noteCard: {
-    background: '#1a1a1a',
-    border: '1px solid rgba(156, 39, 176, 0.3)',
-    borderRadius: '12px',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '16px',
     padding: '24px',
+    boxShadow: shadows.small,
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     marginBottom: '20px',
     paddingBottom: '20px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    borderBottom: `1px solid ${colors.borderLight}`,
   },
   noteNumber: {
-    color: '#ce93d8',
+    color: colors.textHeading,
     fontSize: '20px',
     margin: '0 0 5px 0',
     fontWeight: '700' as const,
   },
   customerName: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '16px',
     margin: '0',
   },
   noteDate: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '14px',
     margin: '10px 0 0 0',
   },
@@ -364,11 +405,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '10px',
   },
   label: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '14px',
   },
   value: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '14px',
     fontWeight: '600' as const,
   },
@@ -376,39 +417,39 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     gap: '10px',
     flexWrap: 'wrap' as const,
+    paddingTop: '16px',
+    borderTop: `1px solid ${colors.borderLight}`,
   },
   actionButton: {
     padding: '8px 16px',
-    background: 'rgba(156, 39, 176, 0.1)',
-    color: '#ce93d8',
-    border: '1px solid rgba(156, 39, 176, 0.3)',
-    borderRadius: '6px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `1px solid ${colors.border}`,
+    borderRadius: '8px',
     fontSize: '14px',
     cursor: 'pointer',
+    fontWeight: '600',
   },
   convertButton: {
-    background: 'rgba(48, 255, 55, 0.1)',
-    color: '#30ff37',
-    borderColor: 'rgba(48, 255, 55, 0.3)',
+    background: 'rgba(139, 92, 246, 0.1)',
+    color: '#8b5cf6',
+    borderColor: 'rgba(139, 92, 246, 0.3)',
   },
   deleteButton: {
-    background: 'rgba(244, 67, 54, 0.1)',
-    color: '#f44336',
-    borderColor: 'rgba(244, 67, 54, 0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: colors.error,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   emptyState: {
     textAlign: 'center' as const,
     padding: '60px 20px',
+    background: colors.cardBackground,
+    borderRadius: '16px',
+    boxShadow: shadows.small,
   },
   emptyText: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '18px',
     marginBottom: '20px',
-  },
-  loadingText: {
-    color: '#ce93d8',
-    fontSize: '24px',
-    textAlign: 'center' as const,
-    padding: '60px 20px',
   },
 };

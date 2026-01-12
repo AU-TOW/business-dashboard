@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Estimate } from '@/lib/types';
 import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { colors, shadows, animations } from '@/lib/theme';
 
 export default function EstimatesPage() {
   const router = useRouter();
@@ -51,11 +52,11 @@ export default function EstimatesPage() {
 
   const getStatusBadge = (status: string) => {
     const statusStyles = {
-      draft: { bg: 'rgba(158, 158, 158, 0.2)', color: '#9e9e9e' },
-      sent: { bg: 'rgba(33, 150, 243, 0.2)', color: '#2196f3' },
-      accepted: { bg: 'rgba(76, 175, 80, 0.2)', color: '#4caf50' },
-      declined: { bg: 'rgba(244, 67, 54, 0.2)', color: '#f44336' },
-      converted: { bg: 'rgba(48, 255, 55, 0.2)', color: '#30ff37' }
+      draft: { bg: 'rgba(148, 163, 184, 0.2)', color: '#64748b' },
+      sent: { bg: 'rgba(59, 130, 246, 0.2)', color: colors.primary },
+      accepted: { bg: 'rgba(16, 185, 129, 0.2)', color: colors.success },
+      declined: { bg: 'rgba(239, 68, 68, 0.2)', color: colors.error },
+      converted: { bg: 'rgba(139, 92, 246, 0.2)', color: '#8b5cf6' }
     };
 
     const style = statusStyles[status as keyof typeof statusStyles] || statusStyles.draft;
@@ -73,8 +74,12 @@ export default function EstimatesPage() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingText}>Loading estimates...</div>
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={styles.loadingBox}>
+          <div style={styles.spinner}></div>
+          <p style={styles.loadingText}>Loading estimates...</p>
+        </div>
+        <style>{animations}</style>
       </div>
     );
   }
@@ -325,112 +330,141 @@ export default function EstimatesPage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: '#000',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
-    color: '#fff',
+  },
+  loadingBox: {
+    textAlign: 'center' as const,
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: `4px solid ${colors.borderLight}`,
+    borderTop: `4px solid ${colors.primary}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 16px',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: '16px',
+    margin: '0',
   },
   header: {
+    background: colors.cardBackground,
+    backdropFilter: 'blur(20px)',
+    padding: '24px 32px',
+    borderRadius: '20px',
+    marginBottom: '24px',
+    boxShadow: shadows.small,
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '30px',
+    alignItems: 'center',
     flexWrap: 'wrap' as const,
     gap: '20px',
+    border: `1px solid ${colors.borderLight}`,
   },
   headerActions: {
     display: 'flex',
     gap: '10px',
+    flexWrap: 'wrap' as const,
   },
   title: {
-    color: '#30ff37',
-    fontSize: '36px',
+    color: colors.textHeading,
+    fontSize: '28px',
     margin: '0 0 5px 0',
+    fontWeight: '700',
   },
   subtitle: {
-    color: '#888',
-    fontSize: '16px',
+    color: colors.textSecondary,
+    fontSize: '14px',
     margin: '0',
   },
   createButton: {
     padding: '12px 24px',
-    background: '#30ff37',
-    color: '#000',
+    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+    color: '#fff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '12px',
     fontSize: '15px',
     fontWeight: '700' as const,
     cursor: 'pointer',
+    boxShadow: shadows.button,
   },
   invoicesButton: {
     padding: '12px 24px',
-    background: 'rgba(33, 150, 243, 0.2)',
-    color: '#2196f3',
-    border: '1px solid rgba(33, 150, 243, 0.4)',
-    borderRadius: '8px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
     fontSize: '15px',
     fontWeight: '600' as const,
     cursor: 'pointer',
   },
   backButton: {
     padding: '12px 24px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    color: '#fff',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
     fontSize: '15px',
     cursor: 'pointer',
+    fontWeight: '600',
   },
   filterBar: {
     display: 'flex',
     gap: '10px',
-    marginBottom: '30px',
+    marginBottom: '24px',
     flexWrap: 'wrap' as const,
   },
   filterButton: {
-    padding: '8px 16px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: '#888',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '6px',
+    padding: '10px 20px',
+    background: 'rgba(255, 255, 255, 0.8)',
+    color: colors.textSecondary,
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '12px',
     fontSize: '14px',
     cursor: 'pointer',
+    fontWeight: '500',
   },
   filterButtonActive: {
-    background: 'rgba(48, 255, 55, 0.2)',
-    color: '#30ff37',
-    borderColor: '#30ff37',
+    background: `rgba(${colors.primaryRgb}, 0.15)`,
+    color: colors.primary,
+    borderColor: colors.primary,
   },
   estimatesList: {
     display: 'grid',
     gap: '20px',
   },
   estimateCard: {
-    background: '#1a1a1a',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
-    borderRadius: '12px',
-    padding: '24px 10px',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: shadows.small,
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     marginBottom: '20px',
     paddingBottom: '20px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    borderBottom: `1px solid ${colors.borderLight}`,
   },
   estimateNumber: {
-    color: '#30ff37',
+    color: colors.textHeading,
     fontSize: '20px',
     margin: '0 0 5px 0',
     fontWeight: '700' as const,
   },
   clientName: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '16px',
     margin: '0',
   },
   estimateDate: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '14px',
     margin: '10px 0 0 0',
   },
@@ -450,11 +484,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '10px',
   },
   label: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '14px',
   },
   value: {
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '14px',
     fontWeight: '600' as const,
   },
@@ -462,44 +496,44 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     gap: '10px',
     flexWrap: 'wrap' as const,
+    paddingTop: '16px',
+    borderTop: `1px solid ${colors.borderLight}`,
   },
   actionButton: {
     padding: '8px 16px',
-    background: 'rgba(48, 255, 55, 0.1)',
-    color: '#30ff37',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
-    borderRadius: '6px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `1px solid ${colors.border}`,
+    borderRadius: '8px',
     fontSize: '14px',
     cursor: 'pointer',
+    fontWeight: '600',
   },
   convertButton: {
-    background: 'rgba(33, 150, 243, 0.1)',
-    color: '#2196f3',
-    borderColor: 'rgba(33, 150, 243, 0.3)',
+    background: 'rgba(139, 92, 246, 0.1)',
+    color: '#8b5cf6',
+    borderColor: 'rgba(139, 92, 246, 0.3)',
   },
   shareButton: {
-    background: 'rgba(255, 193, 7, 0.1)',
-    color: '#ffc107',
-    borderColor: 'rgba(255, 193, 7, 0.3)',
+    background: 'rgba(245, 158, 11, 0.1)',
+    color: '#f59e0b',
+    borderColor: 'rgba(245, 158, 11, 0.3)',
   },
   deleteButton: {
-    background: 'rgba(244, 67, 54, 0.1)',
-    color: '#f44336',
-    borderColor: 'rgba(244, 67, 54, 0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: colors.error,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   emptyState: {
     textAlign: 'center' as const,
     padding: '60px 20px',
+    background: colors.cardBackground,
+    borderRadius: '16px',
+    boxShadow: shadows.small,
   },
   emptyText: {
-    color: '#888',
+    color: colors.textSecondary,
     fontSize: '18px',
     marginBottom: '20px',
-  },
-  loadingText: {
-    color: '#30ff37',
-    fontSize: '24px',
-    textAlign: 'center' as const,
-    padding: '60px 20px',
   },
 };

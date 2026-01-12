@@ -5,24 +5,28 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Receipt } from '@/lib/types';
 import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { colors, shadows, animations } from '@/lib/theme';
 
 const styles = {
   container: {
-    backgroundColor: '#000',
-    color: '#fff',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif',
   } as React.CSSProperties,
   header: {
+    background: colors.cardBackground,
+    backdropFilter: 'blur(20px)',
+    padding: '24px 32px',
+    borderRadius: '20px',
+    marginBottom: '24px',
+    boxShadow: shadows.small,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '30px',
-    paddingBottom: '20px',
-    borderBottom: '1px solid #333',
     flexWrap: 'wrap' as const,
-    gap: '15px',
+    gap: '20px',
+    border: `1px solid ${colors.borderLight}`,
   } as React.CSSProperties,
   logo: {
     height: '50px',
@@ -34,29 +38,31 @@ const styles = {
     flexWrap: 'wrap' as const,
   } as React.CSSProperties,
   backButton: {
-    backgroundColor: 'transparent',
-    color: '#30ff37',
-    border: '1px solid #30ff37',
-    padding: '10px 20px',
-    borderRadius: '5px',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
+    padding: '12px 24px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '15px',
+    fontWeight: '600',
   } as React.CSSProperties,
   uploadButton: {
-    backgroundColor: '#30ff37',
-    color: '#000',
+    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+    color: '#fff',
     border: 'none',
-    padding: '10px 20px',
-    borderRadius: '5px',
+    padding: '12px 24px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 'bold',
+    boxShadow: shadows.button,
   } as React.CSSProperties,
   title: {
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 'bold',
     marginBottom: '20px',
-    color: '#30ff37',
+    color: colors.textHeading,
   } as React.CSSProperties,
   statsRow: {
     display: 'flex',
@@ -65,23 +71,25 @@ const styles = {
     flexWrap: 'wrap' as const,
   } as React.CSSProperties,
   statCard: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
-    borderRadius: '10px',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '16px',
     padding: '20px',
     minWidth: '150px',
     flex: 1,
+    boxShadow: shadows.small,
   } as React.CSSProperties,
   statLabel: {
     fontSize: '12px',
-    color: '#888',
+    color: colors.textSecondary,
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
   } as React.CSSProperties,
   statValue: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#30ff37',
+    color: colors.primary,
     marginTop: '5px',
   } as React.CSSProperties,
   filterRow: {
@@ -91,21 +99,21 @@ const styles = {
     flexWrap: 'wrap' as const,
   } as React.CSSProperties,
   filterSelect: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
-    borderRadius: '8px',
+    background: 'rgba(255, 255, 255, 0.9)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '12px',
     padding: '12px 15px',
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '14px',
     cursor: 'pointer',
     minWidth: '150px',
   } as React.CSSProperties,
   filterInput: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
-    borderRadius: '8px',
+    background: 'rgba(255, 255, 255, 0.9)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '12px',
     padding: '12px 15px',
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: '14px',
     minWidth: '200px',
   } as React.CSSProperties,
@@ -115,11 +123,13 @@ const styles = {
     gap: '20px',
   } as React.CSSProperties,
   receiptCard: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
-    borderRadius: '12px',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '16px',
     padding: '20px',
     transition: 'border-color 0.2s',
+    boxShadow: shadows.small,
   } as React.CSSProperties,
   receiptHeader: {
     display: 'flex',
@@ -129,7 +139,7 @@ const styles = {
   } as React.CSSProperties,
   receiptNumber: {
     fontSize: '12px',
-    color: '#666',
+    color: colors.textSecondary,
     fontFamily: 'monospace',
   } as React.CSSProperties,
   categoryBadge: {
@@ -142,23 +152,23 @@ const styles = {
   supplierName: {
     fontSize: '18px',
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.textHeading,
     marginBottom: '8px',
   } as React.CSSProperties,
   receiptDate: {
     fontSize: '14px',
-    color: '#888',
+    color: colors.textSecondary,
     marginBottom: '15px',
   } as React.CSSProperties,
   receiptAmount: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#30ff37',
+    color: colors.primary,
     marginBottom: '15px',
   } as React.CSSProperties,
   receiptDescription: {
     fontSize: '14px',
-    color: '#888',
+    color: colors.textSecondary,
     marginBottom: '15px',
     fontStyle: 'italic',
   } as React.CSSProperties,
@@ -167,33 +177,37 @@ const styles = {
     gap: '10px',
     marginTop: '15px',
     paddingTop: '15px',
-    borderTop: '1px solid #333',
+    borderTop: `1px solid ${colors.borderLight}`,
   } as React.CSSProperties,
   viewButton: {
-    backgroundColor: '#333',
-    color: '#fff',
-    border: 'none',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `1px solid ${colors.border}`,
     padding: '8px 16px',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '13px',
     flex: 1,
     textDecoration: 'none',
     textAlign: 'center' as const,
+    fontWeight: '600',
   } as React.CSSProperties,
   deleteButton: {
-    backgroundColor: 'transparent',
-    color: '#ff4444',
-    border: '1px solid #ff4444',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: colors.error,
+    border: '1px solid rgba(239, 68, 68, 0.3)',
     padding: '8px 16px',
-    borderRadius: '5px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '13px',
+    fontWeight: '600',
   } as React.CSSProperties,
   emptyState: {
     textAlign: 'center' as const,
     padding: '60px 20px',
-    color: '#666',
+    background: colors.cardBackground,
+    borderRadius: '16px',
+    boxShadow: shadows.small,
   } as React.CSSProperties,
   emptyIcon: {
     fontSize: '60px',
@@ -202,11 +216,12 @@ const styles = {
   emptyText: {
     fontSize: '18px',
     marginBottom: '20px',
+    color: colors.textSecondary,
   } as React.CSSProperties,
   loading: {
     textAlign: 'center' as const,
     padding: '60px 20px',
-    color: '#888',
+    color: colors.textSecondary,
   } as React.CSSProperties,
   modal: {
     position: 'fixed' as const,
@@ -214,29 +229,32 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   } as React.CSSProperties,
   modalContent: {
-    backgroundColor: '#111',
-    borderRadius: '12px',
+    background: colors.cardBackground,
+    backdropFilter: 'blur(20px)',
+    borderRadius: '20px',
     padding: '30px',
     maxWidth: '400px',
     width: '90%',
     textAlign: 'center' as const,
+    boxShadow: shadows.card,
+    border: `1px solid ${colors.borderLight}`,
   } as React.CSSProperties,
   modalTitle: {
     fontSize: '20px',
     fontWeight: 'bold',
     marginBottom: '15px',
-    color: '#ff4444',
+    color: colors.error,
   } as React.CSSProperties,
   modalText: {
     fontSize: '14px',
-    color: '#888',
+    color: colors.textSecondary,
     marginBottom: '25px',
   } as React.CSSProperties,
   modalButtons: {
@@ -245,20 +263,21 @@ const styles = {
     justifyContent: 'center',
   } as React.CSSProperties,
   modalCancel: {
-    backgroundColor: '#333',
-    color: '#fff',
-    border: 'none',
+    background: `rgba(${colors.primaryRgb}, 0.1)`,
+    color: colors.primary,
+    border: `2px solid ${colors.border}`,
     padding: '12px 25px',
-    borderRadius: '5px',
+    borderRadius: '12px',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: '600',
   } as React.CSSProperties,
   modalConfirm: {
-    backgroundColor: '#ff4444',
+    background: colors.error,
     color: '#fff',
     border: 'none',
     padding: '12px 25px',
-    borderRadius: '5px',
+    borderRadius: '12px',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: 'bold',
@@ -266,11 +285,11 @@ const styles = {
 };
 
 const categoryColors: Record<string, { bg: string; text: string }> = {
-  fuel: { bg: 'rgba(255, 152, 0, 0.2)', text: '#ff9800' },
-  parts: { bg: 'rgba(33, 150, 243, 0.2)', text: '#2196f3' },
-  tools: { bg: 'rgba(156, 39, 176, 0.2)', text: '#9c27b0' },
-  supplies: { bg: 'rgba(0, 188, 212, 0.2)', text: '#00bcd4' },
-  misc: { bg: 'rgba(158, 158, 158, 0.2)', text: '#9e9e9e' },
+  fuel: { bg: 'rgba(245, 158, 11, 0.2)', text: '#f59e0b' },
+  parts: { bg: `rgba(${colors.primaryRgb}, 0.2)`, text: colors.primary },
+  tools: { bg: 'rgba(139, 92, 246, 0.2)', text: '#8b5cf6' },
+  supplies: { bg: 'rgba(6, 182, 212, 0.2)', text: '#06b6d4' },
+  misc: { bg: 'rgba(148, 163, 184, 0.2)', text: '#64748b' },
 };
 
 export default function ReceiptsPage() {
@@ -488,7 +507,7 @@ export default function ReceiptsPage() {
       </div>
 
       {error && (
-        <div style={{ backgroundColor: 'rgba(255, 68, 68, 0.1)', border: '1px solid #ff4444', color: '#ff4444', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+        <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: `1px solid ${colors.error}`, color: colors.error, padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
           {error}
         </div>
       )}
@@ -546,7 +565,7 @@ export default function ReceiptsPage() {
                     href={receipt.gdrive_file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{...styles.viewButton, backgroundColor: '#1a73e8'}}
+                    style={{...styles.viewButton, background: colors.primary, color: '#fff'}}
                   >
                     View Image (Legacy)
                   </a>
