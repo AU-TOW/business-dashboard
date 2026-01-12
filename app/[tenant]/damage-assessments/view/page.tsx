@@ -33,7 +33,7 @@ interface DamageAssessment {
 const styles = {
   container: {
     backgroundColor: colors.background,
-    color: colors.text,
+    color: colors.textPrimary,
     minHeight: '100vh',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -124,7 +124,7 @@ const styles = {
     fontWeight: 'bold',
   } as React.CSSProperties,
   section: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.cardBackgroundSolid,
     border: `1px solid ${colors.border}`,
     borderRadius: '12px',
     padding: '20px',
@@ -132,7 +132,7 @@ const styles = {
   } as React.CSSProperties,
   sectionTitle: {
     fontSize: '14px',
-    color: colors.textMuted,
+    color: colors.textSecondary,
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     marginBottom: '15px',

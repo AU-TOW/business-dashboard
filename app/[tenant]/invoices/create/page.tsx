@@ -265,7 +265,7 @@ export default function CreateInvoicePage() {
           vehicle_make: booking.vehicle_make || '',
           vehicle_model: booking.vehicle_model || '',
           vehicle_reg: vehicleReg,
-          notes: `Service: ${booking.service_type}\n\nIssue: ${booking.issue_description}${booking.notes ? `\n\nNotes: ${booking.notes}` : ''}\n\n---\n\n${defaultNotes}`,
+          notes: `Service: ${booking.service_type}\n\nIssue: ${booking.issue_description}${booking.notes ? `\n\nNotes: ${booking.notes}` : ''}\n\n---\n\n${getDefaultNotes()}`,
           vat_rate: 0
         });
 

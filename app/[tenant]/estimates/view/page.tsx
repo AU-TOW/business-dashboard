@@ -518,7 +518,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: colors.background,
     minHeight: '100vh',
     padding: '20px',
-    color: colors.text,
+    color: colors.textPrimary,
   },
   actionBar: {
     display: 'flex',
@@ -534,10 +534,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   backBtn: {
     padding: '10px 20px',
-    background: colors.surface,
+    background: colors.cardBackgroundSolid,
     border: `1px solid ${colors.border}`,
     borderRadius: '8px',
-    color: colors.text,
+    color: colors.textPrimary,
     cursor: 'pointer',
     fontSize: '14px',
   },
@@ -577,7 +577,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#000',
     padding: '60px',
     borderRadius: '12px',
-    boxShadow: shadows.large,
+    boxShadow: shadows.card,
   },
   docHeader: {
     display: 'flex',

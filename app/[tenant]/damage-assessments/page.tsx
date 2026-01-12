@@ -23,7 +23,7 @@ interface DamageAssessment {
 const styles = {
   container: {
     backgroundColor: colors.background,
-    color: colors.text,
+    color: colors.textPrimary,
     minHeight: '100vh',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -91,7 +91,7 @@ const styles = {
     gap: '20px',
   } as React.CSSProperties,
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.cardBackgroundSolid,
     border: `1px solid ${colors.border}`,
     borderRadius: '12px',
     padding: '20px',
