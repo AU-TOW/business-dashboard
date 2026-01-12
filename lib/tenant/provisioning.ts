@@ -381,8 +381,16 @@ $$ LANGUAGE plpgsql;
 -- GRANT statements removed as they cause issues with connection pooler
 `;
 
+// Get direct connection URL (replace pooler with direct connection)
+function getDirectConnectionUrl(): string {
+  const url = process.env.DATABASE_URL || '';
+  // Supabase pooler URLs use pooler.supabase.com, direct uses db.supabase.co or aws-0-*.pooler with port 5432
+  // For schema creation, we need session mode (port 5432) not transaction mode (port 6543)
+  return url.replace(':6543/', ':5432/');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: getDirectConnectionUrl(),
   ssl: process.env.DATABASE_URL?.includes('supabase')
     ? { rejectUnauthorized: false }
     : undefined
