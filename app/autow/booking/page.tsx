@@ -94,7 +94,6 @@ export default function BookingPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
         },
         body: JSON.stringify({
           ...formData,

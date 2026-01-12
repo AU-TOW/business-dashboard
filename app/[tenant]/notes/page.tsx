@@ -33,7 +33,6 @@ export default function NotesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -71,7 +70,6 @@ export default function NotesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: noteId })

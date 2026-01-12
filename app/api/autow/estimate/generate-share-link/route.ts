@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
-import { verifyToken } from '@/lib/auth';
+import { getSessionFromRequest } from '@/lib/session';
 import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) {
+    // Verify JWT session from cookie
+    const session = await getSessionFromRequest(request);
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const isValid = verifyToken(token);
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     // Get tenant context

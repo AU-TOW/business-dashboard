@@ -26,7 +26,8 @@ export default function ViewNotePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/note/get?id=${noteId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
       if (response.ok) {
         const data = await response.json();

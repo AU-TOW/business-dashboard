@@ -321,7 +321,6 @@ export default function ReceiptUploadPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ imageData: imgData }),
       });
@@ -446,7 +445,6 @@ export default function ReceiptUploadPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           imageData,

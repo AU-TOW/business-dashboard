@@ -103,7 +103,8 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(vehicleReg)}&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: {
+ } }
       );
 
       if (response.ok) {
@@ -139,7 +140,8 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=${encodeURIComponent(upperReg)}&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: {
+ } }
       );
 
       if (response.ok) {
@@ -165,7 +167,8 @@ A/N: 20052044
       const token = localStorage.getItem('autow_token');
       const response = await fetch(
         `/api/autow/document-number/preview?vehicle_reg=&type=invoice`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: {
+ } }
       );
 
       if (response.ok) {
@@ -192,7 +195,8 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/booking/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -236,7 +240,8 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -292,7 +297,8 @@ A/N: 20052044
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -512,7 +518,6 @@ A/N: 20052044
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(payload)
       });

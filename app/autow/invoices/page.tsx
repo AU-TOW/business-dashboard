@@ -30,7 +30,6 @@ export default function InvoicesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -75,7 +74,6 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ id: invoiceId })
       });
@@ -100,7 +98,6 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ invoice_id: invoiceId })
       });
@@ -132,7 +129,6 @@ export default function InvoicesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ id: invoiceId })
       });

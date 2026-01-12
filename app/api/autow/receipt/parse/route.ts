@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 import OpenAI from 'openai';
 
 // Lazy initialization to avoid build-time errors
@@ -14,10 +15,9 @@ function getOpenAI(): OpenAI {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-
-    if (token !== process.env.AUTOW_STAFF_TOKEN) {
+    // Verify JWT session from cookie
+    const session = await getSessionFromRequest(request);
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

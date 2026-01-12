@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 import { getTenantFromRequest, withTenantSchema } from '@/lib/tenant/context';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authorization
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-
-    if (token !== process.env.AUTOW_STAFF_TOKEN) {
+    // Verify JWT session from cookie
+    const session = await getSessionFromRequest(request);
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest, tenantQuery, tenantMutate } from '@/lib/tenant/context';
-import { verifyToken } from '@/lib/auth';
+import { getSessionFromRequest } from '@/lib/session';
 import { sendTelegramNotification } from '@/lib/telegram';
 
 export async function POST(request: NextRequest) {
   try {
-    const rawAuth = request.headers.get('authorization');
-    const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
-
-    if (!verifyToken(token)) {
+    // Verify JWT session from cookie
+    const session = await getSessionFromRequest(request);
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -317,7 +317,6 @@ export default function ReceiptsPage() {
 
       const response = await fetch(`/api/autow/receipt/list?${params}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -345,7 +344,6 @@ export default function ReceiptsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ id: deleteModal.receipt.id }),
       });

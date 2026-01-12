@@ -28,7 +28,8 @@ export default function NotesPage() {
         : `/api/autow/note/list?status=${statusFilter}`;
 
       const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -64,7 +65,6 @@ export default function NotesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ id: noteId })
       });

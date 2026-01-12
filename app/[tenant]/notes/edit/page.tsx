@@ -42,7 +42,6 @@ export default function EditNotePage() {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/note/get?id=${noteId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -84,7 +83,6 @@ export default function EditNotePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: noteId, ...formData })

@@ -30,7 +30,6 @@ export default function EstimatesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -238,7 +237,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ estimate_id: estimateId })
       });
@@ -264,7 +262,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ estimate_id: estimateId })
       });
@@ -296,7 +293,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ id: estimateId })
       });

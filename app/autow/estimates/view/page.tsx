@@ -33,7 +33,8 @@ export default function ViewEstimatePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/estimate/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -61,7 +62,6 @@ export default function ViewEstimatePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ estimate_id: id })
       });

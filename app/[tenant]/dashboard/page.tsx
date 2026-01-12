@@ -25,7 +25,6 @@ export default function DashboardPage() {
     try {
       const response = await fetch('/api/autow/booking/list', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -67,7 +66,6 @@ export default function DashboardPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id })
@@ -91,7 +89,6 @@ export default function DashboardPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id })

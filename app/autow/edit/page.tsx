@@ -49,7 +49,6 @@ function EditBookingContent() {
     try {
       const response = await fetch(`/api/autow/booking/get?id=${bookingId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
         }
       });
 
@@ -101,7 +100,6 @@ function EditBookingContent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`
         },
         body: JSON.stringify({
           id: bookingId,

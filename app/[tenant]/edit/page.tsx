@@ -52,7 +52,6 @@ function EditBookingContent() {
     try {
       const response = await fetch(`/api/autow/booking/get?id=${bookingId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -105,7 +104,6 @@ function EditBookingContent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({

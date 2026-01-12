@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantFromRequest, tenantQueryOne } from '@/lib/tenant/context';
-import { verifyToken } from '@/lib/auth';
+import { getSessionFromRequest } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const rawAuth = request.headers.get('authorization');
-    const token = rawAuth ? rawAuth.replace('Bearer ', '') : null;
-
-    if (!verifyToken(token)) {
+    // Verify JWT session from cookie
+    const session = await getSessionFromRequest(request);
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

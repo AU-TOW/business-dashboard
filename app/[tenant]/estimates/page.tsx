@@ -34,7 +34,6 @@ export default function EstimatesPage() {
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -247,7 +246,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ estimate_id: estimateId })
@@ -274,7 +272,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ estimate_id: estimateId })
@@ -307,7 +304,6 @@ export default function EstimatesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: estimateId })

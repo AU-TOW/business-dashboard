@@ -88,3 +88,24 @@ export function getClearSessionCookieOptions() {
     path: '/',
   };
 }
+
+/**
+ * Get session from request (for API routes)
+ * Reads the session cookie from the request headers
+ */
+export async function getSessionFromRequest(request: Request): Promise<SessionPayload | null> {
+  const cookieHeader = request.headers.get('cookie');
+  if (!cookieHeader) return null;
+
+  // Parse cookies
+  const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    if (key && value) acc[key] = value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  const sessionToken = cookies[SESSION_COOKIE_NAME];
+  if (!sessionToken) return null;
+
+  return verifySessionToken(sessionToken);
+}

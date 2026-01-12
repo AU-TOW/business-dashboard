@@ -270,7 +270,6 @@ export default function DamageAssessmentsPage() {
       const token = localStorage.getItem('autow_token');
       const response = await fetch('/api/autow/damage-assessment/list', {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
       });
@@ -298,7 +297,6 @@ export default function DamageAssessmentsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: deleteModal.assessment.id }),
@@ -324,7 +322,6 @@ export default function DamageAssessmentsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: assessment.id }),

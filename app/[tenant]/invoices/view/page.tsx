@@ -61,7 +61,6 @@ export default function ViewInvoicePage() {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -91,7 +90,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ invoice_id: id })
@@ -120,7 +118,6 @@ export default function ViewInvoicePage() {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/expense/list?invoice_id=${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         }
       });
@@ -143,7 +140,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ imageData: imgData }),
@@ -262,7 +258,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({
@@ -306,7 +301,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
           'X-Tenant-Slug': tenant.slug,
         },
         body: JSON.stringify({ id: expenseId }),

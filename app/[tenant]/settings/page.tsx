@@ -182,7 +182,6 @@ export default function SettingsPage() {
         headers: {
           'Content-Type': 'application/json',
           'X-Tenant-Slug': tenant.slug,
-          'Authorization': `Bearer ${localStorage.getItem('autow_token')}`,
         },
       });
 

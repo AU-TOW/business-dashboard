@@ -57,7 +57,8 @@ export default function ViewInvoicePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/get?id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
 
       if (response.ok) {
@@ -85,7 +86,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ invoice_id: id })
       });
@@ -112,7 +112,8 @@ export default function ViewInvoicePage() {
     try {
       const token = localStorage.getItem('autow_token');
       const response = await fetch(`/api/autow/invoice/expense/list?invoice_id=${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+ }
       });
       if (response.ok) {
         const data = await response.json();
@@ -133,7 +134,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ imageData: imgData }),
       });
@@ -251,7 +251,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           invoice_id: id,
@@ -294,7 +293,6 @@ export default function ViewInvoicePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ id: expenseId }),
       });
