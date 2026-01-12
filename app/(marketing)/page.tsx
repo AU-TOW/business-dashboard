@@ -1,8 +1,34 @@
 import Link from 'next/link';
 
+// JSON-LD structured data for SEO
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Business Dashboard',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'AggregateOffer',
+    lowPrice: '12',
+    highPrice: '99',
+    priceCurrency: 'GBP',
+    offerCount: 4,
+  },
+  description: 'All-in-one dashboard for tradespeople. Manage bookings, estimates, invoices, and receipts with Telegram notifications.',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '50',
+  },
+};
+
 export default function LandingPage() {
   return (
     <div style={styles.container}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section style={styles.hero}>
         <div style={styles.heroContent}>

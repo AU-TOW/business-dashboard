@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import Header from '@/components/marketing/Header';
+import Footer from '@/components/marketing/Footer';
 
 export default function MarketingLayout({
   children,
@@ -7,39 +8,78 @@ export default function MarketingLayout({
 }) {
   return (
     <div style={styles.wrapper}>
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <Link href="/" style={styles.logo}>
-            Business Dashboard
-          </Link>
-          <nav style={styles.nav}>
-            <Link href="/pricing" style={styles.navLink}>
-              Pricing
-            </Link>
-            <Link href="/signup" style={styles.signupButton}>
-              Start Free Trial
-            </Link>
-          </nav>
-        </div>
-      </header>
+      {/* Skip link for accessibility */}
+      <a href="#main-content" style={styles.skipLink}>
+        Skip to main content
+      </a>
 
-      {/* Main Content */}
-      <main style={styles.main}>
+      <Header />
+
+      <main id="main-content" style={styles.main}>
         {children}
       </main>
 
-      {/* Footer */}
-      <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <div style={styles.footerLinks}>
-            <Link href="/" style={styles.footerLink}>Home</Link>
-            <Link href="/pricing" style={styles.footerLink}>Pricing</Link>
-            <Link href="/signup" style={styles.footerLink}>Sign Up</Link>
-          </div>
-          <p style={styles.copyright}>© 2026 Business Dashboard</p>
-        </div>
-      </footer>
+      <Footer />
+
+      {/* Global responsive styles */}
+      <style>{`
+        /* Mobile hamburger visibility */
+        @media (max-width: 768px) {
+          header nav[aria-label="Main navigation"] {
+            display: none !important;
+          }
+          header button[aria-label*="menu"] {
+            display: flex !important;
+          }
+        }
+        @media (min-width: 769px) {
+          header button[aria-label*="menu"] {
+            display: none !important;
+          }
+        }
+
+        /* Footer responsive */
+        @media (max-width: 768px) {
+          footer > div > div:first-child {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          footer > div > div:first-child {
+            grid-template-columns: 1fr !important;
+          }
+          footer > div > div:last-child {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+          }
+        }
+
+        /* Focus visible for accessibility */
+        a:focus-visible,
+        button:focus-visible {
+          outline: 2px solid #3B82F6;
+          outline-offset: 2px;
+        }
+
+        /* Skip link styling */
+        a[href="#main-content"]:focus {
+          clip: auto !important;
+          clip-path: none !important;
+          height: auto !important;
+          width: auto !important;
+          position: absolute !important;
+          top: 8px;
+          left: 8px;
+          z-index: 1000;
+          padding: 12px 24px;
+          background: #3B82F6;
+          color: white;
+          border-radius: 8px;
+          font-weight: 600;
+          text-decoration: none;
+        }
+      `}</style>
     </div>
   );
 }
@@ -51,81 +91,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
-  header: {
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
-    background: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(20px)',
-    borderBottom: '1px solid rgba(59, 130, 246, 0.1)',
-    padding: '16px 24px',
-  },
-  headerContent: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logo: {
-    fontSize: '20px',
-    fontWeight: 700,
-    color: '#1e40af',
-    textDecoration: 'none',
-  },
-  nav: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '24px',
-  },
-  navLink: {
-    color: '#475569',
-    textDecoration: 'none',
-    fontSize: '15px',
-    fontWeight: 500,
-    transition: 'color 0.2s',
-  },
-  signupButton: {
-    background: 'linear-gradient(135deg, #3B82F6, #2563eb)',
-    color: '#fff',
-    padding: '10px 20px',
-    borderRadius: '8px',
-    textDecoration: 'none',
-    fontSize: '14px',
-    fontWeight: 600,
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+  skipLink: {
+    position: 'absolute',
+    left: '-9999px',
+    width: '1px',
+    height: '1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
   },
   main: {
     flex: 1,
-  },
-  footer: {
-    background: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(10px)',
-    borderTop: '1px solid rgba(59, 130, 246, 0.1)',
-    padding: '32px 24px',
-  },
-  footerContent: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '16px',
-  },
-  footerLinks: {
-    display: 'flex',
-    gap: '32px',
-  },
-  footerLink: {
-    color: '#64748b',
-    textDecoration: 'none',
-    fontSize: '14px',
-    transition: 'color 0.2s',
-  },
-  copyright: {
-    color: '#94a3b8',
-    fontSize: '13px',
-    margin: 0,
   },
 };
