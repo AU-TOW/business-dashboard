@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, markTenantEmailVerified } from '@/lib/db';
+import { createSessionToken, getSessionCookieOptions } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,18 +28,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mark tenant email as verified
-    if (result.tenantSlug) {
+    // Mark tenant email as verified (for signup tokens)
+    if (result.tenantSlug && result.type === 'verification') {
       await markTenantEmailVerified(result.tenantSlug);
     }
 
-    return NextResponse.json({
+    // Create a session token and set cookie
+    const sessionToken = await createSessionToken(
+      result.email!,
+      result.tenantSlug!,
+      result.businessName!
+    );
+
+    const response = NextResponse.json({
       success: true,
       email: result.email,
       tenantSlug: result.tenantSlug,
       businessName: result.businessName,
       type: result.type,
     });
+
+    // Set the session cookie
+    const cookieOptions = getSessionCookieOptions();
+    response.cookies.set(cookieOptions.name, sessionToken, {
+      httpOnly: cookieOptions.httpOnly,
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
+      maxAge: cookieOptions.maxAge,
+      path: cookieOptions.path,
+    });
+
+    return response;
   } catch (error: any) {
     console.error('Verify error:', error);
     return NextResponse.json(

@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
-import { getSupabaseClient } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tenant = useTenant();
@@ -16,18 +15,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Check if already logged in
+  // Check if already logged in via session cookie
   useEffect(() => {
     const checkSession = async () => {
-      const supabase = getSupabaseClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const redirect = searchParams.get('redirect') || paths.dashboard;
-        router.push(redirect);
+      try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        if (data.authenticated && data.tenantSlug === tenant.slug) {
+          const redirect = searchParams.get('redirect') || paths.dashboard;
+          router.push(redirect);
+        }
+      } catch (err) {
+        // Not logged in, stay on login page
       }
     };
     checkSession();
-  }, [router, paths.dashboard, searchParams]);
+  }, [router, paths.dashboard, searchParams, tenant.slug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,19 +44,17 @@ export default function LoginPage() {
     }
 
     try {
-      const supabase = getSupabaseClient();
-      const origin = window.location.origin;
-      const redirectPath = searchParams.get('redirect') || paths.dashboard;
-
-      const { error: authError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${origin}/signup/verify?tenant=${tenant.slug}&redirect=${encodeURIComponent(redirectPath)}`,
-        },
+      // Use our custom magic link API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      if (authError) {
-        throw authError;
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send magic link');
       }
 
       setSuccess(true);
@@ -311,3 +312,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'all 0.3s',
   },
 };
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={styles.container}>
+        <div style={styles.loginBox}>
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '4px solid rgba(59, 130, 246, 0.2)',
+              borderTop: '4px solid #3b82f6',
+              borderRadius: '50%',
+              margin: '0 auto 24px',
+              animation: 'spin 1s linear infinite',
+            }}></div>
+            <p style={{ color: '#64748b', fontSize: '16px' }}>Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
