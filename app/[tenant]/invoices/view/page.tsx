@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Invoice, InvoiceExpense } from '@/lib/types';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
+import { colors, shadows } from '@/lib/theme';
 
 
 export default function ViewInvoicePage() {
@@ -11,6 +12,7 @@ export default function ViewInvoicePage() {
   const searchParams = useSearchParams();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
   const id = searchParams.get('id');
 
   const [loading, setLoading] = useState(true);
@@ -360,13 +362,14 @@ export default function ViewInvoicePage() {
   });
 
   const settings = businessSettings || {
-    business_name: 'AUTOW Services',
-    email: 'info@autow-services.co.uk',
-    address: 'Alverton, Penzance, TR18 4QB',
-    workshop_location: 'WORKSHOP LOCATION PENZANCE',
-    phone: '07352968276',
-    website: 'https://www.autow-services.co.uk',
-    owner: 'Business owner name'
+    business_name: branding.businessName || 'Your Business',
+    email: '',
+    address: '',
+    workshop_location: '',
+    phone: '',
+    website: '',
+    owner: '',
+    logo_url: branding.logoUrl || null
   };
 
   return (
@@ -429,7 +432,7 @@ export default function ViewInvoicePage() {
             {scanningExpense && (
               <div style={styles.scanningOverlay}>
                 <div style={styles.spinner}></div>
-                <p style={{ color: '#30ff37', marginTop: '15px' }}>Scanning document...</p>
+                <p style={{ color: colors.primary, marginTop: '15px' }}>Scanning document...</p>
               </div>
             )}
 
@@ -577,7 +580,7 @@ export default function ViewInvoicePage() {
 
               <div style={styles.expenseTotalRow}>
                 <span>Total:</span>
-                <span style={{ color: '#30ff37', fontWeight: 'bold' }}>
+                <span style={{ color: colors.primary, fontWeight: 'bold' }}>
                   £{(
                     parseFloat(expensePartsAmount || '0') +
                     parseFloat(expenseLabourAmount || '0')
@@ -618,11 +621,17 @@ export default function ViewInvoicePage() {
             )}
           </div>
           <div style={{ textAlign: 'right' as const }}>
-            <img
-              src="https://autow-services.co.uk/logo.png"
-              alt="AUTOW"
-              style={styles.logo}
-            />
+            {(settings.logo_url || branding.logoUrl) ? (
+              <img
+                src={settings.logo_url || branding.logoUrl}
+                alt={settings.business_name}
+                style={styles.logo}
+              />
+            ) : (
+              <div style={styles.logoPlaceholder}>
+                {settings.business_name?.charAt(0) || 'B'}
+              </div>
+            )}
           </div>
         </div>
 
@@ -776,9 +785,9 @@ export default function ViewInvoicePage() {
           </p>
           <div style={styles.disclaimer} className="disclaimer">
             <p style={styles.disclaimerText}>
-              AUTOW Services provides mobile mechanics and recovery services. All work is guaranteed for 30 days from completion.
-              Parts are subject to manufacturer warranty. Payment terms: Parts and/or vehicle collection/recovery required upfront,
-              labour on completion. Unpaid invoices may incur late payment fees of 8% per annum. By accepting this invoice, you agree to these terms.
+              {settings.business_name} - All work is guaranteed for 30 days from completion.
+              Parts are subject to manufacturer warranty. Payment terms as agreed.
+              Unpaid invoices may incur late payment fees. By accepting this invoice, you agree to these terms.
               For disputes, please contact us within 7 days of invoice date.
             </p>
           </div>
@@ -863,7 +872,7 @@ export default function ViewInvoicePage() {
             <div style={styles.profitRow}>
               <span>Estimated Profit:</span>
               <span style={{
-                color: parseFloat(invoice.total.toString()) - expenseTotals.total >= 0 ? '#30ff37' : '#ff4444'
+                color: parseFloat(invoice.total.toString()) - expenseTotals.total >= 0 ? colors.success : '#ff4444'
               }}>
                 £{(parseFloat(invoice.total.toString()) - expenseTotals.total).toFixed(2)}
               </span>
@@ -1092,10 +1101,10 @@ export default function ViewInvoicePage() {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    background: '#000',
+    background: colors.background,
     minHeight: '100vh',
     padding: '20px',
-    color: '#fff',
+    color: colors.text,
   },
   actionBar: {
     display: 'flex',
@@ -1111,16 +1120,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   backBtn: {
     padding: '10px 20px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    background: colors.surface,
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
-    color: '#fff',
+    color: colors.text,
     cursor: 'pointer',
     fontSize: '14px',
   },
   editBtn: {
     padding: '10px 20px',
-    background: '#2196f3',
+    background: colors.primary,
     border: 'none',
     borderRadius: '8px',
     color: '#fff',
@@ -1130,20 +1139,20 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   paidBtn: {
     padding: '10px 20px',
-    background: '#30ff37',
+    background: colors.success,
     border: 'none',
     borderRadius: '8px',
-    color: '#000',
+    color: '#fff',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '700' as const,
   },
   printBtn: {
     padding: '10px 20px',
-    background: 'rgba(48, 255, 55, 0.2)',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    background: `${colors.primary}20`,
+    border: `1px solid ${colors.primary}40`,
     borderRadius: '8px',
-    color: '#30ff37',
+    color: colors.primary,
     cursor: 'pointer',
     fontSize: '14px',
   },
@@ -1154,19 +1163,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#000',
     padding: '60px',
     borderRadius: '12px',
-    boxShadow: '0 10px 40px rgba(48, 255, 55, 0.2)',
+    boxShadow: shadows.large,
   },
   docHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     marginBottom: '40px',
     paddingBottom: '20px',
-    borderBottom: '3px solid #30ff37',
+    borderBottom: `3px solid ${colors.primary}`,
   },
   docTitle: {
     fontSize: '36px',
     fontWeight: '700' as const,
-    color: '#30ff37',
+    color: colors.primary,
     margin: '0 0 10px 0',
   },
   docDate: {
@@ -1176,7 +1185,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   docNumber: {
     fontSize: '18px',
-    color: '#30ff37',
+    color: colors.primary,
     margin: '5px 0',
     fontFamily: 'monospace',
   },
@@ -1233,7 +1242,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   th: {
     padding: '12px',
-    borderBottom: '2px solid #30ff37',
+    borderBottom: `2px solid ${colors.primary}`,
     fontSize: '12px',
     fontWeight: '700' as const,
     textTransform: 'uppercase' as const,
@@ -1294,9 +1303,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '20px',
     fontWeight: '700' as const,
     paddingTop: '15px',
-    borderTop: '2px solid #30ff37',
+    borderTop: `2px solid ${colors.primary}`,
     marginTop: '10px',
-    color: '#30ff37',
+    color: colors.primary,
   },
   balanceDue: {
     fontSize: '18px',
@@ -1307,8 +1316,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#ff3030',
   },
   paidBanner: {
-    background: '#30ff37',
-    color: '#000',
+    background: colors.success,
+    color: '#fff',
     textAlign: 'center' as const,
     padding: '20px',
     fontSize: '24px',
@@ -1361,10 +1370,22 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'justify' as const,
   },
   loadingText: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
     textAlign: 'center' as const,
     padding: '60px 20px',
+  },
+  logoPlaceholder: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '12px',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '48px',
+    fontWeight: '700' as const,
+    color: '#fff',
   },
   // Expense Button
   expenseBtn: {
@@ -1441,7 +1462,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '40px',
     height: '40px',
     border: '3px solid #333',
-    borderTopColor: '#30ff37',
+    borderTopColor: colors.primary,
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   },
@@ -1459,8 +1480,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexWrap: 'wrap' as const,
   },
   captureBtn: {
-    background: '#30ff37',
-    color: '#000',
+    background: colors.primary,
+    color: '#fff',
     border: 'none',
     padding: '15px 25px',
     borderRadius: '8px',
@@ -1506,28 +1527,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '13px',
   },
   confidenceBanner: {
-    background: 'rgba(48, 255, 55, 0.1)',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    background: `${colors.primary}15`,
+    border: `1px solid ${colors.primary}40`,
     borderRadius: '8px',
     padding: '10px 15px',
     marginBottom: '20px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '13px',
   },
   confidenceScore: {
-    background: '#30ff37',
-    color: '#000',
+    background: colors.primary,
+    color: '#fff',
     padding: '3px 10px',
     borderRadius: '12px',
     fontSize: '12px',
     fontWeight: '700' as const,
   },
   autoFillBadge: {
-    background: 'rgba(48, 255, 55, 0.2)',
-    color: '#30ff37',
+    background: `${colors.primary}30`,
+    color: colors.primary,
     fontSize: '9px',
     padding: '2px 6px',
     borderRadius: '8px',
@@ -1566,7 +1587,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   inputAutoFilled: {
     background: '#1a1a1a',
-    border: '1px solid rgba(48, 255, 55, 0.4)',
+    border: `1px solid ${colors.primary}60`,
     borderRadius: '6px',
     padding: '12px',
     color: '#fff',

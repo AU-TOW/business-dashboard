@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { shouldShowVehicleFields, TradeType } from '@/lib/features';
 import { colors, shadows, animations } from '@/lib/theme';
 
@@ -10,6 +10,7 @@ export default function BookingPage() {
   const router = useRouter();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
   const trade = (tenant.tradeType || 'general') as TradeType;
   const showVehicle = shouldShowVehicleFields(trade);
   const [loading, setLoading] = useState(true);
@@ -142,11 +143,17 @@ export default function BookingPage() {
     <div style={styles.container}>
       <div style={styles.formContainer} className="form-container">
         <div style={styles.header}>
-          <img
-            src="https://autow-services.co.uk/logo.png"
-            alt="AUTOW"
-            style={styles.logo}
-          />
+          {branding.logoUrl ? (
+            <img
+              src={branding.logoUrl}
+              alt={branding.businessName}
+              style={styles.logo}
+            />
+          ) : (
+            <div style={styles.logoPlaceholder}>
+              {branding.businessName?.charAt(0) || 'B'}
+            </div>
+          )}
           <h1 style={styles.title}>New Booking</h1>
           <p style={styles.subtitle}>Create a new customer appointment</p>
         </div>
@@ -468,6 +475,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '12px',
     display: 'block',
     objectFit: 'contain' as const,
+  },
+  logoPlaceholder: {
+    width: '60px',
+    height: '60px',
+    margin: '0 auto 20px',
+    borderRadius: '12px',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '28px',
+    fontWeight: '700' as const,
+    color: '#fff',
   },
   title: {
     color: colors.textHeading,

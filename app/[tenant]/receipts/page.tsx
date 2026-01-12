@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Receipt } from '@/lib/types';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { colors, shadows, animations } from '@/lib/theme';
 
 const styles = {
@@ -31,6 +31,19 @@ const styles = {
   logo: {
     height: '50px',
     width: 'auto',
+    borderRadius: '8px',
+  } as React.CSSProperties,
+  logoPlaceholder: {
+    width: '50px',
+    height: '50px',
+    borderRadius: '8px',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#fff',
   } as React.CSSProperties,
   headerButtons: {
     display: 'flex',
@@ -296,6 +309,7 @@ export default function ReceiptsPage() {
   const router = useRouter();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0, month_count: 0 });
   const [loading, setLoading] = useState(true);
@@ -431,14 +445,20 @@ export default function ReceiptsPage() {
       )}
 
       <div style={styles.header}>
-        <Image
-          src="/logo.png"
-          alt="AUTOW Logo"
-          width={120}
-          height={50}
-          style={styles.logo}
-          priority
-        />
+        {branding.logoUrl ? (
+          <Image
+            src={branding.logoUrl}
+            alt={branding.businessName}
+            width={120}
+            height={50}
+            style={styles.logo}
+            priority
+          />
+        ) : (
+          <div style={styles.logoPlaceholder}>
+            {branding.businessName?.charAt(0) || 'B'}
+          </div>
+        )}
         <div style={styles.headerButtons}>
           <button style={styles.backButton} onClick={() => router.push(paths.welcome)}>
             ← Menu

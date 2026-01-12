@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
+import { colors, shadows } from '@/lib/theme';
 
 const styles = {
   container: {
-    backgroundColor: '#000',
-    color: '#fff',
+    backgroundColor: colors.background,
+    color: colors.text,
     minHeight: '100vh',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -19,16 +20,29 @@ const styles = {
     alignItems: 'center',
     marginBottom: '30px',
     paddingBottom: '20px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border}`,
   } as React.CSSProperties,
   logo: {
     height: '50px',
     width: 'auto',
+    borderRadius: '8px',
+  } as React.CSSProperties,
+  logoPlaceholder: {
+    width: '50px',
+    height: '50px',
+    borderRadius: '8px',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#fff',
   } as React.CSSProperties,
   backButton: {
     backgroundColor: 'transparent',
-    color: '#30ff37',
-    border: '1px solid #30ff37',
+    color: colors.primary,
+    border: `1px solid ${colors.primary}`,
     padding: '10px 20px',
     borderRadius: '5px',
     cursor: 'pointer',
@@ -38,18 +52,18 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '30px',
-    color: '#30ff37',
+    color: colors.primary,
   } as React.CSSProperties,
   section: {
     marginBottom: '30px',
   } as React.CSSProperties,
   sectionTitle: {
     fontSize: '16px',
-    color: '#888',
+    color: colors.textMuted,
     marginBottom: '15px',
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border}`,
     paddingBottom: '10px',
   } as React.CSSProperties,
   form: {
@@ -75,19 +89,19 @@ const styles = {
     color: '#ff4444',
   } as React.CSSProperties,
   input: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     padding: '15px',
-    color: '#fff',
+    color: colors.text,
     fontSize: '16px',
   } as React.CSSProperties,
   textarea: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     padding: '15px',
-    color: '#fff',
+    color: colors.text,
     fontSize: '16px',
     minHeight: '100px',
     resize: 'vertical' as const,
@@ -102,8 +116,8 @@ const styles = {
     alignItems: 'center',
     gap: '10px',
     padding: '12px',
-    backgroundColor: '#111',
-    border: '1px solid #333',
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     cursor: 'pointer',
   } as React.CSSProperties,
@@ -112,15 +126,15 @@ const styles = {
     alignItems: 'center',
     gap: '10px',
     padding: '12px',
-    backgroundColor: 'rgba(48, 255, 55, 0.1)',
-    border: '1px solid #30ff37',
+    backgroundColor: `${colors.primary}15`,
+    border: `1px solid ${colors.primary}`,
     borderRadius: '8px',
     cursor: 'pointer',
   } as React.CSSProperties,
   checkboxInput: {
     width: '18px',
     height: '18px',
-    accentColor: '#30ff37',
+    accentColor: colors.primary,
   } as React.CSSProperties,
   buttonRow: {
     display: 'flex',
@@ -138,8 +152,8 @@ const styles = {
     flex: 1,
   } as React.CSSProperties,
   submitButton: {
-    backgroundColor: '#30ff37',
-    color: '#000',
+    backgroundColor: colors.primary,
+    color: '#fff',
     border: 'none',
     padding: '15px 30px',
     borderRadius: '8px',
@@ -178,13 +192,13 @@ const styles = {
     width: '50px',
     height: '50px',
     border: '4px solid #333',
-    borderTop: '4px solid #30ff37',
+    borderTop: `4px solid ${colors.primary}`,
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   } as React.CSSProperties,
   loadingText: {
     marginTop: '20px',
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '18px',
   } as React.CSSProperties,
 };
@@ -203,6 +217,7 @@ export default function CreateDamageAssessmentPage() {
   const searchParams = useSearchParams();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
 
   const editId = searchParams.get('id');
   const isEditing = !!editId;
@@ -372,14 +387,20 @@ export default function CreateDamageAssessmentPage() {
       )}
 
       <div style={styles.header}>
-        <Image
-          src="/logo.png"
-          alt="AUTOW Logo"
-          width={120}
-          height={50}
-          style={styles.logo}
-          priority
-        />
+        {branding.logoUrl ? (
+          <Image
+            src={branding.logoUrl}
+            alt={branding.businessName}
+            width={120}
+            height={50}
+            style={styles.logo}
+            priority
+          />
+        ) : (
+          <div style={styles.logoPlaceholder}>
+            {branding.businessName?.charAt(0) || 'B'}
+          </div>
+        )}
         <button style={styles.backButton} onClick={() => router.push(paths.damageAssessments)}>
           ← Back
         </button>

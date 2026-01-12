@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
+import { colors, shadows } from '@/lib/theme';
 
 interface DamageAssessment {
   id: number;
@@ -31,8 +32,8 @@ interface DamageAssessment {
 
 const styles = {
   container: {
-    backgroundColor: '#000',
-    color: '#fff',
+    backgroundColor: colors.background,
+    color: colors.text,
     minHeight: '100vh',
     padding: '20px',
     fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -43,13 +44,26 @@ const styles = {
     alignItems: 'center',
     marginBottom: '30px',
     paddingBottom: '20px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border}`,
     flexWrap: 'wrap' as const,
     gap: '15px',
   } as React.CSSProperties,
   logo: {
     height: '50px',
     width: 'auto',
+    borderRadius: '8px',
+  } as React.CSSProperties,
+  logoPlaceholder: {
+    width: '50px',
+    height: '50px',
+    borderRadius: '8px',
+    background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#fff',
   } as React.CSSProperties,
   headerButtons: {
     display: 'flex',
@@ -58,8 +72,8 @@ const styles = {
   } as React.CSSProperties,
   backButton: {
     backgroundColor: 'transparent',
-    color: '#30ff37',
-    border: '1px solid #30ff37',
+    color: colors.primary,
+    border: `1px solid ${colors.primary}`,
     padding: '10px 20px',
     borderRadius: '5px',
     cursor: 'pointer',
@@ -94,7 +108,7 @@ const styles = {
   title: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#30ff37',
+    color: colors.primary,
   } as React.CSSProperties,
   assessmentNumber: {
     fontSize: '14px',
@@ -110,20 +124,20 @@ const styles = {
     fontWeight: 'bold',
   } as React.CSSProperties,
   section: {
-    backgroundColor: '#111',
-    border: '1px solid #333',
+    backgroundColor: colors.surface,
+    border: `1px solid ${colors.border}`,
     borderRadius: '12px',
     padding: '20px',
     marginBottom: '20px',
   } as React.CSSProperties,
   sectionTitle: {
     fontSize: '14px',
-    color: '#888',
+    color: colors.textMuted,
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     marginBottom: '15px',
     paddingBottom: '10px',
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border}`,
   } as React.CSSProperties,
   infoGrid: {
     display: 'grid',
@@ -147,7 +161,7 @@ const styles = {
   vehicleReg: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#30ff37',
+    color: colors.primary,
     marginBottom: '15px',
   } as React.CSSProperties,
   damageLocations: {
@@ -210,8 +224,8 @@ const styles = {
 const statusColors: Record<string, { bg: string; text: string }> = {
   draft: { bg: 'rgba(158, 158, 158, 0.2)', text: '#9e9e9e' },
   pending: { bg: 'rgba(255, 152, 0, 0.2)', text: '#ff9800' },
-  reviewed: { bg: 'rgba(33, 150, 243, 0.2)', text: '#2196f3' },
-  completed: { bg: 'rgba(48, 255, 55, 0.2)', text: '#30ff37' },
+  reviewed: { bg: `${colors.primary}20`, text: colors.primary },
+  completed: { bg: `${colors.success}30`, text: colors.success },
 };
 
 const damageLocationLabels: Record<string, string> = {
@@ -228,6 +242,7 @@ export default function ViewDamageAssessmentPage() {
   const searchParams = useSearchParams();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
 
   const id = searchParams.get('id');
 
@@ -320,14 +335,20 @@ export default function ViewDamageAssessmentPage() {
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <Image
-            src="/logo.png"
-            alt="AUTOW Logo"
-            width={120}
-            height={50}
-            style={styles.logo}
-            priority
-          />
+          {branding.logoUrl ? (
+            <Image
+              src={branding.logoUrl}
+              alt={branding.businessName}
+              width={120}
+              height={50}
+              style={styles.logo}
+              priority
+            />
+          ) : (
+            <div style={styles.logoPlaceholder}>
+              {branding.businessName?.charAt(0) || 'B'}
+            </div>
+          )}
           <button style={styles.backButton} onClick={() => router.push(paths.damageAssessments)}>
             ← Back
           </button>
@@ -340,14 +361,20 @@ export default function ViewDamageAssessmentPage() {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <Image
-          src="/logo.png"
-          alt="AUTOW Logo"
-          width={120}
-          height={50}
-          style={styles.logo}
-          priority
-        />
+        {branding.logoUrl ? (
+          <Image
+            src={branding.logoUrl}
+            alt={branding.businessName}
+            width={120}
+            height={50}
+            style={styles.logo}
+            priority
+          />
+        ) : (
+          <div style={styles.logoPlaceholder}>
+            {branding.businessName?.charAt(0) || 'B'}
+          </div>
+        )}
         <div style={styles.headerButtons}>
           <button style={styles.backButton} onClick={() => router.push(paths.damageAssessments)}>
             ← Back
