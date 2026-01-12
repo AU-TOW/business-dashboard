@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 ## Current Position
 
 Phase: 8 of 8 (Landing Page & Polish) — IN PROGRESS
-Plan: 08-01 complete, starting 08-02
-Status: Phase 5 SKIPPED (billing deferred), Phases 6-7 COMPLETE, Phase 8 started
-Last activity: 2026-01-11 — Plan 08-01 complete (Marketing Landing Page)
+Plan: 08-02 complete, starting 08-03
+Status: Phase 5 SKIPPED (billing deferred), Phases 6-7 COMPLETE, Phase 8 in progress
+Last activity: 2026-01-11 — Plan 08-02 complete (Pricing Page)
 
-Progress: █████████░ 94%
+Progress: █████████░ 96%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03, 08-01)
+- Total plans completed: 16 (01-01, 02-01, 03-01, 04-01, 04-02, 04-03, 04-04, 04-05, 06-01, 06-02, 06-03, 07-01, 07-02, 07-03, 08-01, 08-02)
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -33,10 +33,10 @@ Progress: █████████░ 94%
 | 4 | 5 | — | — |
 | 6 | 3 | — | — |
 | 7 | 3 | — | — |
-| 8 | 1 | — | — |
+| 8 | 2 | — | — |
 
 **Recent Trend:**
-- Last 5 plans: 06-03, 07-01, 07-02, 07-03, 08-01
+- Last 5 plans: 07-01, 07-02, 07-03, 08-01, 08-02
 - Trend: —
 
 ## Accumulated Context
@@ -170,24 +170,30 @@ Technical notes:
 
 In Progress:
 1. Marketing Landing Page (08-01) ✓
+2. Pricing Page (08-02) ✓
 
 Key files:
 - `app/page.tsx` - Complete landing page with hero, features, trust sections
 - `app/(marketing)/layout.tsx` - Marketing layout with header/footer
 - `app/(marketing)/page.tsx` - Marketing route group page
+- `app/(marketing)/pricing/page.tsx` - Pricing page with tiers, comparison, FAQ
 
 Technical notes:
 - Glass UI styling consistent with app theme
 - Primary color #3B82F6 for CTAs
 - Route group for shared marketing header/footer
 - Feature cards: Bookings, Estimates, Invoices, Receipts, Telegram, Multi-Trade
+- 4 pricing tiers: Starter £12, Pro £29, Business £59, Enterprise £99
+- Pro tier highlighted as "Popular"
+- Accordion FAQ component
 
 Commits:
 - 1f9c726: feat(landing): create marketing landing page with hero, features, trust
+- 79f336f: feat(08-02): create pricing page with tier cards, comparison, FAQ
 
 ## Session Continuity
 
 Last session: 2026-01-11
-Completed: Plan 08-01 (Marketing Landing Page)
+Completed: Plan 08-02 (Pricing Page)
 Current: Phase 8 IN PROGRESS
-Next: Plan 08-02 (Pricing Page)
+Next: Plan 08-03 (SEO & Metadata)
