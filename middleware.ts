@@ -42,24 +42,25 @@ const semiProtectedPatterns = [
 ];
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    const { pathname } = request.nextUrl;
 
-  // Skip public routes
-  if (publicRoutes.includes(pathname)) {
-    return NextResponse.next();
-  }
+    // Skip public routes
+    if (publicRoutes.includes(pathname)) {
+      return NextResponse.next();
+    }
 
-  // Skip public patterns
-  if (publicPatterns.some((pattern) => pattern.test(pathname))) {
-    return NextResponse.next();
-  }
+    // Skip public patterns
+    if (publicPatterns.some((pattern) => pattern.test(pathname))) {
+      return NextResponse.next();
+    }
 
-  // If Supabase env vars are not set, allow request through
-  // (avoids crash during build or if env vars are missing)
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn('Supabase environment variables not set - skipping auth check');
-    return NextResponse.next();
-  }
+    // If Supabase env vars are not set, allow request through
+    // (avoids crash during build or if env vars are missing)
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase environment variables not set - skipping auth check');
+      return NextResponse.next();
+    }
 
   // Create a response to potentially modify
   let response = NextResponse.next({
@@ -125,6 +126,11 @@ export async function middleware(request: NextRequest) {
   // This enables onboarding flow to work right after magic link verification
 
   return response;
+  } catch (error) {
+    console.error('Middleware error:', error);
+    // On any error, allow the request through to avoid blocking the site
+    return NextResponse.next();
+  }
 }
 
 export const config = {
