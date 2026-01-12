@@ -381,20 +381,24 @@ $$ LANGUAGE plpgsql;
 -- GRANT statements removed as they cause issues with connection pooler
 `;
 
-// Get direct connection URL (replace pooler with direct connection)
-function getDirectConnectionUrl(): string {
-  const url = process.env.DATABASE_URL || '';
-  // Supabase pooler URLs use pooler.supabase.com, direct uses db.supabase.co or aws-0-*.pooler with port 5432
-  // For schema creation, we need session mode (port 5432) not transaction mode (port 6543)
-  return url.replace(':6543/', ':5432/');
-}
+// Lazy pool initialization (required for Vercel serverless)
+let pool: Pool | null = null;
 
-const pool = new Pool({
-  connectionString: getDirectConnectionUrl(),
-  ssl: process.env.DATABASE_URL?.includes('supabase')
-    ? { rejectUnauthorized: false }
-    : undefined
-});
+function getPool(): Pool {
+  if (!pool) {
+    const dbUrl = process.env.DATABASE_URL || '';
+    // Use session mode (port 5432) for schema operations - transaction mode (6543) can't see newly created schemas
+    const sessionUrl = dbUrl.replace(':6543/', ':5432/');
+    console.log('Initializing DB pool with session mode connection');
+
+    pool = new Pool({
+      connectionString: sessionUrl,
+      ssl: dbUrl.includes('supabase') ? { rejectUnauthorized: false } : undefined,
+      max: 1, // Single connection for schema operations
+    });
+  }
+  return pool;
+}
 
 /**
  * Generate a schema-safe name from tenant slug
@@ -421,7 +425,7 @@ export function generateSlug(businessName: string): string {
  * Check if a slug is available
  */
 export async function isSlugAvailable(slug: string): Promise<boolean> {
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT id FROM public.tenants WHERE slug = $1',
     [slug]
   );
@@ -432,7 +436,7 @@ export async function isSlugAvailable(slug: string): Promise<boolean> {
  * Create a new tenant with their own schema
  */
 export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
-  const client = await pool.connect();
+  const client = await getPool().connect();
 
   try {
     await client.query('BEGIN');
@@ -600,7 +604,7 @@ async function provisionTenantSchema(client: PoolClient, schemaName: string): Pr
  * Delete a tenant and their schema (use with caution!)
  */
 export async function deleteTenant(tenantId: string): Promise<void> {
-  const client = await pool.connect();
+  const client = await getPool().connect();
 
   try {
     await client.query('BEGIN');
@@ -638,7 +642,7 @@ export async function deleteTenant(tenantId: string): Promise<void> {
  * Get tenant by ID
  */
 export async function getTenantById(id: string): Promise<Tenant | null> {
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT * FROM public.tenants WHERE id = $1',
     [id]
   );
@@ -655,7 +659,7 @@ export async function getTenantById(id: string): Promise<Tenant | null> {
  * Get tenant by slug
  */
 export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT * FROM public.tenants WHERE slug = $1',
     [slug]
   );
@@ -671,7 +675,7 @@ export async function getTenantBySlug(slug: string): Promise<Tenant | null> {
  * Get tenant by owner's Supabase user ID
  */
 export async function getTenantByUserId(userId: string): Promise<Tenant | null> {
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT * FROM public.tenants WHERE owner_user_id = $1',
     [userId]
   );
@@ -687,7 +691,7 @@ export async function getTenantByUserId(userId: string): Promise<Tenant | null> 
  * Link a Supabase user to a tenant
  */
 export async function linkUserToTenant(userId: string, tenantSlug: string): Promise<boolean> {
-  const result = await pool.query(
+  const result = await getPool().query(
     `UPDATE public.tenants
      SET owner_user_id = $1, updated_at = NOW()
      WHERE slug = $2 AND owner_user_id IS NULL
