@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { colors } from '@/lib/theme';
 
 // Static assessment data (matching the list page)
 const assessments: { [key: string]: any } = {
@@ -226,7 +227,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '20px',
   },
   title: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '28px',
     margin: '0 0 5px 0',
   },
@@ -238,9 +239,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   backBtn: {
     padding: '12px 24px',
     background: 'transparent',
-    border: '2px solid #30ff37',
+    border: `2px solid ${colors.primary}`,
     borderRadius: '8px',
-    color: '#30ff37',
+    color: colors.primary,
     fontWeight: 600,
     cursor: 'pointer',
     fontSize: '14px',
@@ -260,7 +261,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderBottom: '1px solid #333',
   },
   regBadge: {
-    background: '#30ff37',
+    background: colors.primary,
     color: '#000',
     padding: '10px 20px',
     borderRadius: '8px',
@@ -314,7 +315,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderTop: '1px solid #222',
   },
   sectionTitle: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '16px',
     marginBottom: '15px',
     textTransform: 'uppercase',
@@ -352,7 +353,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   viewBtn: {
     flex: 1,
     padding: '14px',
-    background: '#30ff37',
+    background: colors.primary,
     border: 'none',
     borderRadius: '8px',
     color: '#000',
@@ -372,7 +373,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '16px',
   },
   loadingText: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
     textAlign: 'center',
     padding: '100px 20px',

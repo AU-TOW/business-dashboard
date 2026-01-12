@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { colors } from '@/lib/theme';
 
 // Static assessment data (will be replaced with database later)
 const assessments = [
@@ -206,7 +207,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '20px',
   },
   title: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '28px',
     margin: '0 0 5px 0',
   },
@@ -220,7 +221,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   createBtn: {
     padding: '12px 24px',
-    background: '#30ff37',
+    background: colors.primary,
     border: 'none',
     borderRadius: '8px',
     color: '#000',
@@ -231,9 +232,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   backBtn: {
     padding: '12px 24px',
     background: 'transparent',
-    border: '2px solid #30ff37',
+    border: `2px solid ${colors.primary}`,
     borderRadius: '8px',
-    color: '#30ff37',
+    color: colors.primary,
     fontWeight: 600,
     cursor: 'pointer',
     fontSize: '14px',
@@ -246,7 +247,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   statBox: {
     background: '#111',
-    border: '2px solid #30ff37',
+    border: `2px solid ${colors.primary}`,
     borderRadius: '12px',
     padding: '20px',
     textAlign: 'center',
@@ -254,7 +255,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   statNumber: {
     fontSize: '2.5em',
     fontWeight: 700,
-    color: '#30ff37',
+    color: colors.primary,
   },
   statLabel: {
     color: '#888',
@@ -287,7 +288,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderBottom: '1px solid #333',
   },
   regBadge: {
-    background: '#30ff37',
+    background: colors.primary,
     color: '#000',
     padding: '8px 16px',
     borderRadius: '8px',
@@ -346,7 +347,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   viewBtn: {
     flex: 1,
     padding: '12px',
-    background: '#30ff37',
+    background: colors.primary,
     border: 'none',
     borderRadius: '8px',
     color: '#000',
@@ -364,7 +365,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
   },
   loadingText: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
     textAlign: 'center',
     padding: '100px 20px',

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { JotterNote } from '@/lib/types';
 import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { colors } from '@/lib/theme';
 
 export default function ViewNotePage() {
   const router = useRouter();
@@ -205,7 +206,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   convertButton: {
     padding: '12px 24px',
-    background: '#30ff37',
+    background: colors.primary,
     color: '#000',
     border: 'none',
     borderRadius: '8px',
@@ -274,7 +275,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     lineHeight: '1.6',
   },
   confidence: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '14px',
     marginTop: '12px',
   },

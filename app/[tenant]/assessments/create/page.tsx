@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { colors } from '@/lib/theme';
 
 export default function CreateAssessmentPage() {
   const router = useRouter();
@@ -123,7 +124,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '24px',
     padding: '40px',
     textAlign: 'center',
-    boxShadow: '0 25px 50px -12px rgba(48, 255, 55, 0.15), 0 0 0 1px rgba(48, 255, 55, 0.1)',
+    boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
   },
   iconWrapper: {
     marginBottom: '20px',
@@ -132,7 +133,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '80px',
   },
   title: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '28px',
     margin: '0 0 15px 0',
   },
@@ -167,7 +168,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '12px',
   },
   checkmark: {
-    color: '#30ff37',
+    color: colors.primary,
     fontWeight: 700,
     fontSize: '18px',
   },
@@ -178,7 +179,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '30px',
   },
   processTitle: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '16px',
     marginBottom: '20px',
     textTransform: 'uppercase',
@@ -200,7 +201,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
   },
   stepNumber: {
-    background: '#30ff37',
+    background: colors.primary,
     color: '#000',
     width: '28px',
     height: '28px',
@@ -216,21 +217,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '12px',
   },
   stepArrow: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
   },
   backBtn: {
     padding: '14px 32px',
     background: 'transparent',
-    border: '2px solid #30ff37',
+    border: `2px solid ${colors.primary}`,
     borderRadius: '8px',
-    color: '#30ff37',
+    color: colors.primary,
     fontWeight: 600,
     cursor: 'pointer',
     fontSize: '16px',
   },
   loadingText: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
     textAlign: 'center',
   },

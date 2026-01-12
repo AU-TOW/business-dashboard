@@ -650,7 +650,7 @@ export default function CreateInvoicePage() {
                 }}
                 style={{
                   ...styles.input,
-                  ...(mode === 'create' && !manualInvoiceNumber ? { background: '#1a1a1a', color: '#30ff37', fontWeight: '600' } : {})
+                  ...(mode === 'create' && !manualInvoiceNumber ? { background: '#1a1a1a', color: colors.primary, fontWeight: '600' } : {})
                 }}
                 placeholder={mode === 'create' ? 'Auto-generated or enter custom' : 'e.g., ABC-001'}
                 required
@@ -1258,7 +1258,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '20px',
   },
   title: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '19.2px',
     margin: '0',
   },
@@ -1279,10 +1279,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '12px',
     padding: '30px 10px',
     marginBottom: '30px',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
   },
   sectionTitle: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '20px',
     marginBottom: '20px',
     margin: '0 0 20px 0',
@@ -1306,7 +1306,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   input: {
     padding: '12px 13px',
     background: '#0a0a0a',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
     borderRadius: '6px',
     color: '#fff',
     fontSize: '14px',
@@ -1338,9 +1338,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   amountDisplay: {
     padding: '12px',
     background: '#0a0a0a',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
     borderRadius: '6px',
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '14px',
     fontWeight: '700' as const,
     textAlign: 'right' as const,
@@ -1372,10 +1372,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   addButton: {
     padding: '10px 20px',
-    background: 'rgba(48, 255, 55, 0.1)',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    background: 'rgba(59, 130, 246, 0.1)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
     borderRadius: '6px',
-    color: '#30ff37',
+    color: colors.primary,
     cursor: 'pointer',
     fontSize: '14px',
   },
@@ -1396,7 +1396,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   totalsBox: {
     background: '#1a1a1a',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
     borderRadius: '12px',
     padding: '20px',
     minWidth: '350px',
@@ -1427,16 +1427,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   grandTotal: {
     fontSize: '20px',
     fontWeight: '700' as const,
-    color: '#30ff37',
+    color: colors.primary,
     paddingTop: '12px',
-    borderTop: '2px solid rgba(48, 255, 55, 0.3)',
+    borderTop: '2px solid rgba(59, 130, 246, 0.3)',
     marginTop: '12px',
   },
   vatInput: {
     width: '28px',
     padding: '2px 2px',
     background: '#0a0a0a',
-    border: '1px solid rgba(48, 255, 55, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
     borderRadius: '4px',
     color: '#fff',
     fontSize: '13px',
@@ -1459,7 +1459,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   submitButton: {
     padding: '14px 32px',
-    background: '#30ff37',
+    background: colors.primary,
     border: 'none',
     borderRadius: '8px',
     color: '#000',
@@ -1468,7 +1468,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: '700' as const,
   },
   loadingText: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '24px',
     textAlign: 'center' as const,
     padding: '60px 20px',
@@ -1476,10 +1476,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   editButton: {
     width: '40px',
     height: '40px',
-    background: 'rgba(48, 255, 55, 0.2)',
-    border: '1px solid rgba(48, 255, 55, 0.5)',
+    background: 'rgba(59, 130, 246, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.5)',
     borderRadius: '6px',
-    color: '#30ff37',
+    color: colors.primary,
     cursor: 'pointer',
     fontSize: '16px',
   },
@@ -1502,12 +1502,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '30px',
     maxWidth: '500px',
     width: '100%',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
     maxHeight: '90vh',
     overflowY: 'auto' as const,
   },
   modalTitle: {
-    color: '#30ff37',
+    color: colors.primary,
     fontSize: '20px',
     margin: '0 0 20px 0',
   },
@@ -1567,7 +1567,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '30px',
     maxWidth: '400px',
     width: '100%',
-    border: '1px solid rgba(48, 255, 55, 0.3)',
+    border: `1px solid ${colors.primary}40`,
     textAlign: 'center' as const,
   },
   vehicleRegDescription: {
@@ -1579,9 +1579,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   vehicleRegInput: {
     padding: '16px 20px',
     background: '#0a0a0a',
-    border: '2px solid rgba(48, 255, 55, 0.3)',
+    border: `2px solid ${colors.primary}40`,
     borderRadius: '8px',
-    color: '#fff',
+    color: colors.primary,
     fontSize: '20px',
     textAlign: 'center' as const,
     textTransform: 'uppercase' as const,
