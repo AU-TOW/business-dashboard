@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Invoice } from '@/lib/types';
-import { useTenant, useTenantPath } from '@/lib/tenant/TenantProvider';
+import { useTenant, useTenantPath, useBranding } from '@/lib/tenant/TenantProvider';
 import { colors, shadows, animations } from '@/lib/theme';
 
 export default function InvoicesPage() {
   const router = useRouter();
   const tenant = useTenant();
   const paths = useTenantPath();
+  const branding = useBranding();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -169,9 +170,13 @@ export default function InvoicesPage() {
   return (
     <div style={styles.container} className="invoices-page">
       <div style={styles.header} className="page-header">
-        <div>
-          <h1 style={styles.title}>Invoices</h1>
-          <p style={styles.subtitle}>Manage customer invoices and payments</p>
+        <div style={styles.headerLeft}>
+          {branding.logoUrl ? (
+            <img src={branding.logoUrl} alt={branding.businessName} style={styles.logo} />
+          ) : (
+            <h1 style={styles.title}>{branding.businessName}</h1>
+          )}
+          <p style={styles.subtitle}>Invoices</p>
         </div>
         <div style={styles.headerActions}>
           <button
@@ -366,6 +371,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexWrap: 'wrap' as const,
     gap: '20px',
     border: `1px solid ${colors.borderLight}`,
+  },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+  },
+  logo: {
+    height: '72px',
+    width: 'auto',
+    borderRadius: '12px',
+    objectFit: 'contain' as const,
   },
   headerActions: {
     display: 'flex',

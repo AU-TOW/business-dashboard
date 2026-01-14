@@ -604,7 +604,7 @@ export default function CreateInvoicePage() {
         </button>
       </div>
 
-      {/* Business Header */}
+      {/* Business Header - Logo only when available, else show business name */}
       <div style={styles.businessHeader}>
         {(businessSettings?.logoUrl || branding.logoUrl) ? (
           <img
@@ -613,23 +613,25 @@ export default function CreateInvoicePage() {
             style={styles.headerLogo}
           />
         ) : (
-          <div style={styles.logoPlaceholder}>
-            {(businessSettings?.businessName || branding.businessName).charAt(0)}
-          </div>
+          <>
+            <div style={styles.logoPlaceholder}>
+              {(businessSettings?.businessName || branding.businessName).charAt(0)}
+            </div>
+            <div style={styles.businessInfo}>
+              <h2 style={styles.businessNameText}>{businessSettings?.businessName || branding.businessName}</h2>
+              {businessSettings && (businessSettings.email || businessSettings.phone || businessSettings.address) && (
+                <p style={styles.businessDetails}>
+                  {businessSettings.email && `Email: ${businessSettings.email}`}
+                  {businessSettings.email && businessSettings.phone && ' | '}
+                  {businessSettings.phone && `Phone: ${businessSettings.phone}`}
+                  {(businessSettings.email || businessSettings.phone) && businessSettings.address && <br />}
+                  {businessSettings.address && `Address: ${businessSettings.address}`}
+                  {businessSettings.postcode && `, ${businessSettings.postcode}`}
+                </p>
+              )}
+            </div>
+          </>
         )}
-        <div style={styles.businessInfo}>
-          <h2 style={styles.businessNameText}>{businessSettings?.businessName || branding.businessName}</h2>
-          {businessSettings && (businessSettings.email || businessSettings.phone || businessSettings.address) && (
-            <p style={styles.businessDetails}>
-              {businessSettings.email && `Email: ${businessSettings.email}`}
-              {businessSettings.email && businessSettings.phone && ' | '}
-              {businessSettings.phone && `Phone: ${businessSettings.phone}`}
-              {(businessSettings.email || businessSettings.phone) && businessSettings.address && <br />}
-              {businessSettings.address && `Address: ${businessSettings.address}`}
-              {businessSettings.postcode && `, ${businessSettings.postcode}`}
-            </p>
-          )}
-        </div>
       </div>
 
       <form onSubmit={handleSubmit} style={styles.form}>
@@ -1218,20 +1220,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: shadows.small,
   },
   headerLogo: {
-    height: '60px',
+    height: '72px',
     width: 'auto',
     objectFit: 'contain' as const,
   },
   logoPlaceholder: {
-    width: '60px',
-    height: '60px',
+    width: '72px',
+    height: '72px',
     borderRadius: '12px',
     background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
     color: '#fff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: '700',
   },
   businessInfo: {

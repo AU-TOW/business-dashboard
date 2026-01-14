@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 // JSON-LD structured data for SEO
 const jsonLd = {
@@ -56,11 +57,15 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-        <div style={styles.heroVisual} aria-hidden="true">
-          <div style={styles.heroPlaceholder} role="img" aria-label="Dashboard preview illustration">
-            <span style={styles.heroPlaceholderIcon}>📊</span>
-            <span style={styles.heroPlaceholderText}>Dashboard Preview</span>
-          </div>
+        <div style={styles.heroVisual}>
+          <Image
+            src="/assets/landing.jpg"
+            alt="Dashboard preview showing invoices, estimates and booking management"
+            width={500}
+            height={375}
+            style={styles.heroImage}
+            priority
+          />
         </div>
       </section>
 
@@ -243,6 +248,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  heroImage: {
+    width: '100%',
+    maxWidth: '500px',
+    height: 'auto',
+    borderRadius: '24px',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
+    boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.15)',
   },
   heroPlaceholder: {
     width: '100%',

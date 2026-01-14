@@ -29,19 +29,19 @@ const styles = {
     border: `1px solid ${colors.borderLight}`,
   } as React.CSSProperties,
   logo: {
-    height: '50px',
+    height: '60px',
     width: 'auto',
     borderRadius: '8px',
   } as React.CSSProperties,
   logoPlaceholder: {
-    width: '50px',
-    height: '50px',
+    width: '60px',
+    height: '60px',
     borderRadius: '8px',
     background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 'bold',
     color: '#fff',
   } as React.CSSProperties,
@@ -449,8 +449,8 @@ export default function ReceiptsPage() {
           <Image
             src={branding.logoUrl}
             alt={branding.businessName}
-            width={120}
-            height={50}
+            width={144}
+            height={60}
             style={styles.logo}
             priority
           />

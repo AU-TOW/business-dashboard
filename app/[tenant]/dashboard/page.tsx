@@ -213,13 +213,12 @@ export default function DashboardPage() {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
-          {branding.logoUrl && (
+          {branding.logoUrl ? (
             <img src={branding.logoUrl} alt={branding.businessName} style={styles.logo} />
-          )}
-          <div>
+          ) : (
             <h1 style={styles.title}>{branding.businessName}</h1>
-            <p style={styles.subtitle}>Dashboard</p>
-          </div>
+          )}
+          <p style={styles.subtitle}>Dashboard</p>
         </div>
         <div style={styles.headerButtons}>
           <button onClick={() => router.push(paths.welcome)} style={styles.backBtn}>
@@ -322,8 +321,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '16px',
   },
   logo: {
-    width: '60px',
-    height: '60px',
+    width: '72px',
+    height: '72px',
     borderRadius: '12px',
     objectFit: 'contain' as const,
   },
