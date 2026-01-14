@@ -24,7 +24,7 @@ export default function Header() {
           <Link href="/pricing" style={styles.navLink}>
             Pricing
           </Link>
-          <Link href="/signup" style={styles.loginButton}>
+          <Link href="/login" style={styles.loginButton}>
             Log In
           </Link>
           <Link href="/signup" style={styles.signupButton}>
@@ -71,7 +71,7 @@ export default function Header() {
             <Link href="/pricing" style={styles.mobileNavLink} onClick={closeMenu}>
               Pricing
             </Link>
-            <Link href="/signup" style={styles.mobileLoginButton} onClick={closeMenu}>
+            <Link href="/login" style={styles.mobileLoginButton} onClick={closeMenu}>
               Log In
             </Link>
             <Link href="/signup" style={styles.mobileSignupButton} onClick={closeMenu}>
