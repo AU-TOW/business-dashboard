@@ -323,34 +323,92 @@ CREATE TABLE IF NOT EXISTS {{SCHEMA_NAME}}.business_settings (
 INSERT INTO {{SCHEMA_NAME}}.business_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
--- DOCUMENT NUMBER GENERATORS
+-- DOCUMENT NUMBER GENERATORS (Vehicle-Based)
 -- ============================================
 
-CREATE OR REPLACE FUNCTION {{SCHEMA_NAME}}.generate_estimate_number()
-RETURNS VARCHAR(50) AS $$
-DECLARE
-    next_num INTEGER;
+-- Helper function to normalize vehicle registration
+CREATE OR REPLACE FUNCTION {{SCHEMA_NAME}}.normalize_vehicle_reg(reg VARCHAR)
+RETURNS VARCHAR AS $$
 BEGIN
-    SELECT COALESCE(MAX(CAST(SUBSTRING(estimate_number FROM 4) AS INTEGER)), 0) + 1
-    INTO next_num
-    FROM {{SCHEMA_NAME}}.estimates
-    WHERE estimate_number ~ '^EST[0-9]+$';
+    IF reg IS NULL OR reg = '' THEN
+        RETURN NULL;
+    END IF;
+    -- Remove spaces and convert to uppercase
+    RETURN UPPER(REPLACE(REPLACE(reg, ' ', ''), '-', ''));
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
-    RETURN 'EST' || LPAD(next_num::TEXT, 4, '0');
+-- Generate vehicle-based estimate number
+CREATE OR REPLACE FUNCTION {{SCHEMA_NAME}}.generate_estimate_number(vehicle_reg_input VARCHAR DEFAULT NULL)
+RETURNS TABLE(estimate_number VARCHAR(50), sequence_num INTEGER, normalized_reg VARCHAR(20)) AS $$
+DECLARE
+    norm_reg VARCHAR(20);
+    next_seq INTEGER;
+    new_number VARCHAR(50);
+BEGIN
+    -- Normalize the vehicle registration
+    norm_reg := {{SCHEMA_NAME}}.normalize_vehicle_reg(vehicle_reg_input);
+
+    IF norm_reg IS NULL OR norm_reg = '' THEN
+        -- Fallback for no vehicle: use global EST-XXXXX format
+        SELECT COALESCE(MAX(e.sequence_number), 0) + 1 INTO next_seq
+        FROM {{SCHEMA_NAME}}.estimates e
+        WHERE e.vehicle_reg IS NULL OR e.vehicle_reg = '';
+
+        new_number := 'EST-' || LPAD(next_seq::TEXT, 5, '0');
+        normalized_reg := NULL;
+    ELSE
+        -- Get the highest sequence number for this vehicle
+        SELECT COALESCE(MAX(e.sequence_number), 0) + 1 INTO next_seq
+        FROM {{SCHEMA_NAME}}.estimates e
+        WHERE {{SCHEMA_NAME}}.normalize_vehicle_reg(e.vehicle_reg) = norm_reg;
+
+        -- Format as VEHICLE_REG-001, VEHICLE_REG-002, etc.
+        new_number := norm_reg || '-' || LPAD(next_seq::TEXT, 3, '0');
+        normalized_reg := norm_reg;
+    END IF;
+
+    estimate_number := new_number;
+    sequence_num := next_seq;
+
+    RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION {{SCHEMA_NAME}}.generate_invoice_number()
-RETURNS VARCHAR(50) AS $$
+-- Generate vehicle-based invoice number
+CREATE OR REPLACE FUNCTION {{SCHEMA_NAME}}.generate_invoice_number(vehicle_reg_input VARCHAR DEFAULT NULL)
+RETURNS TABLE(invoice_number VARCHAR(50), sequence_num INTEGER, normalized_reg VARCHAR(20)) AS $$
 DECLARE
-    next_num INTEGER;
+    norm_reg VARCHAR(20);
+    next_seq INTEGER;
+    new_number VARCHAR(50);
 BEGIN
-    SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number FROM 4) AS INTEGER)), 0) + 1
-    INTO next_num
-    FROM {{SCHEMA_NAME}}.invoices
-    WHERE invoice_number ~ '^INV[0-9]+$';
+    -- Normalize the vehicle registration
+    norm_reg := {{SCHEMA_NAME}}.normalize_vehicle_reg(vehicle_reg_input);
 
-    RETURN 'INV' || LPAD(next_num::TEXT, 4, '0');
+    IF norm_reg IS NULL OR norm_reg = '' THEN
+        -- Fallback for no vehicle: use global INV-XXXXX format
+        SELECT COALESCE(MAX(i.sequence_number), 0) + 1 INTO next_seq
+        FROM {{SCHEMA_NAME}}.invoices i
+        WHERE i.vehicle_reg IS NULL OR i.vehicle_reg = '';
+
+        new_number := 'INV-' || LPAD(next_seq::TEXT, 5, '0');
+        normalized_reg := NULL;
+    ELSE
+        -- Get the highest sequence number for this vehicle
+        SELECT COALESCE(MAX(i.sequence_number), 0) + 1 INTO next_seq
+        FROM {{SCHEMA_NAME}}.invoices i
+        WHERE {{SCHEMA_NAME}}.normalize_vehicle_reg(i.vehicle_reg) = norm_reg;
+
+        -- Format as VEHICLE_REG-001, VEHICLE_REG-002, etc.
+        new_number := norm_reg || '-' || LPAD(next_seq::TEXT, 3, '0');
+        normalized_reg := norm_reg;
+    END IF;
+
+    invoice_number := new_number;
+    sequence_num := next_seq;
+
+    RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql;
 
