@@ -1,5 +1,6 @@
 import Header from '@/components/marketing/Header';
 import Footer from '@/components/marketing/Footer';
+import Lightning from '@/components/marketing/Lightning';
 
 export default function MarketingLayout({
   children,
@@ -8,6 +9,12 @@ export default function MarketingLayout({
 }) {
   return (
     <div style={styles.wrapper}>
+      {/* Global Background with Grid */}
+      <div style={styles.globalBackground}>
+        <div style={styles.gridOverlay}></div>
+        <Lightning />
+      </div>
+
       {/* Skip link for accessibility */}
       <a href="#main-content" style={styles.skipLink}>
         Skip to main content
@@ -22,7 +29,7 @@ export default function MarketingLayout({
       <Footer />
 
       {/* Global responsive styles */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         /* Mobile hamburger visibility */
         @media (max-width: 768px) {
           header nav[aria-label="Main navigation"] {
@@ -79,7 +86,7 @@ export default function MarketingLayout({
           font-weight: 600;
           text-decoration: none;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
@@ -90,6 +97,23 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    position: 'relative',
+    background: '#000000',
+  },
+  globalBackground: {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 0,
+    pointerEvents: 'none',
+  },
+  gridOverlay: {
+    position: 'absolute',
+    inset: 0,
+    backgroundImage: `
+      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
+    `,
+    backgroundSize: '50px 50px',
   },
   skipLink: {
     position: 'absolute',
@@ -103,5 +127,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   main: {
     flex: 1,
+    position: 'relative',
+    zIndex: 1,
   },
 };

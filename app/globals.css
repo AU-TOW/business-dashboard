@@ -7,6 +7,22 @@
   --primary-rgb: 59, 130, 246;
   --primary-light: #60a5fa;
   --primary-dark: #2563eb;
+
+  /* Viewport-fit layout variables */
+  --header-height: 80px;
+  --footer-height: auto;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+
+  /* Business Dashboard Theme Colors */
+  --bd-primary: #4fd1c5;
+  --bd-secondary: #e91e8c;
+  --bd-bg-deep: #0a2540;
+  --bd-bg-surface: #0d3a5c;
+  --bd-glass: rgba(10, 37, 64, 0.75);
+  --bd-border: rgba(255, 255, 255, 0.1);
 }
 
 /* ===== BASE RESET ===== */
@@ -520,3 +536,181 @@ img, video, canvas, svg {
 .p-sm { padding: 8px; }
 .p-md { padding: 16px; }
 .p-lg { padding: 24px; }
+
+/* ===== APPLE WEBKIT STANDALONE APP STYLES ===== */
+/* Applies when app is added to home screen on iOS */
+@media all and (display-mode: standalone) {
+  html, body {
+    height: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Prevent pull-to-refresh */
+  html {
+    overscroll-behavior: none;
+  }
+
+  /* Fixed header in standalone mode */
+  .standalone-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding-top: env(safe-area-inset-top);
+    background: var(--bd-glass);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+  }
+
+  /* Main content area */
+  .standalone-main {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: calc(var(--header-height) + env(safe-area-inset-top));
+  }
+
+  /* Fixed footer in standalone mode */
+  .standalone-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--bd-glass);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+  }
+}
+
+/* ===== VIEWPORT-FIT FULL SCREEN LAYOUT ===== */
+.vf-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.vf-header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top);
+}
+
+.vf-main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vf-footer {
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== iOS STATUS BAR AREA ===== */
+.ios-status-bar-spacer {
+  height: env(safe-area-inset-top);
+  background: var(--bd-bg-deep);
+}
+
+/* ===== NOTCH DEVICE SUPPORT ===== */
+@supports (padding: max(0px)) {
+  .notch-safe {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  .notch-safe-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+
+  .notch-safe-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== iOS RUBBER BAND SCROLLING FIX ===== */
+.no-bounce {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* ===== SMOOTH SCROLLING FOR iOS ===== */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ===== TOUCH ACTION OPTIMIZATIONS ===== */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.touch-none {
+  touch-action: none;
+}
+
+.touch-pan-y {
+  touch-action: pan-y;
+}
+
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+/* ===== DISABLE TEXT SELECTION FOR APP-LIKE FEEL ===== */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ===== iOS MOMENTUM SCROLLING CONTAINERS ===== */
+.momentum-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ===== GLASS MORPHISM UTILITIES ===== */
+.glass {
+  background: var(--bd-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--bd-border);
+}
+
+.glass-strong {
+  background: rgba(10, 37, 64, 0.85);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(79, 209, 197, 0.2);
+}
+
+/* ===== GRADIENT UTILITIES ===== */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--bd-primary) 0%, #38b2ac 50%, var(--bd-secondary) 100%);
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--bd-bg-deep) 0%, var(--bd-bg-surface) 50%, var(--bd-bg-deep) 100%);
+}
